@@ -1,9 +1,14 @@
-Package: DEploid-r
+Package: DEploid
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: DEploid is used for deconvoluting mixed haplotypes, and reporting the mixture proportions from each sample.
+Version: 0.3
 Date: 2016-09-29
-Author: Who wrote it
-Maintainer: Who to complain to <yourfault@somewhere.net>
-Description: More about what it does (maybe more than one line)
-License: What license is it under?
+Author: Joe Zhu [aut, cre]
+Author@R: c(person('Joe', 'Zhu', 'joe.zhu@well.ox.ac.uk', role=c('aut', 'cre', 'cph')))
+Maintainer: Sha Joe Zhu <joe.zhu@well.ox.ac.uk>
+Description: dEploid is designed for deconvoluting mixed genomes with unknown proportions. 
+Depends: R (>= 3.1.0)
+Suggests: MASS
+URL: https://github.com/mcveanlab/DEploid-r
+BugReports: https://github.com/mcveanlab/DEploid-r/issues
+License: GPL (>=3)
