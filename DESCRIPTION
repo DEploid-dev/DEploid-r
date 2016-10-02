@@ -6,9 +6,10 @@ Date: 2016-09-29
 Author: Joe Zhu [aut, cre]
 Author@R: c(person('Joe', 'Zhu', 'joe.zhu@well.ox.ac.uk', role=c('aut', 'cre', 'cph')))
 Maintainer: Sha Joe Zhu <joe.zhu@well.ox.ac.uk>
-Description: dEploid is designed for deconvoluting mixed genomes with unknown proportions. 
+Description: dEploid is designed for deconvoluting mixed genomes with unknown proportions.
 Depends: R (>= 3.1.0)
 Suggests: MASS
 URL: https://github.com/mcveanlab/DEploid-r
 BugReports: https://github.com/mcveanlab/DEploid-r/issues
 License: GPL (>=3)
+LinkingTo: Rcpp

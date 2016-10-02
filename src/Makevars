@@ -1,0 +1,7 @@
+OBJECTS.dEploidr = dEploidr.o
+
+OBJECTS.dEploid = DEploid/panel.o DEploid/utility.o DEploid/dEploidIO.o  DEploid/txtReader.o  DEploid/variantIndex.o DEploid/mcmc.o DEploid/updateHap.o DEploid/vcfReader.o
+
+OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
+CXX_STD = CXX11
+PKG_CXXFLAGS = -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -DVERSION="\"R\"" -DRBUILD

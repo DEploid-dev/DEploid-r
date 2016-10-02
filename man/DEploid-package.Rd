@@ -1,24 +1,24 @@
-\name{DEploid-r-package}
-\alias{DEploid-r-package}
-\alias{DEploid-r}
+\name{DEploid-package}
+\alias{DEploid-package}
+\alias{DEploid}
 \docType{package}
 \title{
-\packageTitle{DEploid-r}
+\packageTitle{DEploid}
 }
 \description{
-\packageDescription{DEploid-r}
+\packageDescription{DEploid}
 }
 \details{
 
 The DESCRIPTION file:
-\packageDESCRIPTION{DEploid-r}
-\packageIndices{DEploid-r}
+\packageDESCRIPTION{DEploid}
+\packageIndices{DEploid}
 ~~ An overview of how to use the package, including the most important functions ~~
 }
 \author{
-\packageAuthor{DEploid-r}
+\packageAuthor{DEploid}
 
-Maintainer: \packageMaintainer{DEploid-r}
+Maintainer: \packageMaintainer{DEploid}
 }
 \references{
 ~~ Literature or other references for background information ~~
