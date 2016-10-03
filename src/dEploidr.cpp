@@ -14,6 +14,22 @@ bool write_file;
 
 
 // [[Rcpp::plugins(cpp11)]]
+//' Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
+//' This function provieds an interface for calling \emph{dEploid} from R.
+//' The command line options are passed via the \code{args} argument.
+//'
+//' @section blahblah:
+//' Blah blah
+//'
+//' @param args A string containing the command line arguments from scrm.
+//'
+//' @return A named list of something something ...
+//'
+//' @export
+//'
+//' @examples
+//' set.seed(1234)
+//'
 // [[Rcpp::export]]
 
 List dEploid(std::string args, std::string file = "") {
@@ -46,4 +62,5 @@ List dEploid(std::string args, std::string file = "") {
       Rf_warning("Ignoring seed argument. Set a seed in R.");
     }
     /** Clean up */
+    return 1;
 }

@@ -11,5 +11,9 @@ Depends: R (>= 3.1.0)
 Suggests: MASS
 URL: https://github.com/mcveanlab/DEploid-r
 BugReports: https://github.com/mcveanlab/DEploid-r/issues
-License: GPL (>=3)
+License: GPL (>= 3)
+Imports: Rcpp (>= 0.11.2)
+SystemRequirements: C++11
+VignetteBuilder: knitr
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1
