@@ -4,7 +4,7 @@ Title: DEploid is used for deconvoluting mixed haplotypes, and reporting the mix
 Version: 0.3
 Date: 2016-09-29
 Author: Joe Zhu [aut, cre]
-Author@R: c(person('Joe', 'Zhu', 'joe.zhu@well.ox.ac.uk', role=c('aut', 'cre', 'cph')))
+Authors@R: c(person('Joe', 'Zhu', 'joe.zhu@well.ox.ac.uk', role=c('aut', 'cre', 'cph')))
 Maintainer: Sha Joe Zhu <joe.zhu@well.ox.ac.uk>
 Description: dEploid is designed for deconvoluting mixed genomes with unknown proportions.
 Depends: R (>= 3.1.0)
@@ -14,6 +14,5 @@ BugReports: https://github.com/mcveanlab/DEploid-r/issues
 License: GPL (>= 3)
 Imports: Rcpp (>= 0.11.2)
 SystemRequirements: C++11
-VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
