@@ -6,6 +6,7 @@
 ^.lintr$
 ^.*.o$
 ^DEploid.*.gz$
+^.DEploid\/.*$
 ^.DEploid\/\..*$
 ^.DEploid\/aclocal.m4$
 ^.DEploid\/AUTHORS$
@@ -32,3 +33,4 @@
 ^.DEploid\/version$
 ^.*\.dirstamp$
 ^.*\.gcda$
+^buildLocally.sh$
