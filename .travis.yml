@@ -10,6 +10,9 @@ r_github_packages:
   - jimhester/lintr
   - jimhester/covr
 
+after_script:
+  - cat /home/travis/build/mcveanlab/DEploid-r/DEploid.Rcheck/00install.out
+
 after_success:
   - Rscript tools/lint-and-covr.R
 
