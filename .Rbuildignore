@@ -1,2 +1,10 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^tools$
+^\.travis\.yml$
+^appveyor\.yml$
+^.lintr$
+^.*.o$
+^.DEploid\/*$
+^.DEploid$
+^src\/DEploid\/*$
