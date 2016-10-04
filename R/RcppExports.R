@@ -8,16 +8,21 @@
 #' @section blahblah:
 #' Blah blah
 #'
-#' @param args A string containing the command line arguments from scrm.
+#' @param args blah blah blah
+#'
+#' @param file blah blah blah
 #'
 #' @return A named list of something something ...
 #'
 #' @export
 #'
+#' @keywords datagen
+#'
 #' @examples
 #' set.seed(1234)
 #'
+#'
 dEploid <- function(args, file = "") {
-    .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
+    .Call('dEploid_dEploid', PACKAGE = 'dEploid', args, file)
 }
 

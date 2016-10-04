@@ -9,7 +9,9 @@ The command line options are passed via the \code{args} argument.}
 dEploid(args, file = "")
 }
 \arguments{
-\item{args}{A string containing the command line arguments from scrm.}
+\item{args}{blah blah blah}
+
+\item{file}{blah blah blah}
 }
 \value{
 A named list of something something ...
@@ -26,5 +28,7 @@ Blah blah
 \examples{
 set.seed(1234)
 
+
 }
+\keyword{datagen}
 

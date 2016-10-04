@@ -10,8 +10,8 @@
 #' @docType package
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib DEploid
+#' @useDynLib dEploid
 #'
+#' @seealso
 #'
-
 NULL

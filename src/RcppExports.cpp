@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // dEploid
 List dEploid(std::string args, std::string file);
-RcppExport SEXP DEploid_dEploid(SEXP argsSEXP, SEXP fileSEXP) {
+RcppExport SEXP dEploid_dEploid(SEXP argsSEXP, SEXP fileSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

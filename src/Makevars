@@ -12,7 +12,6 @@ OBJECTS.dEploid = DEploid/panel.o \
     DEploid/random/fastfunc.o \
     DEploid/random/random_generator.o \
     DEploid/random/mersenne_twister.o \
-    DEploid/export/dEploidIOExport.o \
     DEploid/export/dEploidIOExportPosteriorProb.o
 
 

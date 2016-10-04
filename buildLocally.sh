@@ -2,7 +2,7 @@
 # Building package
 R CMD build  .
 
-PKG_TARBALL=DEploid_0.3.tar.gz
+PKG_TARBALL=dEploid_0.3.tar.gz
 # Checking package
 R CMD check "${PKG_TARBALL}" --as-cran; CHECK_RET=$?
 

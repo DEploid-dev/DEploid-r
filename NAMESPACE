@@ -2,4 +2,4 @@
 
 export(dEploid)
 importFrom(Rcpp,evalCpp)
-useDynLib(DEploid)
+useDynLib(dEploid)
