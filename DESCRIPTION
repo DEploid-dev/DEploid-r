@@ -1,16 +1,22 @@
-Package: dEploid
+Package: DEploid
 Type: Package
-Title: dEploid
+Title: DEploid
 Version: 0.3
-Date: 2016-09-29
-Authors@R: c(person("Joe Zhu", "Developer", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk"))
+Authors@R: c(
+    person("Joe Zhu", "Developer", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
+    )
 Description: DEploid is used for deconvoluting mixed haplotypes, and reporting the mixture proportions from each sample.
-Depends: R (>= 3.1.0)
-Suggests: MASS
 URL: https://github.com/mcveanlab/DEploid-r
 BugReports: https://github.com/mcveanlab/DEploid-r/issues
 License: GPL (>= 3)
-Imports: Rcpp (>= 0.11.2)
+Depends:
+    R (>= 3.1.0)
+Imports:
+    Rcpp (>= 0.11.2)
+Suggests:
+    rmarkdown,
+    testthat (>= 0.9.0)
 SystemRequirements: C++11
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
+Date: 2016-09-29

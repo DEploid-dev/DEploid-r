@@ -6,11 +6,11 @@
 #' Joe Zhu
 #'
 #' Maintainer: Joe Zhu \email{joezhu@well.ox.ac.uk}
-#' @name dEploid-package
+#' @name DEploid-package
 #' @docType package
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib dEploid
+#' @useDynLib DEploid
 #'
 #' @seealso
 #'

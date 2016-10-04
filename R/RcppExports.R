@@ -3,7 +3,7 @@
 
 #' Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
 #' This function provieds an interface for calling \emph{dEploid} from R.
-#' The command line options are passed via the \code{args} argument.
+#' The command line options are passed via the \code{args} argument and \code{file}
 #'
 #' @section blahblah:
 #' Blah blah
@@ -23,6 +23,24 @@
 #'
 #'
 dEploid <- function(args, file = "") {
-    .Call('dEploid_dEploid', PACKAGE = 'dEploid', args, file)
+    .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
+}
+
+#' sasfdafdsf asdfsdafa
+#'
+#' @section blahblah:
+#' Blah blah
+#'
+#' @return A named list of something something ...
+#'
+#' @export
+#'
+#' @keywords datagen
+#'
+#' @examples
+#' set.seed(1234)
+#'
+rcpp_hello_world <- function() {
+    .Call('DEploid_rcpp_hello_world', PACKAGE = 'DEploid')
 }
 

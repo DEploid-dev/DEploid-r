@@ -1,4 +1,4 @@
-OBJECTS.dEploidr = dEploidr.o
+OBJECTS.dEploidr = dEploidr.o RcppExports.o rcpp_hello_world.o
 
 OBJECTS.dEploid = DEploid/panel.o \
     DEploid/utility.o \
@@ -13,7 +13,6 @@ OBJECTS.dEploid = DEploid/panel.o \
     DEploid/random/random_generator.o \
     DEploid/random/mersenne_twister.o \
     DEploid/export/dEploidIOExportPosteriorProb.o
-
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
 CXX_STD = CXX11

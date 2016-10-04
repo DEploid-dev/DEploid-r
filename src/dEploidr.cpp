@@ -17,7 +17,7 @@ using namespace Rcpp;
 
 //' Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
 //' This function provieds an interface for calling \emph{dEploid} from R.
-//' The command line options are passed via the \code{args} argument.
+//' The command line options are passed via the \code{args} argument and \code{file}
 //'
 //' @section blahblah:
 //' Blah blah
@@ -42,7 +42,7 @@ List dEploid(std::string args, std::string file = "") {
     /** Parse args and generate the model */
     DEploidIO dEploidIO(args);
 
-    // Print help or version information if user asked for it
+    //// Print help or version information if user asked for it
     if ( dEploidIO.version() ){
         return List::create(_("version") = VERSION);
     }
@@ -51,7 +51,7 @@ List dEploid(std::string args, std::string file = "") {
         stop("Please use '?dEploid' for help");
     }
 
-    /** Throw a warning if -seed argmuent is used */
+    ///** Throw a warning if -seed argmuent is used */
     if (dEploidIO.randomSeedWasSet()){
       Rf_warning("Ignoring seed argument. Set a seed in R.");
     }

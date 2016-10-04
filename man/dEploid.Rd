@@ -4,7 +4,7 @@
 \alias{dEploid}
 \title{Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
 This function provieds an interface for calling \emph{dEploid} from R.
-The command line options are passed via the \code{args} argument.}
+The command line options are passed via the \code{args} argument and \code{file}}
 \usage{
 dEploid(args, file = "")
 }
@@ -19,7 +19,7 @@ A named list of something something ...
 \description{
 Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
 This function provieds an interface for calling \emph{dEploid} from R.
-The command line options are passed via the \code{args} argument.
+The command line options are passed via the \code{args} argument and \code{file}
 }
 \section{blahblah}{
 
