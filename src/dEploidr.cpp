@@ -1,14 +1,39 @@
+/*
+ * dEploid is used for deconvoluting Plasmodium falciparum genome from
+ * mix-infected patient sample.
+ *
+ * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ *
+ * This file is part of dEploid.
+ *
+ * dEploid is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include <Rcpp.h>
 
 #include <iostream>
 #include <fstream>
 #include <memory>
 
+#include "r_random_generator.hpp"
+#include "r_convert_dEploid.hpp"
+
 #include "DEploid/mcmc.hpp"
 #include "DEploid/panel.hpp"
 #include "DEploid/dEploidIO.hpp"
 #include "DEploid/random/fastfunc.hpp"
-
 
 using namespace Rcpp;
 //std::ofstream fs;
@@ -61,6 +86,9 @@ List dEploid(std::string args, std::string file = "") {
       Rf_warning("Ignoring seed argument. Set a seed in R.");
     }
 
+    std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
+    RRandomGenerator* rrg = new RRandomGenerator();
+
     Panel *panel = NULL; // Move panel to dEploidIO
 
     if ( dEploidIO.usePanel() ){
@@ -76,16 +104,19 @@ List dEploid(std::string args, std::string file = "") {
 
     McmcSample * mcmcSample = new McmcSample();
 
-    McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample);
+    McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample, rrg);
     mcmcMachinery.runMcmcChain( false );
 
     //dEploidIO.write(mcmcSample, panel);
+// Need to return mcmc samples for haps, props, llks, as the list members....
+
 
     if ( panel ){
         delete panel;
     }
     delete mcmcSample;
-
+    rrg->clearFastFunc();
+    delete rrg;
     /** Clean up */
     return List::create(_("version") = VERSION);
 }

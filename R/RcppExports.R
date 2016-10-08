@@ -20,7 +20,10 @@
 #'
 #' @examples
 #' set.seed(1234)
-#'
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
+#' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+#' dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-o PG0390-CNopanel -noPanel"))
 #'
 dEploid <- function(args, file = "") {
     .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
