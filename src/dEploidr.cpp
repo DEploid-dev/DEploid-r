@@ -77,7 +77,7 @@ List dEploid(std::string args, std::string file = "") {
     McmcSample * mcmcSample = new McmcSample();
 
     McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample);
-    mcmcMachinery.runMcmcChain();
+    mcmcMachinery.runMcmcChain( false );
 
     //dEploidIO.write(mcmcSample, panel);
 
