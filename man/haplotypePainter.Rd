@@ -11,14 +11,10 @@ haplotypePainter(posteriorProbabilities, title = "")
 
 \item{title}{Figure title.}
 }
-\value{
-
-}
 \description{
 Plot the posterior probabilities of a haplotype given the refernece panel.
 }
 \examples{
-to do ...
 
 }
 

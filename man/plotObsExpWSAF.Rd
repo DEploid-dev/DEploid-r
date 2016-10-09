@@ -13,9 +13,6 @@ plotObsExpWSAF(obsWSAF, expWSAF, title = "WSAF(observed vs expected)")
 
 \item{title}{Figure title.}
 }
-\value{
-
-}
 \description{
 Plot observed alternative allele frequency within sample against expected WSAF.
 }

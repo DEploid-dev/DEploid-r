@@ -15,9 +15,6 @@ plotWSAFvsPLAF(plaf, obsWSAF, expWSAF = c(), title = "WSAF vs PLAF")
 
 \item{title}{Figure title, "WSAF vs PLAF" by default}
 }
-\value{
-
-}
 \description{
 Plot allele frequencies within sample against population level.
 }

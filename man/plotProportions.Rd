@@ -11,9 +11,6 @@ plotProportions(proportions, title = "Components")
 
 \item{title}{Figure title.}
 }
-\value{
-
-}
 \description{
 Plot the MCMC samples of the proportion, indexed by the MCMC chain.
 }
