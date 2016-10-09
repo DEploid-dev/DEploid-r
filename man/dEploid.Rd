@@ -2,28 +2,22 @@
 % Please edit documentation in R/RcppExports.R
 \name{dEploid}
 \alias{dEploid}
-\title{Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
-This function provieds an interface for calling \emph{dEploid} from R.
-The command line options are passed via the \code{args} argument and \code{file}}
+\title{Deconvolute mixed haplotypes}
 \usage{
 dEploid(args, file = "")
 }
 \arguments{
-\item{args}{blah blah blah}
+\item{args}{String of dEploid input.}
 
-\item{file}{blah blah blah}
+\item{file}{To come}
 }
 \value{
-A named list of something something ...
+A list with members of haplotypes, proportions and log likelihood of the MCMC chain.
 }
 \description{
 Deconvolute mixed haplotypes, and reporting the mixture proportions from each sample
 This function provieds an interface for calling \emph{dEploid} from R.
-The command line options are passed via the \code{args} argument and \code{file}
-}
-\section{blahblah}{
-
-Blah blah
+The command line options are passed via the \code{args} argument
 }
 \examples{
 # Explore the data
@@ -35,12 +29,17 @@ obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
 histWSAF(obsWSAF)
 # Load prior information: PLAF and reference panel
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-plotWSAFvsPLAF()
+plaf = extractPLAF(plafFile)
+plotWSAFvsPLAF(plaf, obsWSAF)
 panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
 # Deconvolute the haplotypes
 set.seed(1234)
-dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-o PG0390-CNopanel -noPanel"))
-
+PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
+par(mfrow = c(1,3))
+prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
+expWSAF = t(PG0390.deconv$Haps) \%*\% prop
+plotWSAFvsPLAF(plaf, obsWSAF, expWSAF)
+plotProportions(PG0390.deconv$Proportions)
+plotObsExpWSAF(obsWSAF, expWSAF)
 }
-\keyword{datagen}
 
