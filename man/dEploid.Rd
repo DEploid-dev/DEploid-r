@@ -26,10 +26,19 @@ The command line options are passed via the \code{args} argument and \code{file}
 Blah blah
 }
 \examples{
-set.seed(1234)
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+# Explore the data
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
+PG0390 = extractCoverageFromVcf(vcfFile)
+par(mfrow=c(1,3))
+plotAltVsRef( PG0390$refCount, PG0390$altCount )
+obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
+histWSAF(obsWSAF)
+# Load prior information: PLAF and reference panel
+plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+plotWSAFvsPLAF()
 panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+# Deconvolute the haplotypes
+set.seed(1234)
 dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-o PG0390-CNopanel -noPanel"))
 
 }
