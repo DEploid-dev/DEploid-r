@@ -1,5 +1,4 @@
 export(dEploid)
-export(rcpp_hello_world)
 importFrom(Rcpp,evalCpp)
 useDynLib(DEploid)
 export(plot.prob)

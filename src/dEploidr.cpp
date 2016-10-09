@@ -64,11 +64,11 @@ class RMcmcSample {
     void convertProportions(){
         this->proportion = NumericMatrix(this->nMcmcSample_,
                                          this->kStrain_);
-        //NumericMatrix res(input[0].size(),input.size());
-//double* resp = REAL(this->proportion);
-//for (size_t ci = 0; ci < this->proportion.ncol(); ++ci){
-    //std::copy(this->mcmcSample_->proportion[ci].begin(), this->mcmcSample_->proportion[ci].end(),resp+ci*this->proportion.nrow());}
-        //cout << "this->mcmcSample_->proportion.size() should be "<< this->nMcmcSample_ << ", truth is "<<this->mcmcSample_->proportion.size()<<endl;
+        for (size_t i = 0; i < this->nMcmcSample_; i++) {
+            for (size_t k = 0; k < this->kStrain_; k++) {
+                this->proportion(i,k) = this->mcmcSample_->proportion[i][k];
+            }
+        }
     }
 
     void convertLLKs(){
@@ -80,9 +80,9 @@ class RMcmcSample {
 
   public:
     RMcmcSample (DEploidIO* dEploidIO, McmcSample * mcmcSample){
-        this->kStrain_ = dEploidIO->kStrain_;
-        this->nLoci_ = dEploidIO->plaf_.size();
-        this->nMcmcSample_ = dEploidIO->nMcmcSample_;
+        this->kStrain_ = dEploidIO->kStrain();
+        this->nLoci_ = dEploidIO->nLoci();
+        this->nMcmcSample_ = dEploidIO->nMcmcSample();
 
         this->mcmcSample_ = mcmcSample;
         this->convertHaps();
@@ -148,7 +148,6 @@ List dEploid(std::string args, std::string file = "") {
       Rf_warning("Ignoring seed argument. Set a seed in R.");
     }
 
-    std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
     RRandomGenerator* rrg = new RRandomGenerator();
 
     Panel *panel = NULL; // Move panel to dEploidIO
@@ -169,45 +168,14 @@ List dEploid(std::string args, std::string file = "") {
     McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample, rrg);
     mcmcMachinery.runMcmcChain( false );
 
-//cout<< mcmcSample->hap.size() << " x " << mcmcSample->hap[0].size() << endl;
-cout<< mcmcSample->proportion.size() << " x " << mcmcSample->proportion[0].size() << endl;
-
     if ( panel ){
         delete panel;
     }
-    delete mcmcSample;
     rrg->clearFastFunc();
     delete rrg;
 
-    //RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
+    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
     /** Finalize */
-    size_t kStrain_ = dEploidIO.kStrain();
-    size_t nLoci_ = dEploidIO.nLoci();
-    size_t nMcmcSample_ = dEploidIO.nMcmcSample();
-
-    NumericMatrix haps = NumericMatrix(nLoci_,kStrain_);
-    for (size_t i = 0; i < nLoci_; i++) {
-        for (size_t k = 0; k < kStrain_; k++) {
-            haps(i,k) = mcmcSample->hap[i][k];
-            cout << i << " " <<(int)haps(i,k)<< " " <<(int)mcmcSample->hap[i][k];
-        }
-        cout<<endl;
-    }
-
-    NumericMatrix proportion = NumericMatrix(nMcmcSample_,
-                                             kStrain_);
-    for (size_t i = 0; i < nMcmcSample_; i++) {
-        //cout <<i<<"  "<<mcmcSample->proportion[i].size()<<endl;
-        //for (size_t k = 0; k < kStrain_; k++) {
-            //proportion(i,k) = mcmcSample->proportion[i][k];
-        //}
-    }
-
-    NumericVector llks = NumericVector(nMcmcSample_, 0.0);;
-    for (size_t i = 0; i < nMcmcSample_; i++) {
-        llks(i) = mcmcSample->sumLLKs[i];
-    }
-    return List::create(_("Haps") = haps,
-                        _("Proportions") = proportion,
-                        _("llks") =  llks);
+    delete mcmcSample;
+    return rMcmcSample.packageResults();
 }

@@ -29,21 +29,3 @@ dEploid <- function(args, file = "") {
     .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
 }
 
-#' sasfdafdsf asdfsdafa
-#'
-#' @section blahblah:
-#' Blah blah
-#'
-#' @return A named list of something something ...
-#'
-#' @export
-#'
-#' @keywords datagen
-#'
-#' @examples
-#' set.seed(1234)
-#'
-rcpp_hello_world <- function() {
-    .Call('DEploid_rcpp_hello_world', PACKAGE = 'DEploid')
-}
-
