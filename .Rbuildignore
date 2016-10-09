@@ -34,3 +34,4 @@
 ^.*\.dirstamp$
 ^.*\.gcda$
 ^buildLocally.sh$
+^extra$
