@@ -1,4 +1,4 @@
 export(dEploid)
 importFrom(Rcpp,evalCpp)
 useDynLib(DEploid)
-export(plot.prob)
+export(plotProportions)
