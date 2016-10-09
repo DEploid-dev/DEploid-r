@@ -24,6 +24,6 @@ computeObsWSAF( PG0390$altCount, PG0390$refCount )
 
 }
 \seealso{
-\code{\link{histWSAF}} for histogram, \code{\link{plotWSAF}} for WSAFs plotted against indices.
+\code{\link{histWSAF}} for histogram.
 }
 

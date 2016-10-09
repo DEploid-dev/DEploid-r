@@ -14,7 +14,4 @@ haplotypePainter(posteriorProbabilities, title = "")
 \description{
 Plot the posterior probabilities of a haplotype given the refernece panel.
 }
-\examples{
-
-}
 
