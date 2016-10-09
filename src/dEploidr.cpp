@@ -27,7 +27,7 @@
 #include <fstream>
 #include <memory>
 
-#include "r_random_generator.hpp"
+#include "r_random_generator.h"
 
 #include "mcmc.hpp"
 #include "panel.hpp"
