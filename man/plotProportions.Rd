@@ -4,7 +4,7 @@
 \alias{plotProportions}
 \title{Plot proportions}
 \usage{
-plotProportions(proportions, title = "")
+plotProportions(proportions, title = "Components")
 }
 \arguments{
 \item{proportions}{Matrix of the MCMC proportion samples. The matrix size is number of the MCMC samples by the number of strains.}
