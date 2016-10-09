@@ -14,7 +14,9 @@ plotAltVsRef(ref, alt, title = "Alt vs Ref", exclude.ref = c(),
 
 \item{title}{Figure title, "Alt vs Ref" by default}
 
-\item{exclude.ref}{@param exclude.alt}
+\item{exclude.ref}{Numeric array of reference allele count at sites that are not deconvoluted.}
+
+\item{exclude.alt}{Numeric array of alternative allele count at sites that are not deconvoluted}
 }
 \value{
 
