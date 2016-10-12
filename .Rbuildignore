@@ -35,3 +35,5 @@
 ^.*\.gcda$
 ^buildLocally.sh$
 ^extra$
+^appveyor\.yml$
+^\.gitattributes$

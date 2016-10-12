@@ -1,0 +1,5 @@
+* text=auto
+extra/ binary
+inst/extdata/ binary
+src/* text=lf
+R/* text=lf
