@@ -28,7 +28,7 @@
 #' #plaf = extractPLAF(plafFile)
 #' #plotWSAFvsPLAF(plaf, obsWSAF)
 #' #panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
-#' # Deconvolute the haplotypes
+#' ## Deconvolute the haplotypes
 #' #set.seed(1234)
 #' #PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
 #' #par(mfrow = c(1,3))
