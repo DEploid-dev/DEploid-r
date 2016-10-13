@@ -23,8 +23,8 @@ Plot alternative allele count vs reference allele count at each site.
 }
 \examples{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-# PG0390 = extractCoverageFromVcf(vcfFile)
-#plotAltVsRef( PG0390$refCount, PG0390$altCount )
+PG0390 = extractCoverageFromVcf(vcfFile)
+plotAltVsRef( PG0390$refCount, PG0390$altCount )
 
 }
 

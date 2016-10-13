@@ -19,12 +19,22 @@ plotWSAFvsPLAF(plaf, obsWSAF, expWSAF = c(), title = "WSAF vs PLAF")
 Plot allele frequencies within sample against population level.
 }
 \examples{
+# Example 1
+refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
+altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
+PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
+obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+plaf = extractPLAF(plafFile)
+plotWSAFvsPLAF(plaf, obsWSAF)
+
+# Example 2
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#PG0390 = extractCoverageFromVcf(vcfFile)
-#obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
-#plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#plaf = extractPLAF(plafFile)
-#plotWSAFvsPLAF(plaf, obsWSAF)
+PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
+obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+plaf = extractPLAF(plafFile)
+plotWSAFvsPLAF(plaf, obsWSAF)
 
 }
 
