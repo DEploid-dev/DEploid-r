@@ -1,20 +1,20 @@
 OBJECTS.dEploidr = dEploidr.o RcppExports.o
 
-OBJECTS.dEploid = DEploid/panel.o \
-    DEploid/utility.o \
-    DEploid/dEploidIO.o \
-    DEploid/txtReader.o \
-    DEploid/variantIndex.o \
-    DEploid/mcmc.o \
-    DEploid/updateHap.o \
-    DEploid/vcfReader.o \
-    DEploid/gzstream/gzstream.o \
-    DEploid/random/fastfunc.o \
-    DEploid/random/random_generator.o \
-    DEploid/random/mersenne_twister.o \
-    DEploid/export/dEploidIOExportPosteriorProb.o
+OBJECTS.dEploid = ../.DEploid/src/panel.o \
+    ../.DEploid/src/utility.o \
+    ../.DEploid/src/dEploidIO.o \
+    ../.DEploid/src/txtReader.o \
+    ../.DEploid/src/variantIndex.o \
+    ../.DEploid/src/mcmc.o \
+    ../.DEploid/src/updateHap.o \
+    ../.DEploid/src/vcfReader.o \
+    ../.DEploid/src/gzstream/gzstream.o \
+    ../.DEploid/src/random/fastfunc.o \
+    ../.DEploid/src/random/random_generator.o \
+    ../.DEploid/src/random/mersenne_twister.o \
+    ../.DEploid/src/export/dEploidIOExportPosteriorProb.o
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
 CXX_STD = CXX11
-PKG_CXXFLAGS = -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -DVERSION="\"R\"" -DRBUILD
+PKG_CXXFLAGS = -I../.DEploid/src/ -I../.DEploid/src/codeCogs/ -I../.DEploid/src/random/ -I../.DEploid/src/gzstream/ -DVERSION="\"R\"" -DRBUILD
 PKG_LIBS = -lz

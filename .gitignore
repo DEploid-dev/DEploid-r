@@ -4,3 +4,4 @@
 *.o
 *.so
 dEploid.Rcheck/
+src/DEploid.dll

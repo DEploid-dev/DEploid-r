@@ -29,7 +29,8 @@
 ^.DEploid\/README.*$
 ^.DEploid\/test.*$
 ^.DEploid\/unit_tests.*$
-^.DEploid\/utilities$
+^.DEploid\/utilities/dataExplore.r$
+^.DEploid\/utilities/interpretDEploid.r$
 ^.DEploid\/version$
 ^.*\.dirstamp$
 ^.*\.gcda$
