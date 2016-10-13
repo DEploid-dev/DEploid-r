@@ -20,11 +20,11 @@ Plot allele frequencies within sample against population level.
 }
 \examples{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390 = extractCoverageFromVcf(vcfFile)
-obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-plaf = extractPLAF(plafFile)
-plotWSAFvsPLAF(plaf, obsWSAF)
+#PG0390 = extractCoverageFromVcf(vcfFile)
+#obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
+#plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#plaf = extractPLAF(plafFile)
+#plotWSAFvsPLAF(plaf, obsWSAF)
 
 }
 

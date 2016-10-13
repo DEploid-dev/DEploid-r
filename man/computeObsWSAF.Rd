@@ -19,8 +19,8 @@ Compute observed allele frequency within sample from the allele counts.
 }
 \examples{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390 = extractCoverageFromVcf(vcfFile)
-computeObsWSAF( PG0390$altCount, PG0390$refCount )
+#PG0390 = extractCoverageFromVcf(vcfFile)
+#computeObsWSAF( PG0390$altCount, PG0390$refCount )
 
 }
 \seealso{

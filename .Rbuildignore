@@ -6,8 +6,6 @@
 ^.lintr$
 ^.*.o$
 ^DEploid.*.gz$
-^.DEploid\/.*$
-^.DEploid\/\..*$
 ^.DEploid\/aclocal.m4$
 ^.DEploid\/AUTHORS$
 ^.DEploid\/autom4te.cache$

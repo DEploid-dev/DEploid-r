@@ -22,7 +22,7 @@ The VCF file should only contain one sample. If more samples present in the VCF,
 }
 \examples{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390 = extractCoverageFromVcf(vcfFile)
+# PG0390 = extractCoverageFromVcf(vcfFile)
 
 }
 
