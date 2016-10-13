@@ -1,37 +1,27 @@
+# R project
 ^.*\.Rproj$
 ^\.Rproj\.user$
+
+# bash scripts
 ^tools$
+^buildLocally.sh$
+^cpHardCopies.sh$
+
+# C.I.
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^.lintr$
+
+# C++
 ^.*.o$
 ^DEploid.*.gz$
-^.DEploid\/.*$
-^.DEploid\/\..*$
-^.DEploid\/aclocal.m4$
-^.DEploid\/AUTHORS$
-^.DEploid\/autom4te.cache$
-^.DEploid\/bootstrap$
-^.DEploid\/circle.yml$
-^.DEploid\/compile$
-^.DEploid\/config.*$
-^.DEploid\/COPYING$
-^.DEploid\/data$
-^.DEploid\/depcomp$
-^.DEploid\/dEploid\*$
-^.DEploid\/docs$
-^.DEploid\/install-sh$
-^.DEploid\/LICENSE$
-^.DEploid\/m4$
-^.DEploid\/Makefile.*$
-^.DEploid\/missing$
-^.DEploid\/NEWS$
-^.DEploid\/README.*$
-^.DEploid\/test.*$
-^.DEploid\/unit_tests.*$
-^.DEploid\/utilities$
-^.DEploid\/version$
+^.DEploid\/*$
 ^.*\.dirstamp$
 ^.*\.gcda$
-^buildLocally.sh$
+
+# extras
 ^extra$
+
+# git
+^\.gitignore$
+^\.gitattributes$

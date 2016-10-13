@@ -126,11 +126,13 @@ class RMcmcSample {
 //' plotAltVsRef( PG0390$refCount, PG0390$altCount )
 //' obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
 //' histWSAF(obsWSAF)
+//'
 //' # Load prior information: PLAF and reference panel
 //' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 //' plaf = extractPLAF(plafFile)
 //' plotWSAFvsPLAF(plaf, obsWSAF)
 //' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+//'
 //' # Deconvolute the haplotypes
 //' set.seed(1234)
 //' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
@@ -140,6 +142,7 @@ class RMcmcSample {
 //' plotWSAFvsPLAF(plaf, obsWSAF, expWSAF)
 //' plotProportions(PG0390.deconv$Proportions)
 //' plotObsExpWSAF(obsWSAF, expWSAF)
+//'
 // [[Rcpp::export]]
 List dEploid(std::string args, std::string file = "") {
 

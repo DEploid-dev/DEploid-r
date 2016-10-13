@@ -3,4 +3,6 @@
 .RData
 *.o
 *.so
-dEploid.Rcheck/
+src/DEploid.dll
+DEploid.Rcheck/
+DEploid_0.3.1.tar.gz
