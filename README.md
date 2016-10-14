@@ -16,19 +16,12 @@ Please install `Rcpp` package first. From the `R`-console, type
 > install.packages("Rcpp")
 ```
 
-On specific operating systems, please carry out the following:
-
-### Unix-like system
-
+###Note: 
+If you are using Windows, please install Rtools from [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`), then`
 ```R
-> install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
-```
-
-### Windows
-
-Please first install [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`), then
-```R
-> install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
+`> install.packages("devtools")
+> library(devtools)
+> install_github("mcveanlab/DEploid-r")
 ```
 
 Usage
