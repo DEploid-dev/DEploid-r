@@ -13,7 +13,7 @@ Installation
 
 Please install `Rcpp` package first. From the `R`-console, type
 ```R
-install.packages("Rcpp")
+> install.packages("Rcpp")
 ```
 
 On specific operating systems, please carry out the following:
@@ -21,14 +21,14 @@ On specific operating systems, please carry out the following:
 ### Unix-like system
 
 ```R
-install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
+> install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
 ```
 
 ### Windows
 
 Please first install [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`), then
 ```R
-install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
+> install.packages("DEploid_0.3.1.tar.gz", repos=NULL)
 ```
 
 Usage
@@ -36,9 +36,9 @@ Usage
 
 Please refer to the help page and examples for each function. For example,
 ```R
-library(DEploid)
-?dEploid
-?plotProportions
+> library(DEploid)
+> ?dEploid
+> ?plotProportions
 ```
 
 Licence
