@@ -12,3 +12,7 @@ test_that("Extracted coverage", {
     expect_equal(PG0390CoverageTxt, PG0390CoverageVcf)
 })
 
+
+test_that("computeObsWSAF", {
+    expect_equal(computeObsWSAF(0, 0), 0)
+})
