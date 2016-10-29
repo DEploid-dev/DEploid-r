@@ -44,3 +44,15 @@ dEploid <- function(args, file = "") {
     .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
 }
 
+test_RRG_sample <- function() {
+    .Call('DEploid_test_RRG_sample', PACKAGE = 'DEploid')
+}
+
+test_RRG_sampleUnitExpo <- function() {
+    .Call('DEploid_test_RRG_sampleUnitExpo', PACKAGE = 'DEploid')
+}
+
+test_RRG_sampleExpoExpoLimit <- function(lambda, b, limit) {
+    .Call('DEploid_test_RRG_sampleExpoExpoLimit', PACKAGE = 'DEploid', lambda, b, limit)
+}
+
