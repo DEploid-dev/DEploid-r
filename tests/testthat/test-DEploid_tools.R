@@ -29,7 +29,8 @@ test_that("computeObsWSAF",
     expect_equal(computeObsWSAF(0, 100), 0)
     expect_equal(computeObsWSAF(1, 99), 0.01)
     expect_equal(computeObsWSAF(99, 1), 0.99)
-    expect_equal(computeObsWSAF(50, 100), 0.5)
+    expect_equal(computeObsWSAF(50, 50), 0.5)
+    expect_equal(computeObsWSAF(50, 100), 0.3333333333333)
 })
 
 
