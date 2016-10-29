@@ -41,7 +41,7 @@ test_that("runs a reproducible",
 
 test_that("warning is given when using -seed",
 {
-  expect_warning(dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel -seed 1"))
+  expect_warning(dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel -seed 1")))
 })
 
 
