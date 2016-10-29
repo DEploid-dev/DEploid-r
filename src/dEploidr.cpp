@@ -163,7 +163,10 @@ List dEploid(std::string args, std::string file = "") {
       Rf_warning("Ignoring seed argument. Set a seed in R.");
     }
 
-    RRandomGenerator* rrg = new RRandomGenerator();
+    //RRandomGenerator* rrg = new RRandomGenerator();
+
+    std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
+    RRandomGenerator rrg(ff);
 
     Panel *panel = NULL; // Move panel to dEploidIO
 
@@ -180,14 +183,14 @@ List dEploid(std::string args, std::string file = "") {
 
     McmcSample * mcmcSample = new McmcSample();
 
-    McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample, rrg);
+    McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample, &rrg);
     mcmcMachinery.runMcmcChain( false );
 
     if ( panel ){
         delete panel;
     }
-    rrg->clearFastFunc();
-    delete rrg;
+    //rrg->clearFastFunc();
+    //delete rrg;
 
     RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
     /** Finalize */

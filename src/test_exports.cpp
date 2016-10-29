@@ -2,12 +2,12 @@
 #include <memory>
 
 #include "r_random_generator.h"
-//#include "fastfunc.h"
+#include "fastfunc.hpp"
 
 using namespace Rcpp;
 
-//std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
-RRandomGenerator rrg;
+std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
+RRandomGenerator rrg(ff);
 
 // [[Rcpp::export]]
 double test_RRG_sample() {
