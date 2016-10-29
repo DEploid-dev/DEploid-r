@@ -33,7 +33,7 @@ using namespace Rcpp;
 
 class RRandomGenerator : public RandomGenerator {
  public:
-  RRandomGenerator():RandomGenerator() {
+  RRandomGenerator(std::shared_ptr<FastFunc> ff):RandomGenerator(ff) {
     this->initializeUnitExponential();
   };
   virtual ~RRandomGenerator() {};

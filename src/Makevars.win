@@ -1,4 +1,4 @@
-OBJECTS.dEploidr = dEploidr.o RcppExports.o
+OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o
 
 OBJECTS.dEploid = DEploid/panel.o \
     DEploid/utility.o \

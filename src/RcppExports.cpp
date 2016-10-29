@@ -17,3 +17,36 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// test_RRG_sample
+double test_RRG_sample();
+RcppExport SEXP DEploid_test_RRG_sample() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(test_RRG_sample());
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_RRG_sampleUnitExpo
+double test_RRG_sampleUnitExpo();
+RcppExport SEXP DEploid_test_RRG_sampleUnitExpo() {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    rcpp_result_gen = Rcpp::wrap(test_RRG_sampleUnitExpo());
+    return rcpp_result_gen;
+END_RCPP
+}
+// test_RRG_sampleExpoExpoLimit
+double test_RRG_sampleExpoExpoLimit(double lambda, double b, double limit);
+RcppExport SEXP DEploid_test_RRG_sampleExpoExpoLimit(SEXP lambdaSEXP, SEXP bSEXP, SEXP limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< double >::type limit(limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(test_RRG_sampleExpoExpoLimit(lambda, b, limit));
+    return rcpp_result_gen;
+END_RCPP
+}

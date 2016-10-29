@@ -1,15 +1,16 @@
 #!/bin/bash
 
 # dEploidTools.r
-cp .DEploid/utilities/dEploidTools.r R/dEploidTools.R
+#rsync -av .DEploid/utilities/dEploidTools.r R/dEploidTools.R
+rsync -avu  R/dEploidTools.R .DEploid/utilities/dEploidTools.r
 
 # cpp
-cp -r .DEploid/src/* src/DEploid/
+rsync -avu src/DEploid/ .DEploid/src/
 
 # tidy up
-rm -r src/DEploid/*/.deps
-rm -r src/DEploid/*/.dirstamp
-rm -r src/DEploid/*gcda
-rm -r src/DEploid/*gcno
-rm -r src/DEploid/*/*gcda
-rm -r src/DEploid/*/*gcno
+#rm -r src/DEploid/*/.deps
+#rm -r src/DEploid/*/.dirstamp
+#rm -r src/DEploid/*gcda
+#rm -r src/DEploid/*gcno
+#rm -r src/DEploid/*/*gcda
+#rm -r src/DEploid/*/*gcno
