@@ -1,6 +1,7 @@
 context("R Random Generator")
 
-test_that("RRG sample works", {
+test_that("RRG sample works",
+{
   set.seed(100)
   for (i in 1:100) {
     smpl <- test_RRG_sample() #nolint
@@ -10,7 +11,9 @@ test_that("RRG sample works", {
   }
 })
 
-test_that("RRG sampleUnitExpo works", {
+
+test_that("RRG sampleUnitExpo works",
+{
   set.seed(100)
   for (i in 1:100) {
     smpl <- test_RRG_sampleUnitExpo() #nolint
@@ -19,7 +22,9 @@ test_that("RRG sampleUnitExpo works", {
   }
 })
 
-test_that("RRG sampleExpoExpoLimit works", {
+
+test_that("RRG sampleExpoExpoLimit works",
+{
   set.seed(100)
   for (i in 1:100) {
     smpl <- test_RRG_sampleExpoExpoLimit(1, 0, 2) #nolint

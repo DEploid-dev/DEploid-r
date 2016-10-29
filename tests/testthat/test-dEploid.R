@@ -4,7 +4,9 @@ vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
 
-test_that("printing help & verison information works", {
+
+test_that("printing help & verison information works",
+{
   for (version in list(dEploid("-v"), dEploid("-version"))) {
     expect_that(version, is_a("list"))
     expect_that(version$version, is_a("character"))
@@ -37,6 +39,7 @@ test_that("runs a reproducible",
   res4 <- dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
   expect_equal(res3, res4)
 })
+
 
 test_that("warning is given when using -seed",
 {

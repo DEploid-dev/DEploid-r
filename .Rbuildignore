@@ -25,3 +25,6 @@
 # git
 ^\.gitignore$
 ^\.gitattributes$
+
+# testthat
+^tests/testthat/Rplots.pdf$
