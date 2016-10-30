@@ -7,11 +7,24 @@
 #' This function provieds an interface for calling \emph{dEploid} from R.
 #' The command line options are passed via the \code{args} argument
 #'
+#' @section Seeding:
+#' The R version of DEploid uses random number from R's random generator. Therefore, the '-seed'
+#' argument of the command line version will be ignored, and no seed is given in the output. Use
+#' the R function ‘set.seed’ prior to calling this function to ensure reproduciblity of results.
+#'
 #' @param args String of dEploid input.
 #'
-#' @param file To come
+#' @seealso
+#' \itemize{
+#'   \item \code{vignette('dEploid-Arguments')} for an overview of commandline arguments
+#' }
 #'
 #' @return A list with members of haplotypes, proportions and log likelihood of the MCMC chain.
+#' \itemize{
+#'   \item \code{Haps} Haplotypes at the final iteration in plain text file.
+#'   \item \code{Proportions} MCMC updates of the proportion estimates.
+#'   \item \code{llks} Log likelihood of the MCMC chain.
+#' }
 #'
 #' @export
 #'
@@ -40,8 +53,8 @@
 #' plotProportions(PG0390.deconv$Proportions)
 #' plotObsExpWSAF(obsWSAF, expWSAF)
 #'
-dEploid <- function(args, file = "") {
-    .Call('DEploid_dEploid', PACKAGE = 'DEploid', args, file)
+dEploid <- function(args) {
+    .Call('DEploid_dEploid', PACKAGE = 'DEploid', args)
 }
 
 test_RRG_sample <- function() {
