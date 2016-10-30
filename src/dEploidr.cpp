@@ -110,7 +110,7 @@ class RMcmcSample {
 //' @section Seeding:
 //' The R version of DEploid uses random number from R's random generator. Therefore, the '-seed'
 //' argument of the command line version will be ignored, and no seed is given in the output. Use
-//' the R function ‘set.seed’ prior to calling this function to ensure reproduciblity of results.
+//' the R function 'set.seed' prior to calling this function to ensure reproduciblity of results.
 //'
 //' @param args String of dEploid input.
 //'
