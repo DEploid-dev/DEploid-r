@@ -6,14 +6,13 @@
 using namespace Rcpp;
 
 // dEploid
-List dEploid(std::string args, std::string file);
-RcppExport SEXP DEploid_dEploid(SEXP argsSEXP, SEXP fileSEXP) {
+List dEploid(std::string args);
+RcppExport SEXP DEploid_dEploid(SEXP argsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< std::string >::type args(argsSEXP);
-    Rcpp::traits::input_parameter< std::string >::type file(fileSEXP);
-    rcpp_result_gen = Rcpp::wrap(dEploid(args, file));
+    rcpp_result_gen = Rcpp::wrap(dEploid(args));
     return rcpp_result_gen;
 END_RCPP
 }
