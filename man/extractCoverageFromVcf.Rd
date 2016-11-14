@@ -4,10 +4,10 @@
 \alias{extractCoverageFromVcf}
 \title{Extract read counts from VCF}
 \usage{
-extractCoverageFromVcf(vcfName, ADFieldIndex = 2)
+extractCoverageFromVcf(vcfFileName, ADFieldIndex = 2)
 }
 \arguments{
-\item{vcfName}{Path of the VCF file.}
+\item{vcfFileName}{Path of the VCF file.}
 
 \item{ADFieldIndex}{Index of the AD field of the sample field. For example, if the format is "GT:AD:DP:GQ:PL", the AD index is 2 (by default).}
 }
