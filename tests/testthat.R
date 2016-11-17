@@ -3,7 +3,3 @@ if (require("testthat")) {
 } else {
   warning("testthat not available. Skipping unittests!")
 }
-
-#library("testthat")
-#library("DEploid")
-#test_check("DEploid")

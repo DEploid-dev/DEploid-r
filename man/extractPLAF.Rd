@@ -4,10 +4,10 @@
 \alias{extractPLAF}
 \title{Extract PLAF}
 \usage{
-extractPLAF(plafName)
+extractPLAF(plafFileName)
 }
 \arguments{
-\item{plafName}{Path of the PLAF text file.}
+\item{plafFileName}{Path of the PLAF text file.}
 }
 \value{
 A numeric array of PLAF
