@@ -35,6 +35,8 @@ class RRandomGenerator : public RandomGenerator {
  public:
   RRandomGenerator(std::shared_ptr<FastFunc> ff):RandomGenerator(ff) {
     this->initializeUnitExponential();
+    size_t new_seed = this->sample()*1073741824; //2^30
+    this->set_seed(new_seed);
   };
   virtual ~RRandomGenerator() {};
 
