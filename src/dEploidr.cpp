@@ -129,28 +129,10 @@ class RMcmcSample {
 //' @export
 //'
 //' @examples
-//' # Explore the data
 //' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-//' PG0390 = extractCoverageFromVcf(vcfFile)
-//' par(mfrow=c(1,3))
-//' plotAltVsRef( PG0390$refCount, PG0390$altCount )
-//' obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
-//' histWSAF(obsWSAF)
-//'
-//' # Load prior information: PLAF
 //' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-//' plaf = extractPLAF(plafFile)
-//' plotWSAFvsPLAF(plaf, obsWSAF)
-//'
-//' # Deconvolute the haplotypes
 //' set.seed(1234)
 //' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
-//' par(mfrow = c(1,3))
-//' prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
-//' expWSAF = t(PG0390.deconv$Haps) %*% prop
-//' plotWSAFvsPLAF(plaf, obsWSAF, expWSAF)
-//' plotProportions(PG0390.deconv$Proportions)
-//' plotObsExpWSAF(obsWSAF, expWSAF)
 //'
 // [[Rcpp::export]]
 List dEploid(std::string args) {
