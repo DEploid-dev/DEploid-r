@@ -17,19 +17,6 @@ plotObsExpWSAF(obsWSAF, expWSAF, title = "WSAF(observed vs expected)")
 Plot observed alternative allele frequency within sample against expected WSAF.
 }
 \examples{
-# Example 1
-refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
-altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
-    "-plaf", plafFile, "-noPanel"))
-prop = PG0390CoverageTxt.deconv$Proportions[dim(PG0390CoverageTxt.deconv$Proportions)[1],]
-expWSAF = t(PG0390CoverageTxt.deconv$Haps) \%*\% prop
-plotObsExpWSAF(obsWSAF, expWSAF)
-
-# Example 2
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
 obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )

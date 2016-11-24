@@ -137,15 +137,14 @@ class RMcmcSample {
 //' obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
 //' histWSAF(obsWSAF)
 //'
-//' # Load prior information: PLAF and reference panel
+//' # Load prior information: PLAF
 //' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 //' plaf = extractPLAF(plafFile)
 //' plotWSAFvsPLAF(plaf, obsWSAF)
-//' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
 //'
 //' # Deconvolute the haplotypes
 //' set.seed(1234)
-//' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
+//' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
 //' par(mfrow = c(1,3))
 //' prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
 //' expWSAF = t(PG0390.deconv$Haps) %*% prop
