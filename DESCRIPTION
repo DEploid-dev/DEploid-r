@@ -1,7 +1,7 @@
 Package: DEploid
 Type: Package
 Title: DEploid
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: c(
     person("Joe Zhu", "Developer", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
     )

@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # dEploidTools.r
-#rsync -av .DEploid/utilities/dEploidTools.r R/dEploidTools.R
-rsync -avu  R/dEploidTools.R .DEploid/utilities/dEploidTools.r
+#rsync -av .DEploid/utilities/DEploidR.R R/DEploidR.R
+rsync -avu R/DEploidR.R .DEploid/utilities/DEploidR.R
 
 # cpp
 rsync -avu src/DEploid/ .DEploid/src/

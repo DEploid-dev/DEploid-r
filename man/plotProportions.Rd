@@ -22,7 +22,8 @@ panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEplo
 refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile, "-plaf", plafFile, "-noPanel"))
+PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
+    "-plaf", plafFile, "-noPanel"))
 plotProportions( PG0390CoverageTxt.deconv$Proportions, "PG0390-C proportions" )
 
 # Example 2

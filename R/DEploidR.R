@@ -128,7 +128,8 @@ extractPLAF <- function ( plafFileName ){
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 #' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile, "-plaf", plafFile, "-noPanel"))
+#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
+#'     "-plaf", plafFile, "-noPanel"))
 #' plotProportions( PG0390CoverageTxt.deconv$Proportions, "PG0390-C proportions" )
 #'
 #' # Example 2
@@ -291,7 +292,8 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 #' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
 #' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile, "-plaf", plafFile, "-noPanel"))
+#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
+#'     "-plaf", plafFile, "-noPanel"))
 #' prop = PG0390CoverageTxt.deconv$Proportions[dim(PG0390CoverageTxt.deconv$Proportions)[1],]
 #' expWSAF = t(PG0390CoverageTxt.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
