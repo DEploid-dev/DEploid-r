@@ -3,7 +3,7 @@ Type: Package
 Title: DEploid
 Version: 0.3.2
 Authors@R: c(
-    person("Joe Zhu", "Developer", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
+    person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
     )
 Description: DEploid is used for deconvoluting mixed haplotypes, and reporting the mixture proportions from each sample.
 URL: https://github.com/mcveanlab/DEploid-r
