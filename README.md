@@ -4,6 +4,7 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/hi1nq97d5l68qs4r?svg=true)](https://ci.appveyor.com/project/shajoezhu/deploid-r)
 [![Coverage Status](https://coveralls.io/repos/github/mcveanlab/DEploid-r/badge.svg)](https://coveralls.io/github/mcveanlab/DEploid-r)
 [![codecov](https://codecov.io/gh/mcveanlab/DEploid-r/branch/master/graph/badge.svg)](https://codecov.io/gh/mcveanlab/DEploid-r)
+[![CRAN RStudio Mirror Downloads](http://cranlogs.r-pkg.org/badges/DEploid)](https://cran.r-project.org/package=DEploid)
 
 DEploid R package -- Deconvolute Mixed Genomes with Unknown Proportions
 =================
