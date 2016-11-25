@@ -62,7 +62,7 @@ vignette: >
     MCMC sample rate (default value 5).
 
 * '-burn [float]'
-    MCMC
+    MCMC burn rate (default value 0.5).
 
 * '-v , -version'
     DEploid version.

@@ -8,8 +8,8 @@ Authors@R: c(
 Description: This package is designed for deconvoluting mixed genomes with unknown
  proportions. Traditional phasing programs are limited to diploid organisms.
  Our method modifies Li and Stephens algorithm with Markov chain Monte Carlo
- (MCMC) approaches, and builds a generic framework that allows haloptype searches
- in a multiple infection setting. DEploid is primarily developed as part of
+ (MCMC) approaches, and builds a generic framework that allows haplotype searches
+ in a multiple infection setting. This package is primarily developed as part of
  the Pf3k project, which is a global collaboration using the latest
  sequencing technologies to provide a high-resolution view of natural variation
  in the malaria parasite Plasmodium falciparum. Parasite DNA are extracted from
@@ -31,4 +31,4 @@ SystemRequirements: C++11
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
-Date: 2016-11-24
+Date: 2016-11-25
