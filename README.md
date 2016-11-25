@@ -5,10 +5,10 @@
 [![Coverage Status](https://coveralls.io/repos/github/mcveanlab/DEploid-r/badge.svg)](https://coveralls.io/github/mcveanlab/DEploid-r)
 [![codecov](https://codecov.io/gh/mcveanlab/DEploid-r/branch/master/graph/badge.svg)](https://codecov.io/gh/mcveanlab/DEploid-r)
 
-DEploid R package
+DEploid R package -- Deconvolute Mixed Genomes with Unknown Proportions
 =================
 
-This package is designed for deconvoluting mixed genomes with unknown proportions. Traditional ‘phasing’ programs are limited to diploid organisms. Our method modifies Li and Stephen’s algorithm with Markov chain Monte Carlo (MCMC) approaches, and builds a generic framework that allows haloptype searches in a multiple infection setting.
+Traditional ‘phasing’ programs are limited to diploid organisms. Our method modifies Li and Stephen’s algorithm with Markov chain Monte Carlo (MCMC) approaches, and builds a generic framework that allows haloptype searches in a multiple infection setting.
 
 
 Installation
