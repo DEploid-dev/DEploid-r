@@ -8,7 +8,7 @@
 DEploid R package
 =================
 
-`dEploid` is designed for deconvoluting mixed genomes with unknown proportions. Traditional ‘phasing’ programs are limited to diploid organisms. Our method modifies Li and Stephen’s algorithm with Markov chain Monte Carlo (MCMC) approaches, and builds a generic framework that allows haloptype searches in a multiple infection setting.
+This package is designed for deconvoluting mixed genomes with unknown proportions. Traditional ‘phasing’ programs are limited to diploid organisms. Our method modifies Li and Stephen’s algorithm with Markov chain Monte Carlo (MCMC) approaches, and builds a generic framework that allows haloptype searches in a multiple infection setting.
 
 
 Installation
@@ -19,7 +19,7 @@ Please install `Rcpp` package first. From the `R`-console, type
 > install.packages("Rcpp")
 ```
 
-###Note: 
+###Note:
 If you are using Windows, please install `Rtools` from [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`), then
 
 ```R
