@@ -4,7 +4,7 @@
 \alias{haplotypePainter}
 \title{Painting haplotype according the reference panel}
 \usage{
-haplotypePainter(posteriorProbabilities, title = "")
+haplotypePainter(posteriorProbabilities, title = "", labelScaling)
 }
 \arguments{
 \item{posteriorProbabilities}{Posterior probabilities matrix with the size of number of loci by the number of reference strain.}

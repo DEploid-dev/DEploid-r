@@ -1,3 +1,4 @@
+importFrom("scales", "alpha")
 importFrom("grDevices", "rainbow")
 importFrom("graphics", "abline", "barplot", "hist", "plot", "points")
 importFrom("utils", "read.table")

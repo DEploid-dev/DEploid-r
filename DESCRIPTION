@@ -1,7 +1,7 @@
 Package: DEploid
 Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
-Version: 0.3.2
+Version: 0.4.1
 Authors@R: c(
     person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
     )
@@ -30,4 +30,4 @@ SystemRequirements: C++11
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 5.0.1
-Date: 2016-11-25
+Date: 2016-12-10
