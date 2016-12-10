@@ -349,6 +349,8 @@ computeObsWSAF <- function (alt, ref) {
 #'
 #' @param title Figure title.
 #'
+#' @labelScaling Scaling parameter for plotting.
+#'
 #' @export
 #'
 haplotypePainter <- function (posteriorProbabilities, title = "", labelScaling){
