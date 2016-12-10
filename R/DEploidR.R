@@ -349,7 +349,7 @@ computeObsWSAF <- function (alt, ref) {
 #'
 #' @param title Figure title.
 #'
-#' @labelScaling Scaling parameter for plotting.
+#' @param labelScaling Scaling parameter for plotting.
 #'
 #' @export
 #'

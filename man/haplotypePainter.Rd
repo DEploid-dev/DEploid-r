@@ -10,6 +10,8 @@ haplotypePainter(posteriorProbabilities, title = "", labelScaling)
 \item{posteriorProbabilities}{Posterior probabilities matrix with the size of number of loci by the number of reference strain.}
 
 \item{title}{Figure title.}
+
+\item{labelScaling}{Scaling parameter for plotting.}
 }
 \description{
 Plot the posterior probabilities of a haplotype given the refernece panel.
