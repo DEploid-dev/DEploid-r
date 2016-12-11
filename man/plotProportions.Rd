@@ -4,12 +4,19 @@
 \alias{plotProportions}
 \title{Plot proportions}
 \usage{
-plotProportions(proportions, title = "Components")
+plotProportions(proportions, title = "Components", cex.lab = 1,
+  cex.main = 1, cex.axis = 1)
 }
 \arguments{
 \item{proportions}{Matrix of the MCMC proportion samples. The matrix size is number of the MCMC samples by the number of strains.}
 
 \item{title}{Figure title.}
+
+\item{cex.lab}{Label size.}
+
+\item{cex.main}{Title size.}
+
+\item{cex.axis}{Axis text size.}
 }
 \description{
 Plot the MCMC samples of the proportion, indexed by the MCMC chain.
