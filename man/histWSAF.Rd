@@ -4,7 +4,8 @@
 \alias{histWSAF}
 \title{WSAF histogram}
 \usage{
-histWSAF(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1")
+histWSAF(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1",
+  cex.lab = 1, cex.main = 1, cex.axis = 1)
 }
 \arguments{
 \item{obsWSAF}{Observed allele frequency within sample}
@@ -12,6 +13,12 @@ histWSAF(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1")
 \item{exclusive}{When TRUE 0 < WSAF < 1; otherwise 0 <= WSAF <= 1.}
 
 \item{title}{Histogram title}
+
+\item{cex.lab}{Label size.}
+
+\item{cex.main}{Title size.}
+
+\item{cex.axis}{Axis text size.}
 }
 \value{
 histogram
