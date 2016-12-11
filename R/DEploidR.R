@@ -183,19 +183,19 @@ plotProportions <- function (proportions, title = "Components",
 plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
                     exclude.ref = c(), exclude.alt = c(),
                     cex.lab = 1, cex.main = 1, cex.axis = 1 ){
-    cr <- colorRampPalette(colors=c("#de2d26","#2b8cbe"))
+    cr <- colorRampPalette(colors = c("#de2d26", "#2b8cbe"))
     colors <- cr(31)
-    ratios <- ref/(ref+alt+0.0000001)
+    ratios <- ref / (ref + alt + 0.0000001)
     tmpRange <- 1.1 * mean(max(alt), max(ref))
     plot ( ref, alt, xlim = c(0, tmpRange), ylim = c(0, tmpRange),
-        pch=20, col=scales::alpha(colors[ceiling(ratios * 30)+1], 0.7),
-        xlab="Reference # Reads", ylab="Alternative # Reads", main=title,
+        pch = 20, col = scales::alpha(colors[ceiling(ratios * 30) + 1], 0.7),
+        xlab = "Reference # Reads", ylab = "Alternative # Reads", main = title,
         cex = 0.5, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis)
-    legend("topright", legend=c("100% Alt","100% Ref", "50/50"),
-        fill = colors[c(1,31,15)], cex = cex.lab, border = NA, box.lwd = 0,
+    legend("topright", legend = c("100% Alt", "100% Ref", "50/50"),
+        fill = colors[c(1, 31, 15)], cex = cex.lab, border = NA, box.lwd = 0,
         box.col = "white", bg = NA)
-    abline(a=0,b=1, lwd=2, lty=2, col="gray")
-    points (exclude.ref, exclude.alt, col = "red")
+    abline(a = 0, b = 1, lwd = 2, lty = 2, col = "gray")
+    points(exclude.ref, exclude.alt, col = "red")
     abline(v = 50, untf = FALSE, lty = 2)
     abline(h = 50, untf = FALSE, lty = 2)
 
@@ -248,7 +248,7 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
         tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
     }
     return (hist(obsWSAF[tmpWSAFIndex], main = title,
-        breaks = seq(0, 1, by = 0.1), xlab = "WSAF", col="gray",
+        breaks = seq(0, 1, by = 0.1), xlab = "WSAF", col = "gray",
         cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis))
 }
 
@@ -392,6 +392,6 @@ haplotypePainter <- function (posteriorProbabilities, title = "", labelScaling){
     rainbowColorBin <- 16
     barplot(t(posteriorProbabilities), beside = F, border = NA,
         col = rainbow(rainbowColorBin), space = 0, xlab = "SNP index",
-        ylab = "", main = title, cex.axis = labelScaling/5, cex.lab = labelScaling/6,
-        cex.main = labelScaling/4)
+        ylab = "", main = title, cex.axis = labelScaling / 5,
+        cex.lab = labelScaling / 6, cex.main = labelScaling / 4)
 }
