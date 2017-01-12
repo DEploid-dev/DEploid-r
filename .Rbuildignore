@@ -1,6 +1,7 @@
 # R project
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^tmp$
 
 # bash scripts
 ^tools$
