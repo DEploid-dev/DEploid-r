@@ -1,6 +1,6 @@
 bibentry(
   bibtype = 'Article',
-  title = 'Deconvoluting multiple infections in \emph{Plasmodium falciparum} from high throughput sequencing data',
+  title = 'Deconvoluting multiple infections in \\emph{Plasmodium falciparum} from high throughput sequencing data',
   author = c(person('Sha Joe Zhu'),
              person('Jacob Almagro-Garcia'),
              person('Gil McVean')),
