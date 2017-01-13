@@ -15,13 +15,21 @@ Traditional ‘phasing’ programs are limited to diploid organisms. Our method 
 Installation
 ------------
 
-Please install `Rcpp` package first. From the `R`-console, type
+It is recommended to use the current CRAN version. It can be installed from within R using
+
+```R
+> install.packages('DEploid')
+```
+
+For the developing version, please install Rcpp package first. From the R-console, type
+
 ```R
 > install.packages("Rcpp")
 ```
 
-###Note:
-If you are using Windows, please install `Rtools` from [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`), then
+(NOTE: If you are using Windows, please install `Rtools` from [https://cran.r-project.org/bin/windows/Rtools/](`Rtools`))
+
+then
 
 ```R
 > install.packages("devtools")
@@ -50,5 +58,5 @@ Citation
 
 If you use `dEploid` in your work, please cite the program:
 
-PLACEHOLDER FOR APP NOTE
+Zhu, J. S. J. A. Garcia G. McVean. (2017) Deconvoluting multiple infections in *Plasmodium falciparum* from high throughput sequencing data. *bioRxiv* 099499. doi: https://doi.org/10.1101/099499
 
