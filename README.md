@@ -1,4 +1,5 @@
 <img src="extra/deploid.png" width="180">
+
 [![License (GPL version 3)](https://img.shields.io/badge/license-GPL%20version%203-brightgreen.svg)](http://opensource.org/licenses/GPL-3.0)
 [![Build Status](https://travis-ci.org/mcveanlab/DEploid-r.svg?branch=master)](https://travis-ci.org/mcveanlab/DEploid-r)
 [![Build Status](https://ci.appveyor.com/api/projects/status/hi1nq97d5l68qs4r?svg=true)](https://ci.appveyor.com/project/shajoezhu/deploid-r)
