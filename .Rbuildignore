@@ -22,6 +22,7 @@
 
 # extras
 ^extra$
+^LICENSE$
 
 # git
 ^\.gitignore$
