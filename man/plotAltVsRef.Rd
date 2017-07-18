@@ -5,7 +5,8 @@
 \title{Plot coverage}
 \usage{
 plotAltVsRef(ref, alt, title = "Alt vs Ref", exclude.ref = c(),
-  exclude.alt = c(), cex.lab = 1, cex.main = 1, cex.axis = 1)
+  exclude.alt = c(), potentialOutliers = c(), cex.lab = 1, cex.main = 1,
+  cex.axis = 1)
 }
 \arguments{
 \item{ref}{Numeric array of reference allele count.}
