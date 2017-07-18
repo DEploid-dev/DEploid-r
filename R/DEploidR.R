@@ -181,8 +181,9 @@ plotProportions <- function (proportions, title = "Components",
 #' plotAltVsRef( PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount )
 #'
 plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
-                    exclude.ref = c(), exclude.alt = c(), potentialOutliers = c(),
-                    cex.lab = 1, cex.main = 1, cex.axis = 1 ){
+                    exclude.ref = c(), exclude.alt = c(),
+                    potentialOutliers = c(), cex.lab = 1, cex.main = 1,
+                    cex.axis = 1 ){
     cr <- colorRampPalette(colors = c("#de2d26", "#2b8cbe"))
     colors <- cr(31)
     ratios <- ref / (ref + alt + 0.0000001)
@@ -203,7 +204,8 @@ plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
     abline(v = 150, untf = FALSE, lty = 2)
 
     if ( length(potentialOutliers) > 0 ){
-        points(ref[potentialOutliers], alt[potentialOutliers], col="black", pch="x", cex = 2)
+        points(ref[potentialOutliers], alt[potentialOutliers], col = "black",
+               pch = "x", cex = 2)
     }
 }
 
@@ -296,8 +298,8 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #' plaf = extractPLAF(plafFile)
 #' plotWSAFvsPLAF(plaf, obsWSAF)
 #'
-plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(), potentialOutliers = c(),
-                      title = "WSAF vs PLAF",
+plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
+                      potentialOutliers = c(), title = "WSAF vs PLAF",
                       cex.lab = 1, cex.main = 1, cex.axis = 1 ){
     plot ( plaf, obsWSAF, cex = 0.5, xlim = c(0, 1), ylim = c(0, 1),
         col = "red", main = title, xlab = "PLAF", ylab = "WSAF",
@@ -306,7 +308,8 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(), potentialOutliers = c
         points ( plaf, expWSAF, cex = 0.5, col = "blue")
     }
     if ( length(potentialOutliers) > 0 ){
-        points(plaf[potentialOutliers], obsWSAF[potentialOutliers], col="black", pch="x", cex = 2)
+        points(plaf[potentialOutliers], obsWSAF[potentialOutliers],
+        col = "black", pch = "x", cex = 2)
     }
 }
 
@@ -397,9 +400,9 @@ computeObsWSAF <- function (alt, ref) {
 haplotypePainter <- function (posteriorProbabilities, title = "", labelScaling,
                         numberOfInbreeding = 0){
     rainbowColorBin <- 16
-    rainbowColors = rainbow(rainbowColorBin)
+    rainbowColors <- rainbow(rainbowColorBin)
     if ( numberOfInbreeding > 0 ){
-        panelSize <- dim(posteriorProbabilities)[2]-numberOfInbreeding
+        panelSize <- dim(posteriorProbabilities)[2] - numberOfInbreeding
         rainbowColors <- c(rep("#46a8e1", panelSize),
                            rep("#f34747", numberOfInbreeding))
     }
@@ -408,10 +411,10 @@ haplotypePainter <- function (posteriorProbabilities, title = "", labelScaling,
         ylab = "", main = title, cex.axis = labelScaling / 5,
         cex.lab = labelScaling / 6, cex.main = labelScaling / 5,
         xaxt = "n", yaxt = "n")
-    newXaxt = round(seq(1, dim(posteriorProbabilities)[1], length.out = 6))
+    newXaxt <- round(seq(1, dim(posteriorProbabilities)[1], length.out = 6))
     axis(1, at = newXaxt, labels = as.character(newXaxt),
-        cex.axis= labelScaling / 7)
-    newYaxt = seq(0, 1, length.out = 3)
+        cex.axis = labelScaling / 7)
+    newYaxt <- seq(0, 1, length.out = 3)
     axis(2, at = newYaxt, labels = as.character(newYaxt),
-        cex.axis= labelScaling / 7)
+        cex.axis = labelScaling / 7)
 }
