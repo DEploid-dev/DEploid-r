@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -30,6 +32,7 @@
 #include <cassert>
 #include "global.h"
 
+
 using namespace std;
 
 class ExcludeMarker;
@@ -38,6 +41,7 @@ class VariantIndex {
 #ifdef UNITTEST
  friend class TestPanel;
  friend class TestTxtReader;
+ friend class TestInitialHaplotypes;
 #endif
  friend class DEploidIO;
  friend class TxtReader;
@@ -55,7 +59,7 @@ class VariantIndex {
 
     // For removing markers and positions
     void findWhoToBeKept (ExcludeMarker* excludedMarkers );
-    virtual void removeMarkers ( ){};
+    virtual void removeMarkers ();
 
     /* Index of content/info will be kept */
     vector < size_t > indexOfContentToBeKept;

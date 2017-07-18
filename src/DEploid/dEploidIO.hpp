@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -55,42 +57,24 @@ class DEploidIO{
     DEploidIO(int argc, char *argv[]);
     ~DEploidIO ();
 
-    void core();
     void printHelp(std::ostream& out);
     bool help() const { return help_; }
     void printVersion(std::ostream& out);
     bool version() const { return version_; }
-
-    bool initialPropWasGiven() const { return initialPropWasGiven_; }
-
-    // Panel related
-    bool usePanel() const { return usePanel_; }
-    string panelFileName_;
-
-    size_t nLoci() const { return this->nLoci_; }
-    size_t kStrain() const { return this->kStrain_;}
-    size_t nMcmcSample() const { return this->nMcmcSample_; }
-    double averageCentimorganDistance() const { return this->averageCentimorganDistance_; }
-    double Ne() const { return this->Ne_; }
-    double constRecombProb() const { return this->constRecombProb_; }
-    bool useConstRecomb() const { return this->useConstRecomb_; }
-
-    ExcludeMarker* excludedMarkers;
-    bool excludeSites_;
-    bool excludeSites() const {return this->excludeSites_; }
-    void setExcludeSites(const size_t exclude){ this->excludeSites_ = exclude; }
-
-    bool forbidCopyFromSame() const { return this->forbidCopyFromSame_; }
-    void setForbidCopyFromSame(const bool forbid){ this->forbidCopyFromSame_ = forbid; }
+    // Painting related
+    void chromPainting ();
+    bool doPainting() const { return this->doPainting_; }
+    bool useIBD() const { return this->useIBD_;}
 
     // Log
-    void write (McmcSample * mcmcSample, Panel * panel );
+    void wrapUp();
     bool randomSeedWasSet() const {return this->randomSeedWasSet_; }
 
     friend std::ostream& operator<< (std::ostream& stream, const DEploidIO& dEploidIO);
     size_t randomSeed() const { return randomSeed_;}
 
   private:
+    void core();
 
     // Read in input
     string plafFileName_;
@@ -98,6 +82,7 @@ class DEploidIO{
     string altFileName_;
     string vcfFileName_;
     string excludeFileName_;
+    string initialHapFileName_;
     string prefix_;
     size_t randomSeed_;
     bool randomSeedWasSet_;
@@ -105,6 +90,10 @@ class DEploidIO{
 
 
     bool initialPropWasGiven_;
+    bool initialHapWasGiven_;
+    bool kStrainWasManuallySet_;
+    bool kStrainWasSetByHap_;
+    bool kStrainWasSetByProp_;
     bool useConstRecomb_;
     bool forbidCopyFromSame_;
     size_t kStrain_;
@@ -118,8 +107,13 @@ class DEploidIO{
     bool doUpdateSingle_;
     bool doExportPostProb_;
     bool doExportSwitchMissCopy_;
+    bool doAllowInbreeding_;
+    bool doPainting_;
+    bool useIBD_;
 
     vector <double> initialProp;
+    vector <double> filnalProp;
+    vector < vector <double> > initialHap;
     vector <string> chrom_;
     vector < size_t > indexOfChromStarts_;
     vector < vector < int > > position_;
@@ -136,7 +130,7 @@ class DEploidIO{
 
     // Panel related
     bool usePanel_;
-    void set_panel(const bool usePanel) { this->usePanel_ = usePanel; }
+    void setUsePanel(const bool setTo) { this->usePanel_ = setTo; }
 
     // Vcf Related
     VcfReader * vcfReaderPtr_;
@@ -160,12 +154,28 @@ class DEploidIO{
     // Parameters
     double missCopyProb_;
     double averageCentimorganDistance_;// = 15000.0,
-    double Ne_;// = 10.0
+    //double Ne_;// = 10.0
     double constRecombProb_;
+    double scalingFactor_; // 100.0
 
     std::vector<std::string> argv_;
     std::vector<std::string>::iterator argv_i;
 
+    // Diagnostics
+    double maxLLKs_;
+    void setmaxLLKs ( const double setTo ){ this->maxLLKs_ = setTo; }
+    double meanThetallks_;
+    void setmeanThetallks ( const double setTo ){ this->meanThetallks_ = setTo; }
+    double meanllks_;
+    void setmeanllks ( const double setTo ){ this->meanllks_ = setTo; }
+    double stdvllks_;
+    void setstdvllks ( const double setTo ){ this->stdvllks_ = setTo; }
+    double dicByTheta_;
+    void setdicByTheta ( const double setTo ){ this->dicByTheta_ = setTo; }
+    double dicByVar_;
+    void setdicByVar ( const double setTo ){ this->dicByVar_ = setTo; }
+    double acceptRatio_;
+    void setacceptRatio ( const double setTo ){ this->acceptRatio_ = setTo; }
 
     // Output stream
     string dEploidGitVersion_;
@@ -177,15 +187,16 @@ class DEploidIO{
     string strExportLog;
     string strExportRecombProb;
 
+    string strIbdExportProp;
+    string strIbdExportLLK;
+    string strIbdExportHap;
+
     string strExportSingleFwdProbPrefix;
     string strExportPairFwdProb;
+    string strIbdExportSingleFwdProbPrefix;
+    string strIbdExportPairFwdProb;
 
-    string strExportOneSwitchOne;
-    string strExportOneMissCopyOne;
-    string strExportTwoSwitchOne;
-    string strExportTwoSwitchTwo;
-    string strExportTwoMissCopyOne;
-    string strExportTwoMissCopyTwo;
+    string strExportExtra;
 
     ofstream ofstreamExportTmp;
     ofstream ofstreamExportFwdProb;
@@ -203,6 +214,7 @@ class DEploidIO{
     void finalize();
     void readNextStringto( string &readto );
     void readInitialProportions();
+    void readInitialHaps();
 
     void set_seed(const size_t seed){ this->randomSeed_ = seed; }
     void removeFilesWithSameName();
@@ -244,15 +256,85 @@ class DEploidIO{
     void setDoExportSwitchMissCopy ( const bool setTo ){ this->doExportSwitchMissCopy_ = setTo; }
     bool doExportSwitchMissCopy() const { return this->doExportSwitchMissCopy_; }
 
+    void setDoAllowInbreeding ( const bool setTo ) { this->doAllowInbreeding_ = setTo; }
+    bool doAllowInbreeding() const { return this->doAllowInbreeding_; }
+
+    void setDoPainting ( const bool setTo ){ this->doPainting_ = setTo; }
+    void setUseIBD( const bool setTo){ this->useIBD_ = setTo; }
+
+    bool initialPropWasGiven() const { return initialPropWasGiven_; }
+    void setInitialPropWasGiven(const bool setTo){this->initialPropWasGiven_ = setTo; }
+
+    bool initialHapWasGiven() const { return initialHapWasGiven_; }
+    void setInitialHapWasGiven(const bool setTo){ this->initialHapWasGiven_ = setTo; }
+
     // log and export resutls
     void writeRecombProb ( Panel * panel );
-    void writeLLK (McmcSample * mcmcSample);
-    void writeProp (McmcSample * mcmcSample);
-    void writeHap (McmcSample * mcmcSample);
+    void writeLLK (McmcSample * mcmcSample, bool useIBD = false);
+    void writeProp (McmcSample * mcmcSample, bool useIBD = false);
+    void writeHap (McmcSample * mcmcSample, bool useIBD = false);
     void writeVcf (McmcSample * mcmcSample);
-    void writeLog (McmcSample * mcmcSample, ostream * writeTo );
-    void writeLastSingleFwdProb( UpdateSingleHap & updateSingle, size_t chromIndex, size_t strainIndex  );
+    void writeLastSingleFwdProb( vector < vector <double> >& probabilities, size_t chromIndex, size_t strainIndex, bool useIBD );
     void writeLastPairFwdProb( UpdatePairHap & updatePair, size_t chromIndex );
+    void writeLog (ostream * writeTo );
+    void writeEventCount();
+
+    vector <double> IBDpathChangeAt;
+    vector <double> finalIBDpathChangeAt;
+
+    vector <double> siteOfTwoSwitchOne;
+    vector <double> siteOfTwoMissCopyOne;
+    vector <double> siteOfTwoSwitchTwo;
+    vector <double> siteOfTwoMissCopyTwo;
+    vector <double> siteOfOneSwitchOne;
+    vector <double> siteOfOneMissCopyOne;
+
+    vector <double> finalSiteOfTwoSwitchOne;
+    vector <double> finalSiteOfTwoMissCopyOne;
+    vector <double> finalSiteOfTwoSwitchTwo;
+    vector <double> finalSiteOfTwoMissCopyTwo;
+    vector <double> finalSiteOfOneSwitchOne;
+    vector <double> finalSiteOfOneMissCopyOne;
+
+
+    Panel *panel;
+    void writeMcmcRelated (McmcSample * mcmcSample, bool useIBD = false);
+    void readPanel();
+
+    // Panel related
+    bool usePanel() const { return usePanel_; }
+    string panelFileName_;
+    double parameterG_;
+    void setParameterG ( const double setTo ) { this->parameterG_ = setTo; }
+    double parameterG() const { return this->parameterG_; }
+    double parameterSigma_;
+    void setParameterSigma ( const double setTo ) { this->parameterSigma_ = setTo; }
+    double parameterSigma() const { return this->parameterSigma_; }
+
+    size_t nLoci() const { return this->nLoci_; }
+    void setKstrain ( const size_t setTo ){ this->kStrain_ = setTo;}
+    size_t kStrain() const { return this->kStrain_;}
+    void setKStrainWasManuallySet ( const size_t setTo ){ this->kStrainWasManuallySet_ = setTo; }
+    bool kStrainWasSetByHap() const { return this->kStrainWasSetByHap_; }
+    void setKStrainWasSetByHap ( const size_t setTo ){ this->kStrainWasSetByHap_ = setTo; }
+    bool kStrainWasManuallySet() const { return this->kStrainWasManuallySet_; }
+    void setKStrainWasSetByProp ( const size_t setTo ){ this->kStrainWasSetByProp_ = setTo; }
+    bool kStrainWasSetByProp() const { return this->kStrainWasSetByProp_; }
+    size_t nMcmcSample() const { return this->nMcmcSample_; }
+    double averageCentimorganDistance() const { return this->averageCentimorganDistance_; }
+    //double Ne() const { return this->Ne_; }
+    double scalingFactor() const {return this->scalingFactor_; }
+    void setScalingFactor ( const double setTo ){ this->scalingFactor_ = setTo; }
+    double constRecombProb() const { return this->constRecombProb_; }
+    bool useConstRecomb() const { return this->useConstRecomb_; }
+
+    ExcludeMarker* excludedMarkers;
+    bool excludeSites_;
+    bool excludeSites() const {return this->excludeSites_; }
+    void setExcludeSites(const size_t exclude){ this->excludeSites_ = exclude; }
+
+    bool forbidCopyFromSame() const { return this->forbidCopyFromSame_; }
+    void setForbidCopyFromSame(const bool forbid){ this->forbidCopyFromSame_ = forbid; }
 };
 
 #endif

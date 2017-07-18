@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -26,12 +28,15 @@
 #define TXTREADER
 
 #include "variantIndex.hpp"
+#include "exceptions.hpp"
 
 class TxtReader : public VariantIndex {
 #ifdef UNITTEST
  friend class TestPanel;
  friend class TestTxtReader;
+ friend class TestInitialHaplotypes;
 #endif
+ friend class McmcMachinery;
  friend class UpdateSingleHap;
  friend class UpdatePairHap;
  friend class UpdateHap;
@@ -55,12 +60,13 @@ class TxtReader : public VariantIndex {
     void extractChrom( string & tmp_str );
     void extractPOS ( string & tmp_str );
     void reshapeContentToInfo();
+    string fileName;
 
   public: // move the following to private
     TxtReader (){};
     virtual void readFromFile( const char inchar[] ){ this->readFromFileBase( inchar ); };
     void readFromFileBase( const char inchar[] );
-    virtual ~TxtReader(){};
+    virtual ~TxtReader(){ };
     void removeMarkers ( );
 };
 

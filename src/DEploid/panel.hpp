@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -30,12 +32,17 @@
 class Panel: public TxtReader{
 #ifdef UNITTEST
  friend class TestPanel;
+ friend class TestInitialHaplotypes;
+ friend class TestUpdateHap;
+ friend class TestUpdatePairHap;
+ friend class TestUpdateSingleHap;
 #endif
+ friend class McmcMachinery;
  friend class UpdateSingleHap;
  friend class UpdatePairHap;
  friend class UpdateHap;
  friend class DEploidIO;
-
+ friend class InitialHaplotypes;
   private:
     // Members
     vector < double > pRec_;
@@ -47,23 +54,39 @@ class Panel: public TxtReader{
     vector < double > pRecNoRec_; // pRecEachHap * pNoRec;
     vector < double > pNoRecNoRec_; // pNoRec * pNoRec;
 
-    size_t nPanel_;
+    size_t truePanelSize_;
+    void setTruePanelSize ( const size_t setTo ){ this->truePanelSize_ = setTo; }
 
+    size_t inbreedingPanelSize_;
+    void setInbreedingPanelSize ( const size_t setTo ){ this->inbreedingPanelSize_ = setTo; }
 
-  public:
+    size_t inbreedingPanelSize() const { return this->inbreedingPanelSize_; }
+    size_t truePanelSize() const { return this->truePanelSize_; }
     Panel();
     //Panel(const char inchar[] );
-    ~Panel();
+    virtual ~Panel(){};
 
     // Methods
     void readFromFile( const char inchar[] );
     void computeRecombProbs( double averageCentimorganDistance, double Ne, bool useConstRecomb, double constRecombProb, bool forbidCopyFromSame );
     void checkForExceptions( size_t nLoci, string panelFileName );
+    void initializeUpdatePanel( size_t inbreedingPanelSizeSetTo);
+    void updatePanelWithHaps( size_t inbreedingPanelSizeSetTo, size_t excludedStrain, vector < vector<double> > & haps);
 
     void print();
     void buildExamplePanelContent();
     void buildExamplePanel1();
     void buildExamplePanel2();
+};
+
+
+class InitialHaplotypes: public Panel{
+#ifdef UNITTEST
+ friend class TestInitialHaplotypes;
+#endif
+ friend class DEploidIO;
+    InitialHaplotypes():Panel(){}
+    ~InitialHaplotypes(){}
 };
 
 #endif

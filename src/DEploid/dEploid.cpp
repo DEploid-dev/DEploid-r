@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -30,6 +32,7 @@ using namespace std;
 
 int main( int argc, char *argv[] ){
     try {
+
         DEploidIO dEploidIO(argc, argv);
         std::ostream *output = &std::cout;
 
@@ -43,31 +46,30 @@ int main( int argc, char *argv[] ){
             return EXIT_SUCCESS;
         }
 
-        Panel *panel = NULL; // Move panel to dEploidIO
+        if ( dEploidIO.doPainting() ){
+            dEploidIO.chromPainting();
+        } else{
 
-        if ( dEploidIO.usePanel() ){
-            panel = new Panel();
-            panel->readFromFile(dEploidIO.panelFileName_.c_str());
-            if ( dEploidIO.excludeSites() ){
-                panel->findAndKeepMarkers( dEploidIO.excludedMarkers );
+            if (dEploidIO.useIBD()){ // ibd
+                McmcSample * ibdMcmcSample = new McmcSample();
+                MersenneTwister ibdRg(dEploidIO.randomSeed());
+
+                McmcMachinery ibdMcmcMachinery(&dEploidIO, ibdMcmcSample, &ibdRg, true);
+                ibdMcmcMachinery.runMcmcChain(true, // show progress
+                                              true);  // use IBD
+                delete ibdMcmcSample;
             }
+            McmcSample * mcmcSample = new McmcSample();
+            MersenneTwister rg(dEploidIO.randomSeed());
 
-            panel->computeRecombProbs( dEploidIO.averageCentimorganDistance(), dEploidIO.Ne(), dEploidIO.useConstRecomb(), dEploidIO.constRecombProb(), dEploidIO.forbidCopyFromSame() );
-            panel->checkForExceptions( dEploidIO.nLoci(), dEploidIO.panelFileName_ );
+            McmcMachinery mcmcMachinery(&dEploidIO, mcmcSample, &rg,
+                                        false); // use IBD
+            mcmcMachinery.runMcmcChain(true, // show progress
+                                       false); // use IBD
+            delete mcmcSample;
         }
-
-        McmcSample * mcmcSample = new McmcSample();
-        MersenneTwister rg(dEploidIO.randomSeed());
-
-        McmcMachinery mcmcMachinery(&dEploidIO, panel, mcmcSample, &rg);
-        mcmcMachinery.runMcmcChain(true);
-
-        dEploidIO.write(mcmcSample, panel);
-
-        if ( panel ){
-            delete panel;
-        }
-        delete mcmcSample;
+        // Finishing, write log
+        dEploidIO.wrapUp();
     }
     catch (const exception &e) {
       std::cerr << "Error: " << e.what() << std::endl;
