@@ -160,6 +160,8 @@ plotProportions <- function (proportions, title = "Components",
 #'
 #' @param exclude.alt Numeric array of alternative allele count at sites that are not deconvoluted
 #'
+#' @param potentialOutliers Index of potential outliers.
+#'
 #' @param cex.lab Label size.
 #'
 #' @param cex.main Title size.
@@ -271,6 +273,8 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #' @param expWSAF Numeric array of expected WSAF from model.
 #'
 #' @param title Figure title, "WSAF vs PLAF" by default
+#'
+#' @param potentialOutliers Index of potential outliers.
 #'
 #' @param cex.lab Label size.
 #'
@@ -394,6 +398,8 @@ computeObsWSAF <- function (alt, ref) {
 #' @param title Figure title.
 #'
 #' @param labelScaling Scaling parameter for plotting.
+#'
+#' @param numberOfInbreeding Number of inbreeding strains copying from.
 #'
 #' @export
 #'
