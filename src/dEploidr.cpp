@@ -176,8 +176,9 @@ List dEploid(std::string args) {
                                 false); // use IBD
     mcmcMachinery.runMcmcChain(true, // show progress
                                false); // use IBD    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
+
+    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
     /** Finalize */
     delete mcmcSample;
-    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
     return rMcmcSample.packageResults();
 }
