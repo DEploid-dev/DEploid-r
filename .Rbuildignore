@@ -11,7 +11,7 @@
 # C.I.
 ^\.travis\.yml$
 ^appveyor\.yml$
-^.lintr$
+^\.lintr$
 
 # C++
 ^.*.o$
@@ -30,3 +30,7 @@
 
 # testthat
 ^tests/testthat/Rplots.pdf$
+
+# vignettes/
+^vignettes/commbine.sh
+^vignettes/dEploid-Arguments.Rmd.src

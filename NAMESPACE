@@ -1,6 +1,6 @@
 importFrom("scales", "alpha")
-importFrom("grDevices", "rainbow")
-importFrom("graphics", "abline", "barplot", "hist", "plot", "points")
+importFrom("grDevices", "rainbow", "colorRampPalette")
+importFrom("graphics", "abline", "barplot", "hist", "plot", "points", "axis", "legend")
 importFrom("utils", "read.table")
 importFrom(Rcpp,evalCpp)
 useDynLib(DEploid)
