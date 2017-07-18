@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -26,16 +28,16 @@
 #include <iostream>
 
 Panel::Panel():TxtReader(){
-    //this->nPanel_ = this->nInfoLines_;
+    this->setTruePanelSize(0);
+    this->setInbreedingPanelSize(0);
 };
+
 
 void Panel::readFromFile( const char inchar[] ){
     this->readFromFileBase( inchar );
-    this->nPanel_ = this->nInfoLines_;
+    this->setTruePanelSize( this->nInfoLines_ );
+    this->setInbreedingPanelSize( this->truePanelSize() );
 };
-
-
-Panel::~Panel(){};
 
 
 void Panel::checkForExceptions( size_t nLoci, string panelFileName ){
@@ -49,7 +51,8 @@ void Panel::checkForExceptions( size_t nLoci, string panelFileName ){
     return;
 }
 
-void Panel::computeRecombProbs( double averageCentimorganDistance, double Ne, bool useConstRecomb, double constRecombProb, bool forbidCopyFromSame ){
+
+void Panel::computeRecombProbs( double averageCentimorganDistance, double G, bool useConstRecomb, double constRecombProb, bool forbidCopyFromSame ){
     assert(pRec_.size() == 0 );
     assert(pRecEachHap_.size() == 0 );
     assert(pNoRec_.size() == 0 );
@@ -60,12 +63,13 @@ void Panel::computeRecombProbs( double averageCentimorganDistance, double Ne, bo
     double averageMorganDistance = averageCentimorganDistance * 100;
     double geneticDistance;
     double rho;
-    double nPanelDouble = (double)this->nPanel_;
+    double nPanelDouble = (double)this->truePanelSize();
     double nPanlelMinus1 = nPanelDouble - 1.0;
     for ( size_t i = 0; i < this->position_.size(); i++){
         for ( size_t j = 1; j < this->position_[i].size(); j++){
             geneticDistance = (double)(this->position_[i][j] - this->position_[i][j-1])/averageMorganDistance ;
-            rho = geneticDistance * 2 * Ne;
+            //rho = geneticDistance * 2 * Ne;
+            rho = geneticDistance * G;
 
             double pRecTmp = ( useConstRecomb ) ? constRecombProb : 1.0 - exp(-rho);
             this->pRec_.push_back( pRecTmp );
@@ -126,8 +130,60 @@ void Panel::buildExamplePanelContent(){
     this->content_.push_back( vector <double> ({0,0,1,0}) );
     this->nLoci_ = this->content_.size();
     this->nInfoLines_ = this->content_.back().size();
-    this->nPanel_ = this->nInfoLines_;
+    this->setTruePanelSize(this->nInfoLines_);
+    this->setInbreedingPanelSize(this->truePanelSize());
 }
+
+
+void Panel::initializeUpdatePanel(size_t inbreedingPanelSizeSetTo){
+    this->setInbreedingPanelSize(inbreedingPanelSizeSetTo);
+
+    // If allows inbreeding, update reference panel by including strain haplotypes
+    dout << "************* Allow inbreeding ************" << endl;
+    dout << "** Initialize inbreeding reference panel **" << endl;
+
+    if ( this->truePanelSize() == this->inbreedingPanelSize()){
+        return;
+    }
+
+    for ( size_t siteI = 0; siteI < this->content_.size(); siteI++ ){
+        for ( size_t panelStrainJ = this->truePanelSize() ; panelStrainJ < this->inbreedingPanelSize(); panelStrainJ++ ){
+            this->content_[siteI].push_back( 1 );
+        }
+        assert(inbreedingPanelSizeSetTo == this->content_[siteI].size());
+    }
+}
+
+
+void Panel::updatePanelWithHaps(size_t inbreedingPanelSizeSetTo, size_t excludedStrain, vector < vector<double> > & haps){
+    this->setInbreedingPanelSize(inbreedingPanelSizeSetTo);
+
+    // If allows inbreeding, update reference panel by including strain haplotypes
+    dout << "*************** Allow inbreeding **************" << endl;
+    dout << "*** Update reference panel without strain " << excludedStrain << " ***" << endl;
+
+    if ( this->truePanelSize() == this->inbreedingPanelSize()){
+        return;
+    }
+
+    for ( size_t siteI = 0; siteI < this->content_.size(); siteI++ ){
+        size_t shiftAfter = this->inbreedingPanelSize();
+
+        for ( size_t panelStrainJ = this->truePanelSize() ; panelStrainJ < this->inbreedingPanelSize(); panelStrainJ++ ){
+            size_t strainIndex = panelStrainJ - this->truePanelSize();
+
+            if ( strainIndex == excludedStrain ){
+                shiftAfter = panelStrainJ;
+            }
+
+            if (shiftAfter <= panelStrainJ){
+                strainIndex++;
+            }
+            this->content_[siteI][panelStrainJ] = haps[siteI][strainIndex];
+        }
+    }
+}
+
 
 
 //vector<vector<double>> outtrans(out[0].size(),

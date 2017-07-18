@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -30,6 +32,23 @@
 
 using namespace std;
 
+
+struct ShouldNotBeCalled : std::exception{
+
+  explicit ShouldNotBeCalled(){ }
+  virtual ~ShouldNotBeCalled() throw() {}
+  virtual const char* what () const noexcept {
+      return string("Should not reach here").c_str();
+  }
+};
+
+
+struct VirtualFunctionShouldNotBeCalled : public ShouldNotBeCalled{
+  VirtualFunctionShouldNotBeCalled():ShouldNotBeCalled(){}
+  ~VirtualFunctionShouldNotBeCalled() throw() {}
+};
+
+
 struct InvalidInput : std::exception {
   string src;
   string reason;
@@ -51,6 +70,15 @@ struct InvalidInput : std::exception {
 };
 
 
+struct InvalidK : public InvalidInput{
+  InvalidK( ):InvalidInput( ){
+    this->reason = "k must be at least 2, when using the flag -ibd.";
+    throwMsg = this->reason + this->src;
+  }
+  ~InvalidK() throw() {}
+};
+
+
 struct NotEnoughArg : public InvalidInput{
   NotEnoughArg( string str ):InvalidInput( str ){
     this->reason = "Not enough parameters when parsing option: ";
@@ -58,6 +86,7 @@ struct NotEnoughArg : public InvalidInput{
   }
   ~NotEnoughArg() throw() {}
 };
+
 
 struct VcfOutUnSpecified : public InvalidInput{
   VcfOutUnSpecified( string str ):InvalidInput( str ){
@@ -74,6 +103,15 @@ struct WrongType : public InvalidInput{
     throwMsg = this->reason + this->src;
   }
   ~WrongType() throw() {}
+};
+
+
+struct BadConversion : public InvalidInput{
+  BadConversion( string str ):InvalidInput( str ){
+    this->reason = "Bad conversion: ";
+    throwMsg = this->reason + this->src + ", int expected.";
+  }
+  ~BadConversion() throw() {}
 };
 
 
@@ -148,5 +186,13 @@ struct NumOfPropNotMatchNumStrain : public InvalidInput{
   ~NumOfPropNotMatchNumStrain() throw() {}
 };
 
+
+struct InitialPropUngiven : public InvalidInput{
+  InitialPropUngiven( string str ):InvalidInput( str ){
+    this->reason = "Initial proportion was not specified.";
+    throwMsg = this->reason + this->src ;
+  }
+  ~InitialPropUngiven() throw() {}
+};
 
 #endif

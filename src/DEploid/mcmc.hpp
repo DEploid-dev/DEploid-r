@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -30,6 +32,7 @@
 #include "utility.hpp"
 #include "global.h"
 #include "randomSample.hpp"
+#include "ibd.hpp"
 
 #ifndef MCMC
 #define MCMC
@@ -53,6 +56,21 @@ class McmcSample {
         moves.clear();
     }
 
+    vector <double> IBDpathChangeAt;
+    vector <double> siteOfTwoSwitchOne;
+    vector <double> siteOfTwoMissCopyOne;
+    vector <double> siteOfTwoSwitchTwo;
+    vector <double> siteOfTwoMissCopyTwo;
+    vector <double> siteOfOneSwitchOne;
+    vector <double> siteOfOneMissCopyOne;
+
+    vector <double> currentIBDpathChangeAt;
+    vector <double> currentsiteOfTwoSwitchOne;
+    vector <double> currentsiteOfTwoMissCopyOne;
+    vector <double> currentsiteOfTwoSwitchTwo;
+    vector <double> currentsiteOfTwoMissCopyTwo;
+    vector <double> currentsiteOfOneSwitchOne;
+    vector <double> currentsiteOfOneMissCopyOne;
     vector < vector <double> > proportion;
     vector < vector <double> > hap;
     vector < double > sumLLKs;
@@ -67,9 +85,9 @@ class McmcMachinery {
 #endif
   public:
     //McmcMachinery();
-    McmcMachinery( DEploidIO* pdfDeconfIO, Panel *panel, McmcSample *mcmcSample, RandomGenerator* rg_ );
+    McmcMachinery( DEploidIO* dEplioidIO, McmcSample *mcmcSample, RandomGenerator* rg_, bool useIBD = false );
     ~McmcMachinery();
-    void runMcmcChain( bool showProgress = true );
+    void runMcmcChain( bool showProgress = true, bool useIBD = false );
 
   private:
     McmcSample* mcmcSample_;
@@ -77,7 +95,12 @@ class McmcMachinery {
     DEploidIO* dEploidIO_;
     Panel* panel_;
     size_t kStrain_;
+    void setKstrain ( const size_t setTo ){ this->kStrain_ = setTo;}
+    size_t kStrain() const { return this->kStrain_;}
+
     size_t nLoci_;
+    void setNLoci ( const size_t setTo ){ this->nLoci_ = setTo;}
+    size_t nLoci() const { return this->nLoci_; }
 
     double burnIn_;
     size_t maxIteration_;
@@ -94,6 +117,7 @@ class McmcMachinery {
     RandomGenerator* mcmcEventRg_;
     RandomGenerator* propRg_;
     RandomGenerator* initialHapRg_;
+    RandomGenerator* ibdRg_;
 
     //std::normal_distribution<double>* initialTitre_normal_distribution_;// (MN_LOG_TITRE, SD_LOG_TITRE);
     //std::normal_distribution<double>* deltaX_normal_distribution_;// (0, 1/PROP_SCALE);
@@ -111,11 +135,12 @@ class McmcMachinery {
     vector <double> currentLLks_;
     vector < vector <double> > currentHap_;
     vector < double > currentExpectedWsaf_;
+    vector < double > cumExpectedWsaf_;
 
   /* Methods */
     void calcMaxIteration( size_t nSample, size_t McmcMachineryRate, double burnIn );
    /* Initialize */
-    void initializeMcmcChain();
+    void initializeMcmcChain(bool useIBD);
     void initializeProp();
     void initializeTitre();
     void initializeHap();
@@ -135,10 +160,47 @@ class McmcMachinery {
         cout << endl;
     }
 
-    void sampleMcmcEvent();
+    void sampleMcmcEvent(bool useIBD = false);
     void recordMcmcMachinery();
     bool recordingMcmcBool_;
-    void writeLastFwdProb();
+    void writeLastFwdProb(bool useIBD);
+    void updateReferencePanel(size_t inbreedingPanelSizeSetTo, size_t excludedStrain);
+    void initializeUpdateReferencePanel(size_t inbreedingPanelSizeSetTo);
+    void computeDiagnostics();
+
+   /* IBD */
+    double theta_;
+    void setTheta(const double setTo) {this->theta_ = setTo;}
+    double theta() const {return this->theta_;}
+
+    double fSum;
+    Hprior hprior;
+    vector < vector <double> > llkSurf;
+    vector <int> uniqueEffectiveKCount;
+    vector < vector<double> > ibdTransProbs;
+    vector < vector <double> > fm;
+    vector <double> fSumState;
+    vector <size_t> ibdPath;
+
+    vector <double> computeStatePrior(double theta);
+    vector <size_t> findWhichIsSomething(vector <size_t> tmpOp, size_t something);
+    vector <double> computeLlkOfStatesAtSiteI( size_t siteI, double err = 0.01);
+    vector <double> computeLlkAtAllSites(double err = 0.01);
+    vector <double> averageProportion(vector < vector <double> > &proportion );
+
+    void initializeIbdEssentials();
+    void makeLlkSurf(vector <double> altCount,
+                     vector <double> refCount,
+                     double scalingConst = 100.0,
+                     double err = 0.01,
+                     size_t gridSize=99);
+    void sampleMcmcEventIbdStep();
+    void makeIbdTransProbs();
+    void initializePropIBD();
+    void computeUniqueEffectiveKCount();
+    void updateFmAtSiteI(vector <double> & prior,
+                         vector <double> & llk);
+    void computeAndUpdateTheta();
 
   /* Moves */
     void updateProportion();
@@ -155,6 +217,7 @@ class McmcMachinery {
   /* Debug */
     bool doutProp();
     bool doutLLK();
+    int acceptUpdate;
 };
 
 #endif

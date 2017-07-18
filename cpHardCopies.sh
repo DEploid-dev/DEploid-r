@@ -5,7 +5,10 @@
 rsync -avu R/DEploidR.R .DEploid/utilities/DEploidR.R
 
 # cpp
-rsync -avu src/DEploid/ .DEploid/src/
+#rsync -avu src/DEploid/ .DEploid/src/
+
+# sync from DEploid to DEploid-r
+rsync -avu .DEploid/src/ src/DEploid/
 
 # tidy up
 #rm -r src/DEploid/*/.deps

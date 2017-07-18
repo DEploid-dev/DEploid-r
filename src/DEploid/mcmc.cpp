@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -27,14 +29,15 @@
 #include <random>
 #include "updateHap.hpp"
 #include <stdio.h>
+#include <limits>       /* std::numeric_limits< double >::min() */
 
 McmcSample::McmcSample(){};
 McmcSample::~McmcSample(){};
 
-McmcMachinery::McmcMachinery(DEploidIO* dEploidIO, Panel *panel, McmcSample *mcmcSample, RandomGenerator* rg_ ){ // initialiseMCMCmachinery
+McmcMachinery::McmcMachinery(DEploidIO* dEploidIO, McmcSample *mcmcSample, RandomGenerator* rg_, bool useIBD ){ // initialiseMCMCmachinery
 
     this->dEploidIO_ = dEploidIO;
-    this->panel_ = panel;
+    this->panel_ = dEploidIO->panel;
     this->mcmcSample_ = mcmcSample;
     this->seed_ = rg_->seed();
 
@@ -43,22 +46,24 @@ McmcMachinery::McmcMachinery(DEploidIO* dEploidIO, Panel *panel, McmcSample *mcm
     this->mcmcEventRg_ = this->hapRg_;
     this->propRg_ = this->hapRg_;
     this->initialHapRg_ = this->hapRg_;
+    this->ibdRg_ = this->hapRg_;
     //this->mcmcEventRg_ = new MersenneTwister(this->seed_);
     //this->propRg_  = new MersenneTwister(this->seed_);
     //this->initialHapRg_ = new MersenneTwister(this->seed_);
-
-    this->calcMaxIteration( dEploidIO_->nMcmcSample_ , dEploidIO_->mcmcMachineryRate_, dEploidIO_->mcmcBurn_ );
-
+    if (useIBD == true) {
+        this->calcMaxIteration(100, 10, 0.5);
+    } else {
+        this->calcMaxIteration( dEploidIO_->nMcmcSample_ , dEploidIO_->mcmcMachineryRate_, dEploidIO_->mcmcBurn_ );
+    }
     this->MN_LOG_TITRE = 0.0;
-    this->SD_LOG_TITRE = 3.0;
+    this->SD_LOG_TITRE = this->dEploidIO_->parameterSigma();
     this->PROP_SCALE = 40.0;
 
     stdNorm_ = new StandNormalRandomSample(this->seed_);
 
-    this->kStrain_ = this->dEploidIO_->kStrain_;
-    this->nLoci_ = this->dEploidIO_->plaf_.size();
-    this->initializeMcmcChain( );
-
+    this->setKstrain(this->dEploidIO_->kStrain());
+    this->setNLoci(this->dEploidIO_->plaf_.size());
+    this->initializeMcmcChain( useIBD );
 }
 
 
@@ -77,7 +82,7 @@ void McmcMachinery::calcMaxIteration( size_t nSample, size_t McmcMachineryRate, 
 }
 
 
-void McmcMachinery::initializeMcmcChain( ){
+void McmcMachinery::initializeMcmcChain(bool useIBD){
     // Initialization
     dout << "###########################################"<< endl;
     dout << "#            Initialization               #"<< endl;
@@ -88,7 +93,32 @@ void McmcMachinery::initializeMcmcChain( ){
     this->initializeHap();
     this->initializeProp();
     this->initializeExpectedWsaf(); // This requires currentHap_ and currentProp_
-    this->currentLLks_ = calcLLKs( this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, this->currentExpectedWsaf_ , 0, this->currentExpectedWsaf_.size());
+    this->currentLLks_ = calcLLKs( this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, this->currentExpectedWsaf_ , 0, this->currentExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
+    this->acceptUpdate = 0;
+
+    if ( this->dEploidIO_->doAllowInbreeding() == true ){
+        this->initializeUpdateReferencePanel(this->panel_->truePanelSize()+kStrain_-1);
+    }
+
+    if ( useIBD == true ){
+        this->initializeIbdEssentials();
+    }
+
+    this->mcmcSample_->IBDpathChangeAt = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfTwoSwitchOne = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfTwoMissCopyOne = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfTwoSwitchTwo = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfTwoMissCopyTwo = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfOneSwitchOne = vector <double> (this->nLoci());
+    this->mcmcSample_->siteOfOneMissCopyOne = vector <double> (this->nLoci());
+
+    this->mcmcSample_->currentIBDpathChangeAt = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfTwoSwitchOne = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfTwoMissCopyOne = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfTwoSwitchTwo = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfTwoMissCopyTwo = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfOneSwitchOne = vector <double> (this->nLoci());
+    this->mcmcSample_->currentsiteOfOneMissCopyOne = vector <double> (this->nLoci());
 
     assert (doutProp());
     assert (doutLLK());
@@ -100,14 +130,40 @@ void McmcMachinery::initializeMcmcChain( ){
 
 void McmcMachinery::initializeHap(){
     assert( currentHap_.size() == 0);
-    for ( size_t i = 0; i < this->dEploidIO_->plaf_.size(); i++ ){
-        double currentPlaf = this->dEploidIO_->plaf_[i];
-        vector <double> tmpVec;
-        for ( size_t k = 0; k < this->kStrain_; k++){
-            tmpVec.push_back( this->rBernoulli(currentPlaf) );
+    if ( this->dEploidIO_ -> initialHapWasGiven() ){
+        this->currentHap_ = this->dEploidIO_->initialHap;
+    } else {
+        for ( size_t i = 0; i < this->dEploidIO_->plaf_.size(); i++ ){
+            double currentPlaf = this->dEploidIO_->plaf_[i];
+            vector <double> tmpVec;
+            for ( size_t k = 0; k < this->kStrain_; k++){
+                tmpVec.push_back( this->rBernoulli(currentPlaf) );
+            }
+            this->currentHap_.push_back(tmpVec);
         }
-        this->currentHap_.push_back(tmpVec);
     }
+    assert(this->currentHap_.size() == this->dEploidIO_->plaf_.size());
+}
+
+
+void McmcMachinery::initializeUpdateReferencePanel(size_t inbreedingPanelSizeSetTo){
+    if ( this->dEploidIO_->doAllowInbreeding() != true ){
+        return;
+    }
+
+    this->panel_->initializeUpdatePanel(inbreedingPanelSizeSetTo);
+}
+
+
+void McmcMachinery::updateReferencePanel(size_t inbreedingPanelSizeSetTo, size_t excludedStrain){
+    if ( this->burnIn_ > this->currentMcmcIteration_ ){
+        return;
+    }
+
+    //if ( this->dEploidIO_->doAllowInbreeding() != true ){
+        //return;
+    //}
+    this->panel_->updatePanelWithHaps( inbreedingPanelSizeSetTo, excludedStrain, this->currentHap_);
 }
 
 
@@ -121,6 +177,7 @@ void McmcMachinery::initializeExpectedWsaf(){
     assert( this->currentExpectedWsaf_.size() == 0);
     this->currentExpectedWsaf_ = this->calcExpectedWsaf( this->currentProp_ );
     assert( this->currentExpectedWsaf_.size() == this->nLoci_ );
+    this->cumExpectedWsaf_ = this->currentExpectedWsaf_;
 }
 
 
@@ -136,6 +193,12 @@ void McmcMachinery::initializeProp( ){
     this->currentProp_ = ( this->dEploidIO_ -> initialPropWasGiven()) ?
                           this->dEploidIO_ ->initialProp:
                           this->titre2prop( this->currentTitre_ );
+    if ( this->dEploidIO_ -> initialPropWasGiven() ){
+        this->currentTitre_.clear();
+        for ( size_t i = 0; i <  this->dEploidIO_ ->initialProp.size(); i++ ) {
+            this->currentTitre_.push_back( log(this->dEploidIO_ ->initialProp[i]));
+        }
+    }
 }
 
 
@@ -174,38 +237,180 @@ vector <double> McmcMachinery::titre2prop(vector <double> & tmpTitre){
     for ( auto const& value: tmpExpTitre ){
         tmpProp.push_back( value/tmpSum );
         assert (tmpProp.back() > 0);
-        assert (tmpProp.back() < 1);
+        assert (tmpProp.back() <= 1);
     }
     return tmpProp;
 }
 
 
-void McmcMachinery::runMcmcChain( bool showProgress ){
+void McmcMachinery::makeLlkSurf(vector <double> altCount, vector <double> refCount, double scalingConst, double err, size_t gridSize){
+    double pGridSpacing = 1.0 / (double)(gridSize+1);
+    vector <double> pGrid;
+    pGrid.push_back(pGridSpacing);
+    for (size_t i = 1; i < gridSize; i++){
+        pGrid.push_back(pGrid.back() + pGridSpacing);
+    }
+    assert(pGrid.size() == gridSize);
+
+    assert(llkSurf.size() == 0);
+
+    for ( size_t i = 0 ; i < altCount.size(); i++) {
+        double alt = altCount[i];
+        double ref = refCount[i];
+
+        vector <double> ll;
+        for ( double unadjustedP : pGrid ){
+            ll.push_back(calcLLK( ref, alt, unadjustedP, err, scalingConst));
+        }
+
+        double llmax = max_value(ll);
+        vector <double> ln;
+        for ( double lltmp : ll ){
+            ln.push_back(exp(lltmp-llmax));
+        }
+
+        double lnSum = sumOfVec(ln);
+        for (size_t i = 0; i < ln.size(); i++){
+            ln[i] = ln[i]/lnSum;
+        }
+
+        vector <double> tmpVec1 = vecProd(ln, pGrid);
+        double mn = sumOfVec(tmpVec1);
+        vector <double> pGridSq = vecProd(pGrid, pGrid);
+        vector <double> tmpVec2 = vecProd(ln, pGridSq);
+        double vr = sumOfVec(tmpVec2) - mn*mn;
+
+        double comm = (mn*(1.0-mn)/vr-1.0);
+        llkSurf.push_back(vector <double> {mn*comm, (1-mn)*comm});
+    }
+    assert(llkSurf.size() == this->nLoci());
+}
+
+
+void McmcMachinery::initializePropIBD(){
+    //#Initialise titres and convert to proportions
+    this->currentTitre_ = vector <double> (this->kStrain(), 0.0);
+    this->currentProp_ = ( this->dEploidIO_ -> initialPropWasGiven()) ?
+                          this->dEploidIO_ ->initialProp :
+                          vector <double> (this->kStrain(), 1.0/(double)kStrain());
+}
+
+
+void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD ){
+
     for ( this->currentMcmcIteration_ = 0 ; currentMcmcIteration_ < this->maxIteration_ ; currentMcmcIteration_++){
         dout << endl;
         dout << "MCMC iteration: " << this->currentMcmcIteration_ << endl;
         if ( this->currentMcmcIteration_ > 0 && this->currentMcmcIteration_%100 == 0 && showProgress ){
             clog << "\r" << " MCMC step" << setw(4) << int(currentMcmcIteration_ * 100 / this->maxIteration_) << "% completed."<<flush;
         }
-        this->sampleMcmcEvent();
+        this->sampleMcmcEvent(useIBD);
     }
     clog << "\r" << " MCMC step" << setw(4) << 100 << "% completed."<<endl;
     this->mcmcSample_->hap = this->currentHap_;
 
-    this->writeLastFwdProb();
+    this->writeLastFwdProb(useIBD);
+
+    this->dEploidIO_->filnalProp = this->mcmcSample_->proportion.back();
+
+    for (size_t atSiteI = 0; atSiteI < nLoci(); atSiteI++ ){
+        this->mcmcSample_->IBDpathChangeAt[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfTwoSwitchOne[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfTwoMissCopyOne[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfTwoSwitchTwo[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfTwoMissCopyTwo[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfOneSwitchOne[atSiteI] /= (double)this->maxIteration_;
+        this->mcmcSample_->siteOfOneMissCopyOne[atSiteI] /= (double)this->maxIteration_;
+    }
+
+    this->dEploidIO_->writeMcmcRelated(this->mcmcSample_, useIBD);
+
+    if ( useIBD == true ){
+        clog << "Proportion update acceptance rate: "<<acceptUpdate / (this->kStrain()*1.0*this->maxIteration_)<<endl;
+        this->dEploidIO_->initialProp = averageProportion(this->mcmcSample_->proportion);
+        this->dEploidIO_->setInitialPropWasGiven(true);
+        this->dEploidIO_->setDoUpdateProp(false);
+        this->dEploidIO_->initialHap = this->mcmcSample_->hap;
+        this->dEploidIO_->setInitialHapWasGiven(true);
+    }
+
+    this->computeDiagnostics();
+
+    dout << "###########################################"<< endl;
+    dout << "#            MCMC RUN finished            #"<< endl;
+    dout << "###########################################"<< endl;
 }
 
 
-void McmcMachinery::sampleMcmcEvent( ){
-    this->recordingMcmcBool_ = ( currentMcmcIteration_ > this->mcmcThresh_ && currentMcmcIteration_ % this->McmcMachineryRate_ == 0 );
+void McmcMachinery::computeDiagnostics(){
+    //clog << "Proportion update acceptance rate: "<<acceptUpdate / (this->kStrain()*1.0*this->maxIteration_)<<endl;
+    this->dEploidIO_->setacceptRatio(acceptUpdate / (1.0*this->maxIteration_));
 
-    this->eventInt_ = this->mcmcEventRg_->sampleInt(3);
-    if ( (this->eventInt_ == 0) && (this->dEploidIO_->doUpdateProp() == true) ){
-        this->updateProportion();
-    } else if ( (this->eventInt_ == 1) && (this->dEploidIO_->doUpdateSingle() == true) ){
-        this->updateSingleHap();
-    } else if ( (this->eventInt_ == 2) && (this->dEploidIO_->doUpdatePair() == true) ){
-        this->updatePairHaps();
+    // average cumulate expectedWSAF
+    for ( size_t i = 0; i < this->cumExpectedWsaf_.size(); i++){
+        this->cumExpectedWsaf_[i] /= this->dEploidIO_->nMcmcSample_;
+    }
+    vector <double> tmpLLKs1 = calcLLKs (this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, this->cumExpectedWsaf_, 0, this->cumExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
+    this->dEploidIO_->setmeanThetallks( sumOfVec(tmpLLKs1) );
+
+    vector <double> wsaf_vec;
+    for ( size_t i = 0; i < nLoci(); i++){
+        double wsaf = this->dEploidIO_->altCount_[i] / (this->dEploidIO_->refCount_[i] + this->dEploidIO_->altCount_[i] + 0.00000000000001);
+        double adjustedWsaf = wsaf*(1-0.01) + (1-wsaf)*0.01;
+        wsaf_vec.push_back(adjustedWsaf);
+        //llkOfData.push_back( logBetaPdf(adjustedWsaf, this->llkSurf[i][0], this->llkSurf[i][1]));
+    }
+    vector <double> tmpLLKs = calcLLKs (this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, wsaf_vec, 0, wsaf_vec.size(), this->dEploidIO_->scalingFactor());
+    this->dEploidIO_->setmaxLLKs( sumOfVec(tmpLLKs) );
+
+    double sum = std::accumulate(this->mcmcSample_->sumLLKs.begin(), this->mcmcSample_->sumLLKs.end(), 0.0);
+    double mean = sum / this->mcmcSample_->sumLLKs.size();
+    double sq_sum = std::inner_product(this->mcmcSample_->sumLLKs.begin(), this->mcmcSample_->sumLLKs.end(), this->mcmcSample_->sumLLKs.begin(), 0.0);
+    double varLLKs = sq_sum / this->mcmcSample_->sumLLKs.size() - mean * mean;
+    double stdev = std::sqrt(varLLKs);
+    this->dEploidIO_->setmeanllks(mean);
+    this->dEploidIO_->setstdvllks(stdev);
+
+    double dicByVar = (-2*mean) + 4*varLLKs/2;
+    this->dEploidIO_->setdicByVar(dicByVar);
+     //return (  mean(-2*tmpllk) + var(-2*tmpllk)/2 )# D_bar + 1/2 var (D_theta), where D_theta = -2*tmpllk, and D_bar = mean(D_theta)
+
+    double dicWSAFBar = -2 * sumOfVec(tmpLLKs1);
+    double dicByTheta = (-2*mean) + (-2*mean) - dicWSAFBar;
+    this->dEploidIO_->setdicByTheta(dicByTheta);
+    //DIC.WSAF.bar = -2 * sum(thetallk)
+    //return (  mean(-2*tmpllk) + (mean(-2*tmpllk) - DIC.WSAF.bar) ) # D_bar + pD, where pD = D_bar - D_theta, and D_bar = mean(D_theta)
+
+}
+
+vector <double> McmcMachinery::averageProportion(vector < vector <double> > &proportion ){
+    assert(proportion.size()>0);
+    vector <double> ret(this->kStrain());
+    for ( size_t i = 0; i < kStrain(); i++ ){
+        for (vector <double> p : proportion){
+            ret[i] += p[i];
+        }
+        ret[i] /= (1.0*proportion.size());
+    }
+    (void)normalizeBySum(ret);
+    return ret;
+}
+
+
+void McmcMachinery::sampleMcmcEvent( bool useIBD ){
+    this->recordingMcmcBool_ = ( currentMcmcIteration_ > this->mcmcThresh_ && currentMcmcIteration_ % this->McmcMachineryRate_ == 0 );
+    if ( useIBD == true ){
+        sampleMcmcEventIbdStep();
+        assert(doutProp());
+    } else {
+        this->eventInt_ = this->mcmcEventRg_->sampleInt(3);
+        if ( (this->eventInt_ == 0) && (this->dEploidIO_->doUpdateProp() == true) ){
+            this->updateProportion();
+        } else if ( (this->eventInt_ == 1) && (this->dEploidIO_->doUpdateSingle() == true) ){
+            this->updateSingleHap();
+        } else if ( (this->eventInt_ == 2) && (this->dEploidIO_->doUpdatePair() == true) ){
+            this->updatePairHaps();
+        }
     }
 
     assert(doutLLK());
@@ -213,6 +418,258 @@ void McmcMachinery::sampleMcmcEvent( ){
     if ( this->recordingMcmcBool_ ){
         this->recordMcmcMachinery();
     }
+}
+
+
+vector <size_t> McmcMachinery::findWhichIsSomething(vector <size_t> tmpOp, size_t something){
+    vector <size_t> ret;
+    for ( size_t i = 0; i < tmpOp.size(); i++){
+        if ( tmpOp[i] == something){
+            ret.push_back(i);
+        }
+    }
+    return ret;
+}
+
+
+void McmcMachinery::makeIbdTransProbs(){
+    size_t nPattern = hprior.nPattern();
+    size_t nState = hprior.nState();
+    assert(ibdTransProbs.size() == 0);
+
+    for ( size_t i = 0; i < nPattern; i++ ){
+        vector <double> transProbRow(nState);
+        vector <size_t> wi = findWhichIsSomething(hprior.stateIdx, i);
+        for (size_t wii : wi){
+            transProbRow[wii] = 1;
+        }
+        ibdTransProbs.push_back(transProbRow);
+    }
+}
+
+
+void McmcMachinery::computeUniqueEffectiveKCount(){
+    this->uniqueEffectiveKCount = vector <int> (this->kStrain());
+    for (size_t effectiveKtmp : this->hprior.effectiveK) {
+        int effectiveKidx = effectiveKtmp-1;
+        assert(effectiveKidx>=0);
+        this->uniqueEffectiveKCount[effectiveKidx]++;
+    }
+}
+
+
+vector <double> McmcMachinery::computeStatePrior( double theta ){
+    //#Calculate state prior given theta (theta is prob IBD)
+    vector <double> pr0(this->kStrain());
+    for (int i = 0; i < (int)pr0.size(); i++){
+        pr0[i] = binomialPdf(i, (int)(this->kStrain()-1), theta);
+    }
+
+    vector <double> effectiveKPrior;
+    for ( size_t effectiveKtmp : this->hprior.effectiveK){
+        int effectiveKidx = effectiveKtmp-1;
+        assert(effectiveKidx >= 0);
+        assert(effectiveKidx < (int)this->kStrain());
+        effectiveKPrior.push_back(pr0[effectiveKidx]/uniqueEffectiveKCount[effectiveKidx]);
+    }
+
+    vector <double> ret;
+    for (size_t stateIdxTmp : this->hprior.stateIdx){
+        ret.push_back(effectiveKPrior[stateIdxTmp]);
+    }
+    return ret;
+}
+
+
+void McmcMachinery::initializeIbdEssentials(){
+    // initialize haplotype prior
+    this->hprior.buildHprior(this->kStrain(), this->dEploidIO_->plaf_);
+    this->hprior.transposePriorProbs();
+
+    // compute likelihood surface
+    this->makeLlkSurf(this->dEploidIO_->altCount_, this->dEploidIO_->refCount_);
+
+    vector <double> llkOfData;
+    for ( size_t i = 0; i < nLoci(); i++){
+        double wsaf = this->dEploidIO_->altCount_[i] / (this->dEploidIO_->refCount_[i] + this->dEploidIO_->altCount_[i] + 0.00000000000001);
+        double adjustedWsaf = wsaf*(1-0.01) + (1-wsaf)*0.01;
+        llkOfData.push_back( logBetaPdf(adjustedWsaf, this->llkSurf[i][0], this->llkSurf[i][1]));
+    }
+    dout << "LLK of data = " << sumOfVec(llkOfData) << endl;
+
+    this->initializePropIBD();
+    this->setTheta(1.0 / (double)kStrain());
+    this->makeIbdTransProbs();
+    this->computeUniqueEffectiveKCount();
+
+    // initialize fm
+    this->fSumState = vector <double> (this->hprior.nPattern());
+
+    // initialize ibdPath
+    this->ibdPath = vector <size_t> (this->nLoci());
+}
+
+
+vector <double> McmcMachinery::computeLlkOfStatesAtSiteI( size_t siteI, double err ){
+    vector <double> llks;
+    for ( vector <int> hSetI : this->hprior.hSet ){
+        double qs = 0;
+        for ( size_t j = 0; j < this->kStrain() ; j++ ){
+            qs += (double)hSetI[j] * this->currentProp_[j];
+        }
+        double qs2 = qs*(1-err) + (1-qs)*err ;
+        llks.push_back(logBetaPdf(qs2, this->llkSurf[siteI][0], this->llkSurf[siteI][1]));
+    }
+
+    double maxllk = max_value(llks);
+    vector <double> ret;
+    for ( double llk : llks ){
+        double normalized = exp(llk-maxllk);
+        if ( normalized == 0 ){
+            normalized = std::numeric_limits< double >::min();
+        }
+        ret.push_back(normalized);
+    }
+
+    return ret;
+}
+
+
+void McmcMachinery::updateFmAtSiteI(vector <double> & prior, vector <double> & llk){
+    vector <double> postAtSiteI = vecProd(prior, llk);
+    normalizeByMax(postAtSiteI);
+    this->fm.push_back(postAtSiteI);
+    this->fSum = sumOfVec(postAtSiteI);
+    for ( size_t i = 0; i < fSumState.size(); i++){
+        this->fSumState[i] = 0;
+        for ( size_t j = 0; j < hprior.nState(); j++ ){
+            this->fSumState[i] += ibdTransProbs[i][j]*postAtSiteI[j];
+        }
+    }
+}
+
+
+vector <double> McmcMachinery::computeLlkAtAllSites(double err){
+    vector <double > ret;
+    for ( size_t site = 0; site < this->nLoci(); site++ ){
+        double qs = 0;
+        for ( size_t j = 0; j < this->kStrain() ; j++ ){
+            qs += (double)this->currentHap_[site][j] * this->currentProp_[j];
+        }
+        double qs2 = qs*(1-err) + (1-qs)*err ;
+        ret.push_back(logBetaPdf(qs2, this->llkSurf[site][0], this->llkSurf[site][1]));
+    }
+    return ret;
+}
+
+
+void McmcMachinery::sampleMcmcEventIbdStep(){
+    this->fm.clear();
+    double pRecomb = 0.01; // This should be parsed in
+    double pNoRecomb = 0.99;
+    vector <double> statePrior = this->computeStatePrior(this->theta());
+    vector <double> vPrior = vecProd(statePrior, this->hprior.priorProbTrans[0]);
+
+    vector <double> lk = computeLlkOfStatesAtSiteI(0);
+    this->updateFmAtSiteI(vPrior, lk);
+    for ( size_t siteI = 1; siteI < this->nLoci(); siteI++ ){
+        vector <double> vNoRec;
+        for ( size_t stateIdxTmp : hprior.stateIdx ){
+            vNoRec.push_back(this->fSumState[stateIdxTmp]);
+        }
+
+        for ( size_t i = 0; i < hprior.nState(); i++ ){
+            vPrior[i] = (vNoRec[i] * pNoRecomb + fSum * pRecomb * statePrior[i]) * hprior.priorProbTrans[siteI][i];
+        }
+
+        lk = computeLlkOfStatesAtSiteI(siteI);
+        this->updateFmAtSiteI(vPrior, lk);
+    }
+
+    ////#Now sample path given matrix
+    int lociIdx = this->nLoci()-1;
+    vector <double> tmpProp = fm[lociIdx];
+    (void)normalizeBySum(tmpProp);
+    ibdPath[lociIdx] = sampleIndexGivenProp(this->ibdRg_, tmpProp);
+
+    assert(this->fm.size() == nLoci());
+    while ( lociIdx > 0 ){
+        lociIdx--;
+        vector <double> vNoRecomb = vecProd(this->ibdTransProbs[this->hprior.stateIdx[ibdPath[lociIdx+1]]], fm[lociIdx]);
+        assert(vNoRecomb.size() == this->hprior.nState());
+        vector <double> vRecomb = fm[lociIdx];
+        assert(vRecomb.size() == this->hprior.nState());
+        vector <double> prop (this->hprior.nState());
+        for ( size_t i = 0; i < prop.size(); i++){
+            prop[i] = vNoRecomb[i]*pNoRecomb + vRecomb[i]*pRecomb*statePrior[ibdPath[lociIdx+1]];
+        }
+        tmpProp = prop;
+        (void)normalizeBySum(tmpProp);
+        ibdPath[lociIdx] = sampleIndexGivenProp(this->ibdRg_, tmpProp);
+        assert( ibdPath[lociIdx] < this->hprior.nState() );
+        assert( ibdPath[lociIdx] >= 0 );
+    }
+
+    //#Get haplotypes and update LLK for each site
+    for (size_t i = 0; i < this->nLoci(); i++){
+        for ( size_t j = 0; j < kStrain(); j++){
+            this->currentHap_[i][j] = (double)this->hprior.hSet[ibdPath[i]][j];
+        }
+    }
+
+    vector <double> llkAtAllSites = computeLlkAtAllSites();
+
+    ////#Given current haplotypes, sample titres 1 by 1 using MH
+    for (size_t i = 0; i < kStrain(); i++){
+        double v0 = this->currentTitre_[i];
+        vector <double> oldProp = this->currentProp_;
+        this->currentTitre_[i] += (this->stdNorm_->genReal() * 0.1 + 0.0); // tit.0[i]+rnorm(1, 0, scale.t.prop);
+        this->currentProp_ = this->titre2prop(this->currentTitre_);
+        vector <double> vv = computeLlkAtAllSites();
+        double rr = normal_pdf( this->currentTitre_[i], 0, 1) /
+                    normal_pdf( v0, 0, 1) * exp( sumOfVec(vv) - sumOfVec(llkAtAllSites));
+
+        if ( this->propRg_->sample() < rr) {
+            llkAtAllSites = vv;
+            acceptUpdate++;
+        } else {
+            this->currentTitre_[i] = v0;
+            this->currentProp_ = oldProp;
+        }
+    }
+
+    this->computeAndUpdateTheta();
+
+    this->currentLLks_ = llkAtAllSites;
+    this->currentExpectedWsaf_ = this->calcExpectedWsaf( this->currentProp_ );
+}
+
+
+void McmcMachinery::computeAndUpdateTheta(){
+    vector <size_t> obsState;
+    size_t previousState = 0;
+    size_t atSiteI = 0;
+    for (size_t a : ibdPath){
+        if ( a != previousState ){
+            obsState.push_back(a);
+        }
+        if ( this->hprior.stateIdx[a] != this->hprior.stateIdx[previousState] ){
+            this->mcmcSample_->IBDpathChangeAt[atSiteI] += 1.0;
+            this->mcmcSample_->currentIBDpathChangeAt[atSiteI] = 1.0;
+        } else {
+            this->mcmcSample_->currentIBDpathChangeAt[atSiteI] = 0.0;
+        }
+        previousState = a;
+        atSiteI++;
+    }
+
+    size_t sumOfKeffStates = 0;
+    size_t sccs = 0;
+    for (size_t obs : obsState){
+        sumOfKeffStates += this->hprior.effectiveK[obs] - 1;
+        sccs += this->kStrain() - this->hprior.effectiveK[obs];
+    }
+    this->setTheta(rBeta(sccs+1.0, sumOfKeffStates+1.0, this->propRg_));
 }
 
 
@@ -236,6 +693,11 @@ void McmcMachinery::recordMcmcMachinery(){
     this->mcmcSample_->proportion.push_back(this->currentProp_);
     this->mcmcSample_->sumLLKs.push_back(sumOfVec(this->currentLLks_));
     this->mcmcSample_->moves.push_back(this->eventInt_);
+
+    // Cumulate expectedWSAF for computing the mean expectedWSAF
+    for ( size_t i = 0; i < this->cumExpectedWsaf_.size(); i++){
+        this->cumExpectedWsaf_[i] += this->currentExpectedWsaf_[i];
+    }
 }
 
 
@@ -257,7 +719,7 @@ void McmcMachinery::updateProportion(){
     }
 
     vector <double> tmpExpecedWsaf = calcExpectedWsaf(tmpProp);
-    vector <double> tmpLLKs = calcLLKs (this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, tmpExpecedWsaf, 0, tmpExpecedWsaf.size());
+    vector <double> tmpLLKs = calcLLKs (this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, tmpExpecedWsaf, 0, tmpExpecedWsaf.size(), this->dEploidIO_->scalingFactor());
     double diffLLKs = this->deltaLLKs(tmpLLKs);
     double tmpLogPriorTitre = calcLogPriorTitre( tmpTitre );
     double priorPropRatio = exp(tmpLogPriorTitre - this->currentLogPriorTitre_ );
@@ -270,6 +732,7 @@ void McmcMachinery::updateProportion(){
     }
 
     dout << "(successed) " << endl;
+    this->acceptUpdate++;
 
     this->currentExpectedWsaf_ = tmpExpecedWsaf;
     this->currentLLks_ = tmpLLKs;
@@ -301,6 +764,10 @@ void McmcMachinery::updateSingleHap(){
     dout << " Update Single Hap "<<endl;
     this->findUpdatingStrainSingle();
 
+    if ( this->dEploidIO_->doAllowInbreeding() == true ){
+        this->updateReferencePanel(this->panel_->truePanelSize()+kStrain_-1, this->strainIndex_);
+    }
+
     for ( size_t chromi = 0 ; chromi < this->dEploidIO_->indexOfChromStarts_.size(); chromi++ ){
         size_t start = this->dEploidIO_->indexOfChromStarts_[chromi];
         size_t length = this->dEploidIO_->position_[chromi].size();
@@ -311,8 +778,13 @@ void McmcMachinery::updateSingleHap(){
                                   this->currentExpectedWsaf_,
                                   this->currentProp_, this->currentHap_, this->hapRg_,
                                   start, length,
-                                  this->panel_, this->dEploidIO_->missCopyProb_,
+                                  this->panel_, this->dEploidIO_->missCopyProb_, this->dEploidIO_->scalingFactor(),
                                   this->strainIndex_);
+
+        if ( this->dEploidIO_->doAllowInbreeding() == true ){
+            updating.setPanelSize(this->panel_->inbreedingPanelSize());
+        }
+
         updating.core ( this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, this->dEploidIO_->plaf_, this->currentExpectedWsaf_, this->currentProp_, this->currentHap_);
 
         size_t updateIndex = 0;
@@ -322,26 +794,22 @@ void McmcMachinery::updateSingleHap(){
             updateIndex++;
         }
 
-        if ( this->dEploidIO_->doExportSwitchMissCopy() ){
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportOneSwitchOne.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfOneSwitchOne.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfOneSwitchOne[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
-
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportOneMissCopyOne.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfOneMissCopyOne.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfOneMissCopyOne[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
+        for (size_t siteI = 0; siteI< length; siteI++){
+            this->mcmcSample_->siteOfOneSwitchOne[start+siteI] += updating.siteOfOneSwitchOne[siteI];
+            this->mcmcSample_->siteOfOneMissCopyOne[start+siteI] += updating.siteOfOneMissCopyOne[siteI];
+            this->mcmcSample_->siteOfOneSwitchOne[start+siteI] = updating.siteOfOneSwitchOne[siteI];
+            this->mcmcSample_->siteOfOneMissCopyOne[start+siteI] = updating.siteOfOneMissCopyOne[siteI];
         }
     }
-
     this->currentExpectedWsaf_ = this->calcExpectedWsaf( this->currentProp_ );
 }
 
 
 void McmcMachinery::updatePairHaps(){
+    if ( this->kStrain() == 1 ){
+        return;
+    }
+
     dout << " Update Pair Hap "<<endl;
     this->findUpdatingStrainPair();
 
@@ -356,9 +824,11 @@ void McmcMachinery::updatePairHaps(){
                                 this->currentExpectedWsaf_,
                                 this->currentProp_, this->currentHap_, this->hapRg_,
                                 start, length,
-                                this->panel_, this->dEploidIO_->missCopyProb_, this->dEploidIO_->forbidCopyFromSame(),
+                                this->panel_, this->dEploidIO_->missCopyProb_, this->dEploidIO_->scalingFactor(),
+                                this->dEploidIO_->forbidCopyFromSame(),
                                 this->strainIndex1_,
                                 this->strainIndex2_);
+
         updating.core ( this->dEploidIO_->refCount_, this->dEploidIO_->altCount_, this->dEploidIO_->plaf_, this->currentExpectedWsaf_, this->currentProp_, this->currentHap_);
 
         size_t updateIndex = 0;
@@ -369,30 +839,16 @@ void McmcMachinery::updatePairHaps(){
             updateIndex++;
         }
 
-        if ( this->dEploidIO_->doExportSwitchMissCopy() ){
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportTwoSwitchOne.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfTwoSwitchOne.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfTwoSwitchOne[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
+        for (size_t siteI = 0; siteI< length; siteI++){
+            this->mcmcSample_->siteOfTwoSwitchOne[start+siteI] += updating.siteOfTwoSwitchOne[siteI];
+            this->mcmcSample_->siteOfTwoMissCopyOne[start+siteI] += updating.siteOfTwoMissCopyOne[siteI];
+            this->mcmcSample_->siteOfTwoSwitchTwo[start+siteI] += updating.siteOfTwoSwitchTwo[siteI];
+            this->mcmcSample_->siteOfTwoMissCopyTwo[start+siteI] += updating.siteOfTwoMissCopyTwo[siteI];
+            this->mcmcSample_->currentsiteOfTwoSwitchOne[start+siteI] = updating.siteOfTwoSwitchOne[siteI];
+            this->mcmcSample_->currentsiteOfTwoMissCopyOne[start+siteI] = updating.siteOfTwoMissCopyOne[siteI];
+            this->mcmcSample_->currentsiteOfTwoSwitchTwo[start+siteI] = updating.siteOfTwoSwitchTwo[siteI];
+            this->mcmcSample_->currentsiteOfTwoMissCopyTwo[start+siteI] = updating.siteOfTwoMissCopyTwo[siteI];
 
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportTwoMissCopyOne.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfTwoMissCopyOne.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfTwoMissCopyOne[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
-
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportTwoSwitchTwo.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfTwoSwitchTwo.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfTwoSwitchTwo[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
-
-            this->dEploidIO_->ofstreamExportTmp.open( this->dEploidIO_->strExportTwoMissCopyTwo.c_str(), ios::out | ios::app | ios::binary );
-            for ( size_t i = 0; i < updating.siteOfTwoMissCopyTwo.size(); i++ ){
-                this->dEploidIO_->ofstreamExportTmp << this->dEploidIO_->chrom_[chromi] << "\t" << (size_t)this->dEploidIO_->position_[chromi][updating.siteOfTwoMissCopyTwo[i]] << endl;
-            }
-            this->dEploidIO_->ofstreamExportTmp.close();
         }
     }
 

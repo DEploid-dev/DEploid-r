@@ -2,7 +2,9 @@
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
  * mix-infected patient sample.
  *
- * Copyright (C) 2016, Sha (Joe) Zhu, Jacob Almagro and Prof. Gil McVean
+ * Copyright (C) 2016-2017 University of Oxford
+ *
+ * Author: Sha (Joe) Zhu
  *
  * This file is part of dEploid.
  *
@@ -25,8 +27,8 @@
 #include <iostream>
 #include "utility.hpp"
 #include "panel.hpp"
-#include "mersenne_twister.hpp"
-#include "global.h"
+//#include "mersenne_twister.hpp"
+//#include "global.h"
 
 #ifndef HAP
 #define HAP
@@ -43,7 +45,11 @@ class UpdateHap{
   friend class McmcMachinery;
   friend class UpdateSingleHap;
   friend class UpdatePairHap;
+  friend class DEploidIO;
 
+  public:
+    size_t nPanel() const { return this->nPanel_; }
+  private:
     UpdateHap();
     UpdateHap( vector <double> &refCount,
                vector <double> &altCount,
@@ -55,7 +61,8 @@ class UpdateHap{
                size_t segmentStartIndex,
                size_t nLoci,
                Panel* panel,
-               double missCopyProb );
+               double missCopyProb,
+               double scalingFactor);
     virtual ~UpdateHap();
 
     Panel* panel_;
@@ -66,12 +73,17 @@ class UpdateHap{
 
     size_t kStrain_;
     size_t nPanel_;
+    void setPanelSize ( const size_t setTo ){ this->nPanel_ = setTo; }
+
     vector <double> newLLK;
 
     size_t segmentStartIndex_;
     size_t nLoci_;
 
     vector < vector <double> > emission_;
+    double scalingFactor_;
+    double scalingFactor() const {return this->scalingFactor_; }
+    void setScalingFactor ( const double setTo ){ this->scalingFactor_ = setTo; }
 
     // Methods
     virtual void core(vector <double> &refCount,
@@ -98,7 +110,8 @@ class UpdateSingleHap : public UpdateHap{
 #endif
  friend class McmcMachinery;
  friend class DEploidIO;
-  public:
+  //public:
+  private:
     UpdateSingleHap ();
     UpdateSingleHap( vector <double> &refCount,
                       vector <double> &altCount,
@@ -110,13 +123,15 @@ class UpdateSingleHap : public UpdateHap{
                       size_t segmentStartIndex,
                       size_t nLoci,
                       Panel* panel, double missCopyProb,
+                      double scalingFactor,
                       size_t strainIndex );
     ~UpdateSingleHap();
 
-  private:
-    vector <size_t> siteOfOneSwitchOne;
-    vector <size_t> siteOfOneMissCopyOne;
+    vector <double> siteOfOneSwitchOne;
+    vector <double> siteOfOneMissCopyOne;
     vector < vector <double> > fwdProbs_;
+    vector < vector < double > > bwdProbs_;
+    vector < vector <double> > fwdBwdProbs_;
 
     size_t strainIndex_;
     vector <double> expectedWsaf0_;
@@ -128,17 +143,24 @@ class UpdateSingleHap : public UpdateHap{
     vector <double> hap_;
 
     // Methods
-    void core(vector <double> &refCount,
-                           vector <double> &altCount,
-                           vector <double> &plaf,
-                           vector <double> &expectedWsaf,
-                           vector <double> &proportion,
-                           vector < vector <double> > &haplotypes );
+    void core( vector <double> &refCount,
+               vector <double> &altCount,
+               vector <double> &plaf,
+               vector <double> &expectedWsaf,
+               vector <double> &proportion,
+               vector < vector <double> > &haplotypes );
+    void painting( vector <double> &refCount,
+                   vector <double> &altCount,
+                   vector <double> &expectedWsaf,
+                   vector <double> &proportion,
+                   vector < vector <double> > &haplotypes );
     void calcExpectedWsaf( vector <double> & expectedWsaf, vector <double> &proportion, vector < vector <double> > &haplotypes);
     void calcHapLLKs( vector <double> &refCount, vector <double> &altCount);
     void buildEmission( double missCopyProb );
     void buildEmissionBasicVersion( double missCopyProb );
     void calcFwdProbs();
+    void calcBwdProbs();
+    void calcFwdBwdProbs();
     void samplePaths();
     void addMissCopying( double missCopyProb );
     void sampleHapIndependently(vector <double> &plaf);
@@ -163,16 +185,17 @@ class UpdatePairHap : public UpdateHap{
                       RandomGenerator* rg,
                       size_t segmentStartIndex,
                       size_t nLoci,
-                      Panel* panel, double missCopyProb, bool forbidCopyFromSame,
+                      Panel* panel, double missCopyProb,
+                      double scalingFactor, bool forbidCopyFromSame,
                       size_t strainIndex1,
                       size_t strainIndex2 );
     ~UpdatePairHap();
 
   private:
-    vector <size_t> siteOfTwoSwitchOne;
-    vector <size_t> siteOfTwoMissCopyOne;
-    vector <size_t> siteOfTwoSwitchTwo;
-    vector <size_t> siteOfTwoMissCopyTwo;
+    vector <double> siteOfTwoSwitchOne;
+    vector <double> siteOfTwoMissCopyOne;
+    vector <double> siteOfTwoSwitchTwo;
+    vector <double> siteOfTwoMissCopyTwo;
     vector< vector < vector <double> > > fwdProbs_;
 
     size_t strainIndex1_;

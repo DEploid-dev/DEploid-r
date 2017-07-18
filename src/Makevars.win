@@ -1,6 +1,7 @@
 OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o
 
 OBJECTS.dEploid = DEploid/panel.o \
+    DEploid/ibd.o \
     DEploid/utility.o \
     DEploid/dEploidIO.o \
     DEploid/txtReader.o \
@@ -12,7 +13,8 @@ OBJECTS.dEploid = DEploid/panel.o \
     DEploid/random/fastfunc.o \
     DEploid/random/random_generator.o \
     DEploid/random/mersenne_twister.o \
-    DEploid/export/dEploidIOExportPosteriorProb.o
+    DEploid/export/dEploidIOExportPosteriorProb.o \
+    DEploid/export/dEploidIOExport.o
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
 CXX_STD = CXX11
