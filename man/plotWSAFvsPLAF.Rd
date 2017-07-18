@@ -14,6 +14,8 @@ plotWSAFvsPLAF(plaf, obsWSAF, expWSAF = c(), potentialOutliers = c(),
 
 \item{expWSAF}{Numeric array of expected WSAF from model.}
 
+\item{potentialOutliers}{Index of potential outliers.}
+
 \item{title}{Figure title, "WSAF vs PLAF" by default}
 
 \item{cex.lab}{Label size.}

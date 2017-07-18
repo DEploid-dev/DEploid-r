@@ -19,6 +19,8 @@ plotAltVsRef(ref, alt, title = "Alt vs Ref", exclude.ref = c(),
 
 \item{exclude.alt}{Numeric array of alternative allele count at sites that are not deconvoluted}
 
+\item{potentialOutliers}{Index of potential outliers.}
+
 \item{cex.lab}{Label size.}
 
 \item{cex.main}{Title size.}
