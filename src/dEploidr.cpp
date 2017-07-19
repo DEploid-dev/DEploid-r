@@ -163,7 +163,6 @@ List dEploid(std::string args) {
     }
 
     if (dEploidIO.useIBD()){ // ibd
-        stop("-ibd is not implemented yet!");
         McmcSample * ibdMcmcSample = new McmcSample();
         McmcMachinery ibdMcmcMachinery(&dEploidIO, ibdMcmcSample, &rrg, true);
         ibdMcmcMachinery.runMcmcChain(true, // show progress
