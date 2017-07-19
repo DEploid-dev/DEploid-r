@@ -2,6 +2,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^tmp$
+^NEWS\.md$
 
 # bash scripts
 ^tools$
