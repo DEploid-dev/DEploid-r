@@ -1,6 +1,7 @@
 # R project
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.Rhistory$
 ^tmp$
 ^NEWS\.md$
 
@@ -20,6 +21,7 @@
 ^.DEploid\/*$
 ^.*\.dirstamp$
 ^.*\.gcda$
+^pf3k-dEploid.*$
 
 # extras
 ^extra$

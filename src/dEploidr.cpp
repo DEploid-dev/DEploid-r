@@ -166,7 +166,8 @@ List dEploid(std::string args) {
         McmcSample * ibdMcmcSample = new McmcSample();
         McmcMachinery ibdMcmcMachinery(&dEploidIO, ibdMcmcSample, &rrg, true);
         ibdMcmcMachinery.runMcmcChain(true, // show progress
-                                      true);  // use IBD
+                                      true, // use IBD
+                                      false ); // not in R
         delete ibdMcmcSample;
     }
     McmcSample * mcmcSample = new McmcSample();
@@ -174,7 +175,8 @@ List dEploid(std::string args) {
     McmcMachinery mcmcMachinery(&dEploidIO, mcmcSample, &rrg,
                                 false); // use IBD
     mcmcMachinery.runMcmcChain(true, // show progress
-                               false); // use IBD    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
+                               false, // use IBD    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
+                               false); // not in R
 
     RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);
     /** Finalize */
