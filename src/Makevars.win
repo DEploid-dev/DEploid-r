@@ -1,4 +1,4 @@
-OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o
+OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o init.o
 
 OBJECTS.dEploid = DEploid/panel.o \
     DEploid/ibd.o \
@@ -18,5 +18,5 @@ OBJECTS.dEploid = DEploid/panel.o \
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
 CXX_STD = CXX11
-PKG_CXXFLAGS = -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -DVERSION="\"R\"" -DRBUILD
+PKG_CXXFLAGS = -I/usr/share/R/include/ -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -DVERSION="\"R\"" -DRBUILD
 PKG_LIBS = -lz

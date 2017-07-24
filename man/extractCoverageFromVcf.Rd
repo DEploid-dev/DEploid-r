@@ -25,4 +25,3 @@ vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 PG0390 = extractCoverageFromVcf(vcfFile)
 
 }
-

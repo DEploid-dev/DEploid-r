@@ -26,4 +26,3 @@ altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 PG0390 = extractCoverageFromTxt(refFile, altFile)
 
 }
-

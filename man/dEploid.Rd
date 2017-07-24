@@ -28,11 +28,14 @@ The R version of DEploid uses random number from R's random generator. Therefore
 argument of the command line version will be ignored, and no seed is given in the output. Use
 the R function 'set.seed' prior to calling this function to ensure reproduciblity of results.
 }
+
 \examples{
+\dontrun{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 set.seed(1234)
 PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
+}
 
 }
 \seealso{
@@ -40,4 +43,3 @@ PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
   \item \code{vignette('dEploid-Arguments')} for an overview of commandline arguments
 }
 }
-

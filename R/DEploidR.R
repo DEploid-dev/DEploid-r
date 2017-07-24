@@ -127,6 +127,7 @@ extractPLAF <- function ( plafFileName ){
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 #' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
@@ -135,6 +136,7 @@ extractPLAF <- function ( plafFileName ){
 #' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
 #'     "-plaf", plafFile, "-noPanel"))
 #' plotProportions( PG0390CoverageTxt.deconv$Proportions, "PG0390-C proportions" )
+#' }
 #'
 plotProportions <- function (proportions, title = "Components",
                        cex.lab = 1, cex.main = 1, cex.axis = 1 ){
@@ -338,6 +340,7 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 #' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
 #' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
@@ -346,6 +349,7 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 #' prop = PG0390CoverageVcf.deconv$Proportions[dim(PG0390CoverageVcf.deconv$Proportions)[1],]
 #' expWSAF = t(PG0390CoverageVcf.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
+#' }
 #'
 plotObsExpWSAF <- function (obsWSAF, expWSAF,
                       title = "WSAF(observed vs expected)",

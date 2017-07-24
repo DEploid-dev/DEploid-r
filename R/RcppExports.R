@@ -29,24 +29,26 @@
 #' @export
 #'
 #' @examples
+#' \dontrun{
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 #' set.seed(1234)
 #' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
+#' }
 #'
 dEploid <- function(args) {
-    .Call('DEploid_dEploid', PACKAGE = 'DEploid', args)
+    .Call(`_DEploid_dEploid`, args)
 }
 
 test_RRG_sample <- function() {
-    .Call('DEploid_test_RRG_sample', PACKAGE = 'DEploid')
+    .Call(`_DEploid_test_RRG_sample`)
 }
 
 test_RRG_sampleUnitExpo <- function() {
-    .Call('DEploid_test_RRG_sampleUnitExpo', PACKAGE = 'DEploid')
+    .Call(`_DEploid_test_RRG_sampleUnitExpo`)
 }
 
 test_RRG_sampleExpoExpoLimit <- function(lambda, b, limit) {
-    .Call('DEploid_test_RRG_sampleExpoExpoLimit', PACKAGE = 'DEploid', lambda, b, limit)
+    .Call(`_DEploid_test_RRG_sampleExpoExpoLimit`, lambda, b, limit)
 }
 

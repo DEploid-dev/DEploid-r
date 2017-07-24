@@ -43,4 +43,3 @@ histWSAF(obsWSAF)
 myhist = histWSAF(obsWSAF, FALSE)
 
 }
-

@@ -33,4 +33,3 @@ obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount
 \seealso{
 \code{\link{histWSAF}} for histogram.
 }
-

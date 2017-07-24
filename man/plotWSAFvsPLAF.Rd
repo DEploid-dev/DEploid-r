@@ -46,4 +46,3 @@ plaf = extractPLAF(plafFile)
 plotWSAFvsPLAF(plaf, obsWSAF)
 
 }
-

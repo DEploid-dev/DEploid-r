@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // dEploid
 List dEploid(std::string args);
-RcppExport SEXP DEploid_dEploid(SEXP argsSEXP) {
+RcppExport SEXP _DEploid_dEploid(SEXP argsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -18,7 +18,7 @@ END_RCPP
 }
 // test_RRG_sample
 double test_RRG_sample();
-RcppExport SEXP DEploid_test_RRG_sample() {
+RcppExport SEXP _DEploid_test_RRG_sample() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -28,7 +28,7 @@ END_RCPP
 }
 // test_RRG_sampleUnitExpo
 double test_RRG_sampleUnitExpo();
-RcppExport SEXP DEploid_test_RRG_sampleUnitExpo() {
+RcppExport SEXP _DEploid_test_RRG_sampleUnitExpo() {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -38,7 +38,7 @@ END_RCPP
 }
 // test_RRG_sampleExpoExpoLimit
 double test_RRG_sampleExpoExpoLimit(double lambda, double b, double limit);
-RcppExport SEXP DEploid_test_RRG_sampleExpoExpoLimit(SEXP lambdaSEXP, SEXP bSEXP, SEXP limitSEXP) {
+RcppExport SEXP _DEploid_test_RRG_sampleExpoExpoLimit(SEXP lambdaSEXP, SEXP bSEXP, SEXP limitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;

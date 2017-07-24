@@ -127,10 +127,12 @@ class RMcmcSample {
 //' @export
 //'
 //' @examples
+//' \dontrun{
 //' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 //' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 //' set.seed(1234)
 //' PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
+//' }
 //'
 // [[Rcpp::export]]
 List dEploid(std::string args) {

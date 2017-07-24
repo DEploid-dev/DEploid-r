@@ -43,4 +43,3 @@ PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
 plotAltVsRef( PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount )
 
 }
-

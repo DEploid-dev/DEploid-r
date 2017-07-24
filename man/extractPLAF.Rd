@@ -23,4 +23,3 @@ plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid
 plaf = extractPLAF(plafFile)
 
 }
-

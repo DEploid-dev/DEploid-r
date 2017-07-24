@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PKG_NAME=$( cat DESCRIPTION | grep "Package:" | sed -e "s/Package: //g")
-Rscript -e "roxygen2::roxygenize(\"../${PKG_NAME}\")"
+Rscript -e "roxygen2::roxygenize(\"../${PKG_NAME}-r\")"
 
 # Building package
 R CMD build  .

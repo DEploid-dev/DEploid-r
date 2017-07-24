@@ -19,4 +19,3 @@ haplotypePainter(posteriorProbabilities, title = "", labelScaling,
 \description{
 Plot the posterior probabilities of a haplotype given the refernece panel.
 }
-
