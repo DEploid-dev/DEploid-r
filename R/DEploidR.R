@@ -1,14 +1,17 @@
 #' @title Extract read counts from plain text file
 #'
-#' @description Extract read counts from tab-delimited text files of a single sample.
+#' @description Extract read counts from tab-delimited text files of a single
+#'  sample.
 #'
-#' @note The allele count files must be tab-delimited. The allele count files contain three columns: chromosomes, positions and allele count.
+#' @note The allele count files must be tab-delimited. The allele count files
+#'  contain three columns: chromosomes, positions and allele count.
 #'
 #' @param refFileName Path of the reference allele count file.
 #'
 #' @param altFileName Path of the alternative allele count file.
 #'
-#' @return A data.frame contains four columns: chromosomes, positions, reference allele count, alternative allele count.
+#' @return A data.frame contains four columns: chromosomes, positions, reference
+#'  allele count, alternative allele count.
 #'
 #' @export
 #'
@@ -32,13 +35,16 @@ extractCoverageFromTxt <- function ( refFileName, altFileName ){
 #'
 #' @description Extract read counts from VCF file of a single sample.
 #'
-#' @note The VCF file should only contain one sample. If more samples present in the VCF, it only returns coverage for of the first sample.
+#' @note The VCF file should only contain one sample. If more samples present in
+#'  the VCF, it only returns coverage for of the first sample.
 #'
 #' @param vcfFileName Path of the VCF file.
 #'
-#' @param ADFieldIndex Index of the AD field of the sample field. For example, if the format is "GT:AD:DP:GQ:PL", the AD index is 2 (by default).
+#' @param ADFieldIndex Index of the AD field of the sample field. For example,
+#'  if the format is "GT:AD:DP:GQ:PL", the AD index is 2 (by default).
 #'
-#' @return A data.frame contains four columns: chromosomes, positions, reference allele count, alternative allele count.
+#' @return A data.frame contains four columns: chromosomes, positions, reference
+#'  allele count, alternative allele count.
 #'
 #' @export
 #'
@@ -93,7 +99,8 @@ extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
 #'
 #' @description Extract population level allele frequency (PLAF) from text file.
 #'
-#' @note The text file must have header, and population level allele frequency recorded in the "PLAF" field.
+#' @note The text file must have header, and population level allele frequency
+#'  recorded in the "PLAF" field.
 #'
 #' @param plafFileName Path of the PLAF text file.
 #'
@@ -102,7 +109,8 @@ extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
 #' @export
 #'
 #' @examples
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #'
 extractPLAF <- function ( plafFileName ){
@@ -112,9 +120,11 @@ extractPLAF <- function ( plafFileName ){
 
 #' @title Plot proportions
 #'
-#' @description Plot the MCMC samples of the proportion, indexed by the MCMC chain.
+#' @description Plot the MCMC samples of the proportion, indexed by the MCMC
+#'  chain.
 #'
-#' @param proportions Matrix of the MCMC proportion samples. The matrix size is number of the MCMC samples by the number of strains.
+#' @param proportions Matrix of the MCMC proportion samples. The matrix size is
+#'  number of the MCMC samples by the number of strains.
 #'
 #' @param title Figure title.
 #'
@@ -128,14 +138,16 @@ extractPLAF <- function ( plafFileName ){
 #'
 #' @examples
 #' \dontrun{
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'     package = "DEploid")
+#' panelFile = system.file("extdata", "labStrains.test.panel.txt",
+#'     package = "DEploid")
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' PG0390Coverage.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
 #'     "-plaf", plafFile, "-noPanel"))
-#' plotProportions( PG0390CoverageTxt.deconv$Proportions, "PG0390-C proportions" )
+#' plotProportions( PG0390Coverage.deconv$Proportions, "PG0390-C proportions")
 #' }
 #'
 plotProportions <- function (proportions, title = "Components",
@@ -150,7 +162,8 @@ plotProportions <- function (proportions, title = "Components",
 
 #' @title Plot coverage
 #'
-#' @description Plot alternative allele count vs reference allele count at each site.
+#' @description Plot alternative allele count vs reference allele count at each
+#'  site.
 #'
 #' @param ref Numeric array of reference allele count.
 #'
@@ -158,9 +171,11 @@ plotProportions <- function (proportions, title = "Components",
 #'
 #' @param title Figure title, "Alt vs Ref" by default
 #'
-#' @param exclude.ref Numeric array of reference allele count at sites that are not deconvoluted.
+#' @param exclude.ref Numeric array of reference allele count at sites that are
+#' not deconvoluted.
 #'
-#' @param exclude.alt Numeric array of alternative allele count at sites that are not deconvoluted
+#' @param exclude.alt Numeric array of alternative allele count at sites that
+#'  are not deconvoluted
 #'
 #' @param potentialOutliers Index of potential outliers.
 #'
@@ -176,13 +191,13 @@ plotProportions <- function (proportions, title = "Components",
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' plotAltVsRef( PG0390CoverageTxt$refCount, PG0390CoverageTxt$altCount )
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' plotAltVsRef( PG0390CoverageT$refCount, PG0390CoverageT$altCount )
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' plotAltVsRef( PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' plotAltVsRef( PG0390CoverageV$refCount, PG0390CoverageV$altCount )
 #'
 plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
                     exclude.ref = c(), exclude.alt = c(),
@@ -238,15 +253,15 @@ plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+#' PG0390Coverage = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF(PG0390Coverage$altCount, PG0390Coverage$refCount)
 #' histWSAF(obsWSAF)
 #' myhist = histWSAF(obsWSAF, FALSE)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #' histWSAF(obsWSAF)
 #' myhist = histWSAF(obsWSAF, FALSE)
 #'
@@ -270,7 +285,8 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #'
 #' @param plaf Numeric array of population level allele frequency.
 #'
-#' @param obsWSAF Numeric array of observed altenative allele frequencies within sample.
+#' @param obsWSAF Numeric array of observed altenative allele frequencies within
+#'  sample.
 #'
 #' @param expWSAF Numeric array of expected WSAF from model.
 #'
@@ -290,16 +306,16 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF( PG0390CoverageT$altCount, PG0390CoverageT$refCount )
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #' plotWSAFvsPLAF(plaf, obsWSAF)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF( PG0390CoverageV$altCount, PG0390CoverageV$refCount )
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #' plotWSAFvsPLAF(plaf, obsWSAF)
@@ -323,7 +339,8 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 
 #' @title Plot WSAF
 #'
-#' @description Plot observed alternative allele frequency within sample against expected WSAF.
+#' @description Plot observed alternative allele frequency within sample against
+#'  expected WSAF.
 #'
 #' @param obsWSAF Numeric array of observed WSAF.
 #'
@@ -342,12 +359,14 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 #' @examples
 #' \dontrun{
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#' PG0390CoverageVcf.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
-#' prop = PG0390CoverageVcf.deconv$Proportions[dim(PG0390CoverageVcf.deconv$Proportions)[1],]
-#' expWSAF = t(PG0390CoverageVcf.deconv$Haps) %*% prop
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF( PG0390CoverageV$altCount, PG0390CoverageV$refCount)
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'  package = "DEploid")
+#' PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+#'                                        "-plaf", plafFile, "-noPanel"))
+#' prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
+#' expWSAF = t(PG0390CoverageV.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
 #' }
 #'
@@ -364,7 +383,8 @@ plotObsExpWSAF <- function (obsWSAF, expWSAF,
 
 #' @title Compute observed WSAF
 #'
-#' @description Compute observed allele frequency within sample from the allele counts.
+#' @description Compute observed allele frequency within sample from the allele
+#'  counts.
 #'
 #' @param ref Numeric array of reference allele count.
 #'
@@ -380,13 +400,13 @@ plotObsExpWSAF <- function (obsWSAF, expWSAF,
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageT$altCount, PG0390CoverageT$refCount)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #'
 computeObsWSAF <- function (alt, ref) {
     return ( alt / (ref + alt + 0.00000001) )
@@ -395,9 +415,11 @@ computeObsWSAF <- function (alt, ref) {
 
 #' @title Painting haplotype according the reference panel
 #'
-#' @description Plot the posterior probabilities of a haplotype given the refernece panel.
+#' @description Plot the posterior probabilities of a haplotype given the
+#'  refernece panel.
 #'
-#' @param posteriorProbabilities Posterior probabilities matrix with the size of number of loci by the number of reference strain.
+#' @param posteriorProbabilities Posterior probabilities matrix with the size of
+#'  number of loci by the number of reference strain.
 #'
 #' @param title Figure title.
 #'
