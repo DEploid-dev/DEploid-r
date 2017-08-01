@@ -51,8 +51,8 @@ test_that("WSAF Related", {
 
 
 test_that("plotAltVsRef", {
-    expect_null(plotAltVsRef( PG0390CoverageVcf$refCount,
-        PG0390CoverageVcf$altCount ))
+    expect_null(plotAltVsRef(PG0390CoverageVcf$refCount,
+        PG0390CoverageVcf$altCount))
 })
 
 
