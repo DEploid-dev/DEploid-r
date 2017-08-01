@@ -15,9 +15,11 @@ plotAltVsRef(ref, alt, title = "Alt vs Ref", exclude.ref = c(),
 
 \item{title}{Figure title, "Alt vs Ref" by default}
 
-\item{exclude.ref}{Numeric array of reference allele count at sites that are not deconvoluted.}
+\item{exclude.ref}{Numeric array of reference allele count at sites that are
+not deconvoluted.}
 
-\item{exclude.alt}{Numeric array of alternative allele count at sites that are not deconvoluted}
+\item{exclude.alt}{Numeric array of alternative allele count at sites that
+are not deconvoluted}
 
 \item{potentialOutliers}{Index of potential outliers.}
 
@@ -28,18 +30,19 @@ plotAltVsRef(ref, alt, title = "Alt vs Ref", exclude.ref = c(),
 \item{cex.axis}{Axis text size.}
 }
 \description{
-Plot alternative allele count vs reference allele count at each site.
+Plot alternative allele count vs reference allele count at each
+ site.
 }
 \examples{
 # Example 1
 refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-plotAltVsRef( PG0390CoverageTxt$refCount, PG0390CoverageTxt$altCount )
+PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+plotAltVsRef(PG0390CoverageT$refCount, PG0390CoverageT$altCount)
 
 # Example 2
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-plotAltVsRef( PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount )
+PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+plotAltVsRef(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 
 }

@@ -12,13 +12,16 @@ extractCoverageFromTxt(refFileName, altFileName)
 \item{altFileName}{Path of the alternative allele count file.}
 }
 \value{
-A data.frame contains four columns: chromosomes, positions, reference allele count, alternative allele count.
+A data.frame contains four columns: chromosomes, positions, reference
+ allele count, alternative allele count.
 }
 \description{
-Extract read counts from tab-delimited text files of a single sample.
+Extract read counts from tab-delimited text files of a single
+ sample.
 }
 \note{
-The allele count files must be tab-delimited. The allele count files contain three columns: chromosomes, positions and allele count.
+The allele count files must be tab-delimited. The allele count files
+ contain three columns: chromosomes, positions and allele count.
 }
 \examples{
 refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")

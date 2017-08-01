@@ -8,7 +8,8 @@ haplotypePainter(posteriorProbabilities, title = "", labelScaling,
   numberOfInbreeding = 0)
 }
 \arguments{
-\item{posteriorProbabilities}{Posterior probabilities matrix with the size of number of loci by the number of reference strain.}
+\item{posteriorProbabilities}{Posterior probabilities matrix with the size of
+number of loci by the number of reference strain.}
 
 \item{title}{Figure title.}
 
@@ -17,5 +18,6 @@ haplotypePainter(posteriorProbabilities, title = "", labelScaling,
 \item{numberOfInbreeding}{Number of inbreeding strains copying from.}
 }
 \description{
-Plot the posterior probabilities of a haplotype given the refernece panel.
+Plot the posterior probabilities of a haplotype given the
+ refernece panel.
 }
