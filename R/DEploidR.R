@@ -1,14 +1,17 @@
 #' @title Extract read counts from plain text file
 #'
-#' @description Extract read counts from tab-delimited text files of a single sample.
+#' @description Extract read counts from tab-delimited text files of a single
+#'  sample.
 #'
-#' @note The allele count files must be tab-delimited. The allele count files contain three columns: chromosomes, positions and allele count.
+#' @note The allele count files must be tab-delimited. The allele count files
+#'  contain three columns: chromosomes, positions and allele count.
 #'
 #' @param refFileName Path of the reference allele count file.
 #'
 #' @param altFileName Path of the alternative allele count file.
 #'
-#' @return A data.frame contains four columns: chromosomes, positions, reference allele count, alternative allele count.
+#' @return A data.frame contains four columns: chromosomes, positions, reference
+#'  allele count, alternative allele count.
 #'
 #' @export
 #'
@@ -17,14 +20,13 @@
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 #' PG0390 = extractCoverageFromTxt(refFile, altFile)
 #'
-extractCoverageFromTxt <- function ( refFileName, altFileName ){
+extractCoverageFromTxt <- function(refFileName, altFileName){
     ref <- read.table(refFileName, header = TRUE, comment.char = "")
     alt <- read.table(altFileName, header = TRUE, comment.char = "")
-    return ( data.frame( CHROM = ref[, 1],
-                         POS = ref[, 2],
-                         refCount = ref[, 3],
-                         altCount = alt[, 3] )
-           )
+    return(data.frame(CHROM = ref[, 1],
+                      POS = ref[, 2],
+                      refCount = ref[, 3],
+                      altCount = alt[, 3]))
 }
 
 
@@ -32,13 +34,16 @@ extractCoverageFromTxt <- function ( refFileName, altFileName ){
 #'
 #' @description Extract read counts from VCF file of a single sample.
 #'
-#' @note The VCF file should only contain one sample. If more samples present in the VCF, it only returns coverage for of the first sample.
+#' @note The VCF file should only contain one sample. If more samples present in
+#'  the VCF, it only returns coverage for of the first sample.
 #'
 #' @param vcfFileName Path of the VCF file.
 #'
-#' @param ADFieldIndex Index of the AD field of the sample field. For example, if the format is "GT:AD:DP:GQ:PL", the AD index is 2 (by default).
+#' @param ADFieldIndex Index of the AD field of the sample field. For example,
+#'  if the format is "GT:AD:DP:GQ:PL", the AD index is 2 (by default).
 #'
-#' @return A data.frame contains four columns: chromosomes, positions, reference allele count, alternative allele count.
+#' @return A data.frame contains four columns: chromosomes, positions, reference
+#'  allele count, alternative allele count.
 #'
 #' @export
 #'
@@ -46,27 +51,27 @@ extractCoverageFromTxt <- function ( refFileName, altFileName ){
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 #' PG0390 = extractCoverageFromVcf(vcfFile)
 #'
-extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
+extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2){
     # Assume that AD is the second field
     h <- function(w){
-         if ( any( grepl( "gzfile connection", w) ) )
-         invokeRestart( "muffleWarning" )
+         if (any(grepl("gzfile connection", w)))
+         invokeRestart("muffleWarning")
     }
 
     gzf <- gzfile(vcfFileName, open = "rb")
     numberOfHeaderLines <- 0
-    line <- withCallingHandlers( readLines(gzf, n = 1), warning = h)
-    while ( length(line) > 0 ){
-        if (grepl("##", line )){
+    line <- withCallingHandlers(readLines(gzf, n = 1), warning = h)
+    while (length(line) > 0){
+        if (grepl("##", line)){
             numberOfHeaderLines <- numberOfHeaderLines + 1
         } else {
             break
         }
-        line <- withCallingHandlers( readLines(gzf, n = 1), warning = h)
+        line <- withCallingHandlers(readLines(gzf, n = 1), warning = h)
     }
     close(gzf)
 
-    vcf <- read.table( gzfile(vcfFileName), skip = numberOfHeaderLines,
+    vcf <- read.table(gzfile(vcfFileName), skip = numberOfHeaderLines,
         header = T, comment.char = "", stringsAsFactors = FALSE,
         check.names = FALSE)
 
@@ -81,11 +86,10 @@ extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
     refCount <- as.numeric(unlist(lapply(tmpCov, `[[`, 1)))
     altCount <- as.numeric(unlist(lapply(tmpCov, `[[`, 2)))
 
-    return ( data.frame( CHROM = vcf[, 1],
+    return(data.frame(CHROM = vcf[, 1],
                          POS = vcf[, 2],
                          refCount = refCount,
-                         altCount = altCount )
-           )
+                         altCount = altCount))
 }
 
 
@@ -93,7 +97,8 @@ extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
 #'
 #' @description Extract population level allele frequency (PLAF) from text file.
 #'
-#' @note The text file must have header, and population level allele frequency recorded in the "PLAF" field.
+#' @note The text file must have header, and population level allele frequency
+#'  recorded in the "PLAF" field.
 #'
 #' @param plafFileName Path of the PLAF text file.
 #'
@@ -102,19 +107,22 @@ extractCoverageFromVcf <- function ( vcfFileName, ADFieldIndex = 2 ){
 #' @export
 #'
 #' @examples
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #'
-extractPLAF <- function ( plafFileName ){
-    return ( read.table(plafFileName, header = T)$PLAF )
+extractPLAF <- function(plafFileName){
+    return(read.table(plafFileName, header = T)$PLAF)
 }
 
 
 #' @title Plot proportions
 #'
-#' @description Plot the MCMC samples of the proportion, indexed by the MCMC chain.
+#' @description Plot the MCMC samples of the proportion, indexed by the MCMC
+#'  chain.
 #'
-#' @param proportions Matrix of the MCMC proportion samples. The matrix size is number of the MCMC samples by the number of strains.
+#' @param proportions Matrix of the MCMC proportion samples. The matrix size is
+#'  number of the MCMC samples by the number of strains.
 #'
 #' @param title Figure title.
 #'
@@ -128,18 +136,20 @@ extractPLAF <- function ( plafFileName ){
 #'
 #' @examples
 #' \dontrun{
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#' panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'     package = "DEploid")
+#' panelFile = system.file("extdata", "labStrains.test.panel.txt",
+#'     package = "DEploid")
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' PG0390CoverageTxt.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' PG0390Coverage.deconv = dEploid(paste("-ref", refFile, "-alt", altFile,
 #'     "-plaf", plafFile, "-noPanel"))
-#' plotProportions( PG0390CoverageTxt.deconv$Proportions, "PG0390-C proportions" )
+#' plotProportions(PG0390Coverage.deconv$Proportions, "PG0390-C proportions")
 #' }
 #'
-plotProportions <- function (proportions, title = "Components",
-                       cex.lab = 1, cex.main = 1, cex.axis = 1 ){
+plotProportions <- function(proportions, title = "Components",
+                       cex.lab = 1, cex.main = 1, cex.axis = 1){
     rainbowColorBin <- 16
     barplot(t(proportions), beside = F, border = NA,
         col = rainbow(rainbowColorBin), space = 0, xlab = "Iteration",
@@ -150,7 +160,8 @@ plotProportions <- function (proportions, title = "Components",
 
 #' @title Plot coverage
 #'
-#' @description Plot alternative allele count vs reference allele count at each site.
+#' @description Plot alternative allele count vs reference allele count at each
+#'  site.
 #'
 #' @param ref Numeric array of reference allele count.
 #'
@@ -158,9 +169,11 @@ plotProportions <- function (proportions, title = "Components",
 #'
 #' @param title Figure title, "Alt vs Ref" by default
 #'
-#' @param exclude.ref Numeric array of reference allele count at sites that are not deconvoluted.
+#' @param exclude.ref Numeric array of reference allele count at sites that are
+#' not deconvoluted.
 #'
-#' @param exclude.alt Numeric array of alternative allele count at sites that are not deconvoluted
+#' @param exclude.alt Numeric array of alternative allele count at sites that
+#'  are not deconvoluted
 #'
 #' @param potentialOutliers Index of potential outliers.
 #'
@@ -176,23 +189,23 @@ plotProportions <- function (proportions, title = "Components",
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' plotAltVsRef( PG0390CoverageTxt$refCount, PG0390CoverageTxt$altCount )
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' plotAltVsRef(PG0390CoverageT$refCount, PG0390CoverageT$altCount)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' plotAltVsRef( PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' plotAltVsRef(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
-plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
+plotAltVsRef <- function(ref, alt, title = "Alt vs Ref",
                     exclude.ref = c(), exclude.alt = c(),
                     potentialOutliers = c(), cex.lab = 1, cex.main = 1,
-                    cex.axis = 1 ){
+                    cex.axis = 1){
     cr <- colorRampPalette(colors = c("#de2d26", "#2b8cbe"))
     colors <- cr(31)
     ratios <- ref / (ref + alt + 0.0000001)
     tmpRange <- 1.1 * mean(max(alt), max(ref))
-    plot ( ref, alt, xlim = c(0, tmpRange), ylim = c(0, tmpRange),
+    plot(ref, alt, xlim = c(0, tmpRange), ylim = c(0, tmpRange),
         pch = 20, col = scales::alpha(colors[ceiling(ratios * 30) + 1], 0.7),
         xlab = "Reference # Reads", ylab = "Alternative # Reads", main = title,
         cex = 0.5, cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis)
@@ -207,7 +220,7 @@ plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
     abline(h = 150, untf = FALSE, lty = 2)
     abline(v = 150, untf = FALSE, lty = 2)
 
-    if ( length(potentialOutliers) > 0 ){
+    if (length(potentialOutliers) > 0){
         points(ref[potentialOutliers], alt[potentialOutliers], col = "black",
                pch = "x", cex = 2)
     }
@@ -238,26 +251,26 @@ plotAltVsRef <- function ( ref, alt, title = "Alt vs Ref",
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+#' PG0390Coverage = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF(PG0390Coverage$altCount, PG0390Coverage$refCount)
 #' histWSAF(obsWSAF)
 #' myhist = histWSAF(obsWSAF, FALSE)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #' histWSAF(obsWSAF)
 #' myhist = histWSAF(obsWSAF, FALSE)
 #'
-histWSAF <- function ( obsWSAF, exclusive = TRUE,
+histWSAF <- function(obsWSAF, exclusive = TRUE,
                 title ="Histogram 0<WSAF<1",
-                cex.lab = 1, cex.main = 1, cex.axis = 1 ){
+                cex.lab = 1, cex.main = 1, cex.axis = 1){
     tmpWSAFIndex <- 1:length(obsWSAF)
-    if ( exclusive ){
-        tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
+    if (exclusive){
+        tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0)) == 1)
     }
-    return (hist(obsWSAF[tmpWSAFIndex], main = title,
+    return(hist(obsWSAF[tmpWSAFIndex], main = title,
         breaks = seq(0, 1, by = 0.1), xlab = "WSAF", col = "gray",
         cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis))
 }
@@ -270,7 +283,8 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #'
 #' @param plaf Numeric array of population level allele frequency.
 #'
-#' @param obsWSAF Numeric array of observed altenative allele frequencies within sample.
+#' @param obsWSAF Numeric array of observed altenative allele frequencies within
+#'  sample.
 #'
 #' @param expWSAF Numeric array of expected WSAF from model.
 #'
@@ -290,30 +304,32 @@ histWSAF <- function ( obsWSAF, exclusive = TRUE,
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageT$altCount, PG0390CoverageT$refCount)
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #' plotWSAFvsPLAF(plaf, obsWSAF)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #' plotWSAFvsPLAF(plaf, obsWSAF)
 #'
-plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
+plotWSAFvsPLAF <- function(plaf, obsWSAF, expWSAF = c(),
                       potentialOutliers = c(), title = "WSAF vs PLAF",
-                      cex.lab = 1, cex.main = 1, cex.axis = 1 ){
-    plot ( plaf, obsWSAF, cex = 0.5, xlim = c(0, 1), ylim = c(0, 1),
+                      cex.lab = 1, cex.main = 1, cex.axis = 1){
+    plot(plaf, obsWSAF, cex = 0.5, xlim = c(0, 1), ylim = c(0, 1),
         col = "red", main = title, xlab = "PLAF", ylab = "WSAF",
         cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis)
-    if ( length(expWSAF) > 0 ){
-        points ( plaf, expWSAF, cex = 0.5, col = "blue")
+    if (length(expWSAF) > 0){
+        points(plaf, expWSAF, cex = 0.5, col = "blue")
     }
-    if ( length(potentialOutliers) > 0 ){
+    if (length(potentialOutliers) > 0){
         points(plaf[potentialOutliers], obsWSAF[potentialOutliers],
         col = "black", pch = "x", cex = 2)
     }
@@ -323,7 +339,8 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 
 #' @title Plot WSAF
 #'
-#' @description Plot observed alternative allele frequency within sample against expected WSAF.
+#' @description Plot observed alternative allele frequency within sample against
+#'  expected WSAF.
 #'
 #' @param obsWSAF Numeric array of observed WSAF.
 #'
@@ -342,18 +359,20 @@ plotWSAFvsPLAF <- function ( plaf, obsWSAF, expWSAF = c(),
 #' @examples
 #' \dontrun{
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
-#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-#' PG0390CoverageVcf.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
-#' prop = PG0390CoverageVcf.deconv$Proportions[dim(PG0390CoverageVcf.deconv$Proportions)[1],]
-#' expWSAF = t(PG0390CoverageVcf.deconv$Haps) %*% prop
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
+#' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+#'  package = "DEploid")
+#' PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+#'                                        "-plaf", plafFile, "-noPanel"))
+#' prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
+#' expWSAF = t(PG0390CoverageV.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
 #' }
 #'
-plotObsExpWSAF <- function (obsWSAF, expWSAF,
+plotObsExpWSAF <- function(obsWSAF, expWSAF,
                       title = "WSAF(observed vs expected)",
-                      cex.lab = 1, cex.main = 1, cex.axis = 1 ){
+                      cex.lab = 1, cex.main = 1, cex.axis = 1){
     plot(obsWSAF, expWSAF, pch = 19, col = "blue",
         xlab = "Observed WSAF (ALT/(ALT+REF))", ylab = "Expected WSAF (h%*%p)",
         main = title, xlim = c(-0.05, 1.05), cex = 0.5, ylim = c(-0.05, 1.05),
@@ -364,7 +383,8 @@ plotObsExpWSAF <- function (obsWSAF, expWSAF,
 
 #' @title Compute observed WSAF
 #'
-#' @description Compute observed allele frequency within sample from the allele counts.
+#' @description Compute observed allele frequency within sample from the allele
+#'  counts.
 #'
 #' @param ref Numeric array of reference allele count.
 #'
@@ -380,24 +400,26 @@ plotObsExpWSAF <- function (obsWSAF, expWSAF,
 #' # Example 1
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
-#' PG0390CoverageTxt = extractCoverageFromTxt(refFile, altFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageTxt$altCount, PG0390CoverageTxt$refCount )
+#' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageT$altCount, PG0390CoverageT$refCount)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-#' obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
+#' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+#' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #'
-computeObsWSAF <- function (alt, ref) {
-    return ( alt / (ref + alt + 0.00000001) )
+computeObsWSAF <- function(alt, ref){
+    return(alt / (ref + alt + 0.00000001))
 }
 
 
 #' @title Painting haplotype according the reference panel
 #'
-#' @description Plot the posterior probabilities of a haplotype given the refernece panel.
+#' @description Plot the posterior probabilities of a haplotype given the
+#'  refernece panel.
 #'
-#' @param posteriorProbabilities Posterior probabilities matrix with the size of number of loci by the number of reference strain.
+#' @param posteriorProbabilities Posterior probabilities matrix with the size of
+#'  number of loci by the number of reference strain.
 #'
 #' @param title Figure title.
 #'
@@ -407,11 +429,11 @@ computeObsWSAF <- function (alt, ref) {
 #'
 #' @export
 #'
-haplotypePainter <- function (posteriorProbabilities, title = "", labelScaling,
+haplotypePainter <- function(posteriorProbabilities, title = "", labelScaling,
                         numberOfInbreeding = 0){
     rainbowColorBin <- 16
     rainbowColors <- rainbow(rainbowColorBin)
-    if ( numberOfInbreeding > 0 ){
+    if (numberOfInbreeding > 0){
         panelSize <- dim(posteriorProbabilities)[2] - numberOfInbreeding
         rainbowColors <- c(rep("#46a8e1", panelSize),
                            rep("#f34747", numberOfInbreeding))
