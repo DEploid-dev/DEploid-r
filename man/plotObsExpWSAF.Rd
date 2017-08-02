@@ -21,17 +21,20 @@ plotObsExpWSAF(obsWSAF, expWSAF, title = "WSAF(observed vs expected)",
 \item{cex.axis}{Axis text size.}
 }
 \description{
-Plot observed alternative allele frequency within sample against expected WSAF.
+Plot observed alternative allele frequency within sample against
+ expected WSAF.
 }
 \examples{
 \dontrun{
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390CoverageVcf = extractCoverageFromVcf(vcfFile)
-obsWSAF = computeObsWSAF( PG0390CoverageVcf$altCount, PG0390CoverageVcf$refCount )
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-PG0390CoverageVcf.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-noPanel"))
-prop = PG0390CoverageVcf.deconv$Proportions[dim(PG0390CoverageVcf.deconv$Proportions)[1],]
-expWSAF = t(PG0390CoverageVcf.deconv$Haps) \%*\% prop
+PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
+plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
+ package = "DEploid")
+PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+                                       "-plaf", plafFile, "-noPanel"))
+prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
+expWSAF = t(PG0390CoverageV.deconv$Haps) \%*\% prop
 plotObsExpWSAF(obsWSAF, expWSAF)
 }
 

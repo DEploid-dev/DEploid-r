@@ -45,6 +45,7 @@ class RMcmcSample {
     NumericMatrix haps;
     NumericMatrix proportion;
     NumericVector llks;
+    NumericVector llksStates;
 
     void convertHaps(){
         this->haps = NumericMatrix(this->kStrain_,
@@ -73,6 +74,13 @@ class RMcmcSample {
         }
     }
 
+    void convertLlkState(){
+        this->llksStates = NumericVector(this->nMcmcSample_, 0.0);
+        for (size_t i = 0; i < this->nMcmcSample_; i++) {
+            this->llksStates(i) = this->mcmcSample_->moves[i];
+        }
+    }
+
   public:
     RMcmcSample (DEploidIO* dEploidIO, McmcSample * mcmcSample){
         this->kStrain_ = dEploidIO->kStrain();
@@ -83,10 +91,12 @@ class RMcmcSample {
         this->convertHaps();
         this->convertProportions();
         this->convertLLKs();
+        this->convertLlkState();
 
         resultList_ = List::create(_("Haps") = this->haps,
                                    _("Proportions") = this->proportion,
-                                   _("llks") =  this->llks);
+                                   _("llks") =  this->llks,
+                                   _("llksStates") = this->llksStates);
     }
 
     ~RMcmcSample(){}
