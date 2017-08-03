@@ -15,8 +15,6 @@ sample.}
 \item{ref}{Numeric array of reference allele count.}
 
 \item{alt}{Numeric array of alternative allele count.}
-
-\item{title}{Figure title, "WSAF vs PLAF" by default}
 }
 \description{
 Plot allele frequencies within sample against population level.
@@ -30,7 +28,7 @@ obsWSAF = computeObsWSAF(PG0390CoverageT$altCount, PG0390CoverageT$refCount)
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
   package = "DEploid")
 plaf = extractPLAF(plafFile)
-plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageT$refCount, 
+plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageT$refCount,
                PG0390CoverageT$altCount)
 
 # Example 2
@@ -40,7 +38,7 @@ obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
   package = "DEploid")
 plaf = extractPLAF(plafFile)
-plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageV$refCount, 
+plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageV$refCount,
                PG0390CoverageV$altCount)
 
 }

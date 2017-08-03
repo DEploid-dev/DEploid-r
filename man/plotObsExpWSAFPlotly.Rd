@@ -10,8 +10,6 @@ plotObsExpWSAFPlotly(obsWSAF, expWSAF)
 \item{obsWSAF}{Numeric array of observed WSAF.}
 
 \item{expWSAF}{Numeric array of expected WSAF.}
-
-\item{title}{Figure title.}
 }
 \description{
 Plot observed alternative allele frequency within sample against
@@ -26,10 +24,10 @@ plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
  package = "DEploid")
 PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
                                        "-plaf", plafFile, "-noPanel"))
-                                       
+
 prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv
                                               $Proportions)[1],]
-                                              
+
 expWSAF = t(PG0390CoverageV.deconv$Haps) \%*\% prop
 plotObsExpWSAFPlotly(obsWSAF, expWSAF)
 }

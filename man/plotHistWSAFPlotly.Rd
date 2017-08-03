@@ -4,13 +4,10 @@
 \alias{plotHistWSAFPlotly}
 \title{WSAF histogram}
 \usage{
-plotHistWSAFPlotly(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1",
-  cex.lab = 1, cex.main = 1, cex.axis = 1)
+plotHistWSAFPlotly(obsWSAF)
 }
 \arguments{
 \item{obsWSAF}{Observed allele frequency within sample}
-
-\item{title}{Histogram title}
 }
 \value{
 histogram
@@ -25,13 +22,13 @@ altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 PG0390Coverage = extractCoverageFromTxt(refFile, altFile)
 obsWSAF = computeObsWSAF(PG0390Coverage$altCount, PG0390Coverage$refCount)
 plotHistWSAFPlotly(obsWSAF)
-myhist = plotHistWSAFPlotly(obsWSAF, FALSE)
+myhist = plotHistWSAFPlotly(obsWSAF)
 
 # Example 2
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 plotHistWSAFPlotly(obsWSAF)
-myhist = plotHistWSAFPlotly(obsWSAF, FALSE)
+myhist = plotHistWSAFPlotly(obsWSAF)
 
 }

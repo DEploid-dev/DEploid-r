@@ -42,21 +42,21 @@ plotAltVsRefPlotly <- function (ref, alt){
            yaxis = list(title = "Alternative # Reads", range = c(-10, 200),
                         titlefont = list(size = 18, color = "black"),
                         tickfont = list(size = 16, color = "black")),
-           shapes = list(list(type = "line", fillcolor = "black", 
-                              line = list(color = "black", width = 1.2, 
-                                          dash = "dot"), opacity = 0.8, x0 = 50, 
+           shapes = list(list(type = "line", fillcolor = "black",
+                              line = list(color = "black", width = 1.2,
+                                          dash = "dot"), opacity = 0.8, x0 = 50,
                               x1 = 50, y0 = 0, y1 = 200),
-                         list(type = "line", fillcolor = "black", 
-                              line = list(color = "black", width = 1.2, 
-                                          dash = "dot"), opacity = 0.8, x0 = 0, 
+                         list(type = "line", fillcolor = "black",
+                              line = list(color = "black", width = 1.2,
+                                          dash = "dot"), opacity = 0.8, x0 = 0,
                               x1 = 200, y0 = 50, y1 = 50),
-                         list(type = "line", fillcolor = "grey", 
-                              line = list(color = "grey", width = 2.5, 
-                                          dash = "dot"), opacity = 0.8, x0 = 0, 
+                         list(type = "line", fillcolor = "grey",
+                              line = list(color = "grey", width = 2.5,
+                                          dash = "dot"), opacity = 0.8, x0 = 0,
                               x1 = 200, y0 = 0, y1 = 200))
     )
 }
-  
+
 
 #' @title WSAF histogram
 #'
@@ -64,8 +64,6 @@ plotAltVsRefPlotly <- function (ref, alt){
 #'
 #' @param obsWSAF Observed allele frequency within sample
 #'
-#' @param title Histogram title
-#' 
 #' @return histogram
 #'
 #' @export
@@ -77,39 +75,37 @@ plotAltVsRefPlotly <- function (ref, alt){
 #' PG0390Coverage = extractCoverageFromTxt(refFile, altFile)
 #' obsWSAF = computeObsWSAF(PG0390Coverage$altCount, PG0390Coverage$refCount)
 #' plotHistWSAFPlotly(obsWSAF)
-#' myhist = plotHistWSAFPlotly(obsWSAF, FALSE)
+#' myhist = plotHistWSAFPlotly(obsWSAF)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 #' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 #' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #' plotHistWSAFPlotly(obsWSAF)
-#' myhist = plotHistWSAFPlotly(obsWSAF, FALSE)
+#' myhist = plotHistWSAFPlotly(obsWSAF)
 #'
 
-plotHistWSAFPlotly <- function ( obsWSAF, exclusive = TRUE,
-                                   title ="Histogram 0<WSAF<1",
-                                   cex.lab = 1, cex.main = 1, cex.axis = 1 ){
+plotHistWSAFPlotly <- function (obsWSAF){
   tmpWSAFIndex <- 1:length(obsWSAF)
-  if ( exclusive ){
-    tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
-  }
+  # if ( exclusive ){
+  #   tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
+  # }
   xb = list(
     start = 0,
     end = 1,
     size = 0.1)
-  return (plot_ly(x = obsWSAF[tmpWSAFIndex], 
-                  type = "histogram", 
-                  xbins = xb, 
-                  marker = list(color = "#5f9fe8", 
+  return (plot_ly(x = obsWSAF[tmpWSAFIndex],
+                  type = "histogram",
+                  xbins = xb,
+                  marker = list(color = "#5f9fe8",
                                 line = list(color = "white", width = 1))) %>%
             layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
-                   title = "Histogram 0<WSAF<1", 
+                   title = "Histogram 0<WSAF<1",
                    font = list(size = 18, colot = "black"),
-                   xaxis = list(title = "WSAF", range = c(0,1), 
+                   xaxis = list(title = "WSAF", range = c(0,1),
                                 titlefont = list(size = 18, color = "black"),
                                 tickfont = list(size = 14, color = "black")),
-                   yaxis = list(title = "Frequency", 
+                   yaxis = list(title = "Frequency",
                                 titlefont = list(size = 18, color = "black"),
                                 tickfont = list(size = 14, color = "black"))))
 }
@@ -128,8 +124,6 @@ plotHistWSAFPlotly <- function ( obsWSAF, exclusive = TRUE,
 #'
 #' @param alt Numeric array of alternative allele count.
 #'
-#' @param title Figure title, "WSAF vs PLAF" by default
-#'
 #' @export
 #'
 #' @examples
@@ -141,7 +135,7 @@ plotHistWSAFPlotly <- function ( obsWSAF, exclusive = TRUE,
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
-#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageT$refCount, 
+#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageT$refCount,
 #'                PG0390CoverageT$altCount)
 #'
 #' # Example 2
@@ -151,7 +145,7 @@ plotHistWSAFPlotly <- function ( obsWSAF, exclusive = TRUE,
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
-#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageV$refCount, 
+#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageV$refCount,
 #'                PG0390CoverageV$altCount)
 #'
 
@@ -174,7 +168,7 @@ plotWSAFVsPLAFplotly <- function (plaf, obsWSAF, ref, alt){
   #   points (plaf, expWSAF, cex = 0.5, col = "blue")
   # }
   # if (length(potentialOutliers) > 0){
-  #   points(plaf[potentialOutliers], obsWSAF[potentialOutliers], 
+  #   points(plaf[potentialOutliers], obsWSAF[potentialOutliers],
   #          col="black", pch="x", cex = 2)
   # }
 }
@@ -189,8 +183,6 @@ plotWSAFVsPLAFplotly <- function (plaf, obsWSAF, ref, alt){
 #'
 #' @param expWSAF Numeric array of expected WSAF.
 #'
-#' @param title Figure title.
-#' 
 #' @export
 #'
 #' @examples
@@ -202,10 +194,10 @@ plotWSAFVsPLAFplotly <- function (plaf, obsWSAF, ref, alt){
 #'  package = "DEploid")
 #' PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
 #'                                        "-plaf", plafFile, "-noPanel"))
-#'                                        
+#'
 #' prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv
 #'                                               $Proportions)[1],]
-#'                                               
+#'
 #' expWSAF = t(PG0390CoverageV.deconv$Haps) %*% prop
 #' plotObsExpWSAFPlotly(obsWSAF, expWSAF)
 #' }
@@ -213,10 +205,10 @@ plotWSAFVsPLAFplotly <- function (plaf, obsWSAF, ref, alt){
 
 plotObsExpWSAFPlotly <- function (obsWSAF, expWSAF){
   compare = data.frame(obsWSAF, expWSAF)
-  plot_ly(compare, x = ~obsWSAF, y = ~expWSAF, type = "scatter", 
+  plot_ly(compare, x = ~obsWSAF, y = ~expWSAF, type = "scatter",
           mode = "markers", marker = list(color = "blue", size = 3)) %>%
     layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
-           title = "WSAF(observed vs expected)", 
+           title = "WSAF(observed vs expected)",
            font = list(size = 18, colot = "black"),
            xaxis = list(title = "Observed WSAF (ALT/(ALT+REF))", range = c(0,1),
                         titlefont = list(size = 18, color = "black"),
@@ -224,8 +216,8 @@ plotObsExpWSAFPlotly <- function (obsWSAF, expWSAF){
            yaxis = list(title = "Expected WSAF (h%*%p)", range = c(0,1),
                         titlefont = list(size = 18, color = "black"),
                         tickfont = list(size = 16, color = "black")),
-           shapes = list(list(type = "line", fillcolor = "black", 
-                              line = list(color = "black", 
+           shapes = list(list(type = "line", fillcolor = "black",
+                              line = list(color = "black",
                                           width = 1.2, dash = "dot"),
                               opacity = 0.8, x0 = 0, x1 = 1, y0 = 0, y1 = 1)))
 }
