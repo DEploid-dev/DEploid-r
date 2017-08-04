@@ -44,15 +44,25 @@ test_that("WSAF Related", {
     obsWSAF <- computeObsWSAF(PG0390CoverageVcf$altCount,
         PG0390CoverageVcf$refCount)
     expect_that(histWSAF(obsWSAF), is_a("histogram"))
+    expect_that(inherits(plotHistWSAFPlotly(obsWSAF), "plotly"), is_true())
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF))
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF, expWSAF))
+    expect_that(inherits(plotWSAFVsPLAFPlotly(plaf, obsWSAF,
+                                              PG0390CoverageVcf$refCount,
+                                              PG0390CoverageVcf$altCount),
+                         "plotly"), is_true())
     expect_null(plotObsExpWSAF(obsWSAF, expWSAF))
+    expect_that(inherits(plotObsExpWSAFPlotly(obsWSAF, expWSAF),
+                         "plotly"), is_true())
 })
 
 
 test_that("plotAltVsRef", {
     expect_null(plotAltVsRef(PG0390CoverageVcf$refCount,
         PG0390CoverageVcf$altCount))
+    expect_that(inherits(plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
+                                   PG0390CoverageVcf$altCount),
+                         "plotly"), is_true())
 })
 
 

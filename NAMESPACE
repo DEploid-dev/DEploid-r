@@ -21,4 +21,3 @@ export(plotAltVsRefPlotly)
 export(plotHistWSAFPlotly)
 export(plotWSAFVsPLAFPlotly)
 export(plotObsExpWSAFPlotly)
-

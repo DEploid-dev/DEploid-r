@@ -1,4 +1,3 @@
-
 #' @title Plot coverage
 #'
 #' @description Plot alternative allele count vs reference allele count at each
@@ -22,15 +21,12 @@
 #' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 #' plotAltVsRefPlotly(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
-
-plotAltVsRefPlotly <- function (ref, alt){
-  ratios <- ref/(ref + alt + 0.0000001)
-  tmpRange <- 1.1 * mean(max(alt), max(ref))
-  legend.name <- "Ref/(Ref+Alt) Ratio"
+plotAltVsRefPlotly <- function(ref, alt){
+  legendName <- "Ref/(Ref+Alt) Ratio"
   plot_ly(x = ref, y = alt, type = "scatter", mode = "markers",
-          color = ~ ratios, colors=c("#de2d26", "#2b8cbe"), alpha = 0.8,
+          colors = c("#de2d26", "#2b8cbe"), alpha = 0.8,
           marker = list(size = 3, line = list(color = "black", width = 0.3),
-                        colorbar = list(title = legend.name)
+                        colorbar = list(title = legendName)
           ),
           text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
     layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
@@ -84,30 +80,29 @@ plotAltVsRefPlotly <- function (ref, alt){
 #' plotHistWSAFPlotly(obsWSAF)
 #' myhist = plotHistWSAFPlotly(obsWSAF)
 #'
-
-plotHistWSAFPlotly <- function (obsWSAF){
+plotHistWSAFPlotly <- function(obsWSAF){
   tmpWSAFIndex <- 1:length(obsWSAF)
   # if ( exclusive ){
   #   tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
   # }
-  xb = list(
-    start = 0,
-    end = 1,
-    size = 0.1)
-  return (plot_ly(x = obsWSAF[tmpWSAFIndex],
-                  type = "histogram",
-                  xbins = xb,
-                  marker = list(color = "#5f9fe8",
-                                line = list(color = "white", width = 1))) %>%
-            layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
-                   title = "Histogram 0<WSAF<1",
-                   font = list(size = 18, colot = "black"),
-                   xaxis = list(title = "WSAF", range = c(0,1),
-                                titlefont = list(size = 18, color = "black"),
-                                tickfont = list(size = 14, color = "black")),
-                   yaxis = list(title = "Frequency",
-                                titlefont = list(size = 18, color = "black"),
-                                tickfont = list(size = 14, color = "black"))))
+  xb <- list(
+      start = 0,
+      end = 1,
+      size = 0.1)
+  return(plot_ly(x = obsWSAF[tmpWSAFIndex],
+                 type = "histogram",
+                 xbins = xb,
+                 marker = list(color = "#5f9fe8",
+                               line = list(color = "white", width = 1))) %>%
+             layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
+                    title = "Histogram 0<WSAF<1",
+                    font = list(size = 18, colot = "black"),
+                    xaxis = list(title = "WSAF", range = c(0, 1),
+                                 titlefont = list(size = 18, color = "black"),
+                                 tickfont = list(size = 14, color = "black")),
+                    yaxis = list(title = "Frequency",
+                                 titlefont = list(size = 18, color = "black"),
+                                 tickfont = list(size = 14, color = "black"))))
 }
 
 
@@ -148,8 +143,7 @@ plotHistWSAFPlotly <- function (obsWSAF){
 #' plotWSAFVsPLAFPlotly(plaf, obsWSAF, PG0390CoverageV$refCount,
 #'                PG0390CoverageV$altCount)
 #'
-
-plotWSAFVsPLAFPlotly <- function (plaf, obsWSAF, ref, alt){
+plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt){
   plot_ly(x = plaf, y = obsWSAF, type = "scatter", mode = "markers",
           marker = list(size = 2,
                         color = "#c64343",
@@ -158,7 +152,7 @@ plotWSAFVsPLAFPlotly <- function (plaf, obsWSAF, ref, alt){
           text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
     layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
            title = "WSAF vs PLAF", font = list(size = 18, colot = "black"),
-           xaxis = list(title = "PLAF", range = c(0,1),
+           xaxis = list(title = "PLAF", range = c(0, 1),
                         titlefont = list(size = 18, color = "black"),
                         tickfont = list(size = 16, color = "black")),
            yaxis = list(title = "WSAF", range = c(0,1),
@@ -202,18 +196,17 @@ plotWSAFVsPLAFPlotly <- function (plaf, obsWSAF, ref, alt){
 #' plotObsExpWSAFPlotly(obsWSAF, expWSAF)
 #' }
 #'
-
-plotObsExpWSAFPlotly <- function (obsWSAF, expWSAF){
-  compare = data.frame(obsWSAF, expWSAF)
+plotObsExpWSAFPlotly <- function(obsWSAF, expWSAF){
+  compare <- data.frame(obsWSAF, expWSAF)
   plot_ly(compare, x = ~obsWSAF, y = ~expWSAF, type = "scatter",
           mode = "markers", marker = list(color = "blue", size = 3)) %>%
     layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
            title = "WSAF(observed vs expected)",
            font = list(size = 18, colot = "black"),
-           xaxis = list(title = "Observed WSAF (ALT/(ALT+REF))", range = c(0,1),
+           xaxis = list(title = "Observed WSAF (ALT/(ALT+REF))", range = c(0, 1),
                         titlefont = list(size = 18, color = "black"),
                         tickfont = list(size = 16, color = "black")),
-           yaxis = list(title = "Expected WSAF (h%*%p)", range = c(0,1),
+           yaxis = list(title = "Expected WSAF (h%*%p)", range = c(0, 1),
                         titlefont = list(size = 18, color = "black"),
                         tickfont = list(size = 16, color = "black")),
            shapes = list(list(type = "line", fillcolor = "black",
@@ -221,13 +214,3 @@ plotObsExpWSAFPlotly <- function (obsWSAF, expWSAF){
                                           width = 1.2, dash = "dot"),
                               opacity = 0.8, x0 = 0, x1 = 1, y0 = 0, y1 = 1)))
 }
-
-
-
-
-
-
-
-
-
-
