@@ -19,6 +19,6 @@ export(plotWSAFvsPLAF)
 export(plotObsExpWSAF)
 export(plotAltVsRefPlotly)
 export(plotHistWSAFPlotly)
-export(plotWSAFVsPLAFplotly)
+export(plotWSAFVsPLAFPlotly)
 export(plotObsExpWSAFPlotly)
 

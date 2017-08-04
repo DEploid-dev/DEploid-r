@@ -15,7 +15,7 @@
 #' refFile = system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 #' PG0390CoverageT = extractCoverageFromTxt(refFile, altFile)
-#' plotAltVsRef(PG0390CoverageT$refCount, PG0390CoverageT$altCount)
+#' plotAltVsRefPlotly(PG0390CoverageT$refCount, PG0390CoverageT$altCount)
 #'
 #' # Example 2
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
@@ -135,7 +135,7 @@ plotHistWSAFPlotly <- function (obsWSAF){
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
-#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageT$refCount,
+#' plotWSAFVsPLAFPlotly(plaf, obsWSAF, PG0390CoverageT$refCount,
 #'                PG0390CoverageT$altCount)
 #'
 #' # Example 2
@@ -145,11 +145,11 @@ plotHistWSAFPlotly <- function (obsWSAF){
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
-#' plotWSAFvsPLAF(plaf, obsWSAF, PG0390CoverageV$refCount,
+#' plotWSAFVsPLAFPlotly(plaf, obsWSAF, PG0390CoverageV$refCount,
 #'                PG0390CoverageV$altCount)
 #'
 
-plotWSAFVsPLAFplotly <- function (plaf, obsWSAF, ref, alt){
+plotWSAFVsPLAFPlotly <- function (plaf, obsWSAF, ref, alt){
   plot_ly(x = plaf, y = obsWSAF, type = "scatter", mode = "markers",
           marker = list(size = 2,
                         color = "#c64343",
