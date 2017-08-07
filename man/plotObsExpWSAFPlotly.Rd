@@ -4,15 +4,12 @@
 \alias{plotObsExpWSAFPlotly}
 \title{Plot WSAF}
 \usage{
-plotObsExpWSAFPlotly(obsWSAF, expWSAF, exclusive = TRUE,
-  title = "WSAF(observed vs expected)")
+plotObsExpWSAFPlotly(obsWSAF, expWSAF, title = "WSAF(observed vs expected)")
 }
 \arguments{
 \item{obsWSAF}{Numeric array of observed WSAF.}
 
 \item{expWSAF}{Numeric array of expected WSAF.}
-
-\item{exclusive}{When TRUE 0 < WSAF < 1; otherwise 0 <= WSAF <= 1.}
 
 \item{title}{Figure title, "WSAF(observed vs expected)" by default}
 }
