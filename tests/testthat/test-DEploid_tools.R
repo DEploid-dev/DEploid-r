@@ -1,11 +1,11 @@
 context("DEploid tools")
 
 vcfFileName <- system.file("extdata", "PG0390-C.test.vcf.gz",
-    package = "DEploid")
+                           package = "DEploid")
 plafFileName <- system.file("extdata", "labStrains.test.PLAF.txt",
-    package = "DEploid")
+                            package = "DEploid")
 panelFileName <- system.file("extdata", "labStrains.test.panel.txt",
-    package = "DEploid")
+                             package = "DEploid")
 refFileName <- system.file("extdata", "PG0390-C.test.ref", package = "DEploid")
 altFileName <- system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 
@@ -13,7 +13,7 @@ PG0390CoverageVcf <- extractCoverageFromVcf(vcfFileName)
 plaf <- extractPLAF(plafFileName)
 
 PG0390Deconv <- dEploid(paste("-vcf", vcfFileName, "-plaf", plafFileName,
-    "-noPanel"))
+                              "-noPanel"))
 prop <- PG0390Deconv$Proportions[dim(PG0390Deconv$Proportions)[1], ]
 expWSAF <- t(PG0390Deconv$Haps) %*% prop
 
@@ -42,27 +42,50 @@ test_that("computeObsWSAF", {
 
 test_that("WSAF Related", {
     obsWSAF <- computeObsWSAF(PG0390CoverageVcf$altCount,
-        PG0390CoverageVcf$refCount)
+                              PG0390CoverageVcf$refCount)
     expect_that(histWSAF(obsWSAF), is_a("histogram"))
+    png("histWSAF.png")
+    histWSAF(obsWSAF)
+    dev.off()
     expect_that(inherits(plotHistWSAFPlotly(obsWSAF), "plotly"), is_true())
+    p <- plotHistWSAFPlotly(obsWSAF)
+    htmlwidgets::saveWidget(p, file = "histWSAFPlotly.html")
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF))
+    png("WSAFvsPLAF.png")
+    plotWSAFvsPLAF(plaf, obsWSAF)
+    dev.off()
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF, expWSAF))
     expect_that(inherits(plotWSAFVsPLAFPlotly(plaf, obsWSAF,
                                               PG0390CoverageVcf$refCount,
                                               PG0390CoverageVcf$altCount),
                          "plotly"), is_true())
+    p <- plotWSAFVsPLAFPlotly(plaf, obsWSAF,
+                              PG0390CoverageVcf$refCount,
+                              PG0390CoverageVcf$altCount)
+    htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotly.html")
     expect_null(plotObsExpWSAF(obsWSAF, expWSAF))
+    png("ObsExpWSAF.png")
+    plotObsExpWSAF(obsWSAF, expWSAF)
+    dev.off()
     expect_that(inherits(plotObsExpWSAFPlotly(obsWSAF, expWSAF),
                          "plotly"), is_true())
+    p <- plotObsExpWSAFPlotly(obsWSAF, expWSAF)
+    htmlwidgets::saveWidget(p, file = "ObsExpWSAFPlotly.html")
 })
 
 
 test_that("plotAltVsRef", {
     expect_null(plotAltVsRef(PG0390CoverageVcf$refCount,
         PG0390CoverageVcf$altCount))
+    png("AltVsRef.png")
+    plotAltVsRef(PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount)
+    dev.off()
     expect_that(inherits(plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
-                                   PG0390CoverageVcf$altCount),
+                                            PG0390CoverageVcf$altCount),
                          "plotly"), is_true())
+    p <- plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
+                            PG0390CoverageVcf$altCount)
+    htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotly.html")
 })
 
 

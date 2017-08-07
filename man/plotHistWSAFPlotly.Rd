@@ -4,10 +4,14 @@
 \alias{plotHistWSAFPlotly}
 \title{WSAF histogram}
 \usage{
-plotHistWSAFPlotly(obsWSAF)
+plotHistWSAFPlotly(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1")
 }
 \arguments{
 \item{obsWSAF}{Observed allele frequency within sample}
+
+\item{exclusive}{When TRUE 0 < WSAF < 1; otherwise 0 <= WSAF <= 1.}
+
+\item{title}{Figure title, "Histogram 0<WSAF<1" by default}
 }
 \value{
 histogram
