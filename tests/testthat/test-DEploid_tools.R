@@ -49,9 +49,7 @@ test_that("WSAF Related", {
     dev.off()
     expect_that(inherits(plotHistWSAFPlotly(obsWSAF), "plotly"), is_true())
     p <- plotHistWSAFPlotly(obsWSAF)
-    if (htmlwidgets:::pandoc_available()){
-        htmlwidgets::saveWidget(p, file = "histWSAFPlotly.html")
-    }
+    htmlwidgets::saveWidget(p, file = "histWSAFPlotly.html")
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF))
     png("WSAFvsPLAF.png")
     plotWSAFvsPLAF(plaf, obsWSAF)
@@ -64,9 +62,7 @@ test_that("WSAF Related", {
     p <- plotWSAFVsPLAFPlotly(plaf, obsWSAF,
                               PG0390CoverageVcf$refCount,
                               PG0390CoverageVcf$altCount)
-    if (htmlwidgets:::pandoc_available()){
-        htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotly.html")
-    }
+    htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotly.html")
     expect_null(plotObsExpWSAF(obsWSAF, expWSAF))
     png("ObsExpWSAF.png")
     plotObsExpWSAF(obsWSAF, expWSAF)
@@ -74,9 +70,7 @@ test_that("WSAF Related", {
     expect_that(inherits(plotObsExpWSAFPlotly(obsWSAF, expWSAF),
                          "plotly"), is_true())
     p <- plotObsExpWSAFPlotly(obsWSAF, expWSAF)
-    if (htmlwidgets:::pandoc_available()){
-        htmlwidgets::saveWidget(p, file = "ObsExpWSAFPlotly.html")
-    }
+    htmlwidgets::saveWidget(p, file = "ObsExpWSAFPlotly.html")
 })
 
 
@@ -91,9 +85,7 @@ test_that("plotAltVsRef", {
                          "plotly"), is_true())
     p <- plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
                             PG0390CoverageVcf$altCount)
-    if (htmlwidgets:::pandoc_available()){
-        htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotly.html")
-    }
+    htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotly.html")
 })
 
 
