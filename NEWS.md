@@ -1,3 +1,14 @@
+# DEploid_0.4.2
+## Major changes
+ - None
+
+## Bugs
+ - None
+
+## Improvements
+ - Use `plotly` for generating new figures, including plotAltVsRefPlotly, plotHistWSAFPlotly, plotWSAFVsPLAFPlotly and plotObsExpWSAFPlotly
+
+
 # DEploid_0.4.1
 ## Major changes
  - Implemented IBD method to infer the proportions first.
