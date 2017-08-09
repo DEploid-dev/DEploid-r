@@ -6,6 +6,7 @@
  - None
 
 ## Improvements
+ - Include MCMC steps as dEploid function output
  - Use `plotly` for generating new figures, including plotAltVsRefPlotly, plotHistWSAFPlotly, plotWSAFVsPLAFPlotly and plotObsExpWSAFPlotly
 
 
