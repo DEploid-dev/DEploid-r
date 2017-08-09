@@ -3,7 +3,14 @@ Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
 Version: 0.4.2
 Authors@R: c(
-    person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk")
+    person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk"),
+    person('Jacob', 'Almagro-Garcia', role=c('aut', 'cph')),
+    person('Gil', 'McVean', role=c('aut', 'cph')),
+    person('University of Oxford', '', role=c('cph')),
+    person('Yinghan', 'Liu', role=c('ctb')),
+    person('CodeCogs', 'Zyba Ltd', role=c('com', "cph")),
+    person('Deepak', 'Bandyopadhyay', role=c('com', "cph")),
+    person('Lutz', 'Kettner', role=c('com', "cph"))
     )
 Description: Traditional phasing programs are limited to diploid organisms.
  Our method modifies Li and Stephens algorithm with Markov chain Monte Carlo

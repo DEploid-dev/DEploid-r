@@ -33,6 +33,8 @@
 
 # testthat
 ^tests/testthat/Rplots.pdf$
+^tests/testthat/.*\.png$
+^tests/testthat/.*\.html$
 
 # vignettes/
 ^vignettes/commbine.sh
