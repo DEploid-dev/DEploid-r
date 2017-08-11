@@ -9,6 +9,8 @@
 #'
 #' @param title Figure title, "Alt vs Ref" by default
 #'
+#' @param potentialOutliers Index of potential outliers.
+#'
 #' @export
 #'
 #' @examples
@@ -23,16 +25,28 @@
 #' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 #' plotAltVsRefPlotly(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
-plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref"){
+plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
+                               potentialOutliers = c()){
     ratios <- ref / (ref + alt + 0.0000001)
     legendName <- "Ref/(Ref+Alt) Ratio"
-    plot_ly(x = ref, y = alt, type = "scatter", mode = "markers",
+    refvsalt = data.frame(ref, alt)
+    refvsalt$ref.out = ifelse(rownames(refvsalt) %in%
+                                  potentialOutliers, ref, NA)
+    refvsalt$alt.out = ifelse(rownames(refvsalt) %in%
+                                  potentialOutliers, alt, NA)
+    refvsalt$outlier = ifelse(is.na(refvsalt$ref.out),
+                              "outlier", "normal")
+    plot_ly(data = refvsalt, x = ~ref, y = ~alt,
+            type = "scatter", mode = "markers", name = "normal",
             color = ratios, colors = c("#de2d26", "#2b8cbe"), alpha = 0.8,
-            marker = list(size = 3, line = list(color = "black", width = 0.1),
-                          colorbar = list(title = legendName)
-            ),
+            marker = list(size = 3, colorbar = list(title = legendName)),
+            showlegend = F,
             text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
-        layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
+        add_trace(x = ~ref.out, y = ~alt.out, name = "outlier",
+                  type = "scatter", mode = "markers", symbol = I("x"),
+                  marker = list(size = 4, color = "black"), showlegend = F) %>%
+        layout(autosize = F, width = 650, height = 500,
+               margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
                title = title, font = list(size = 18, colot = "black"),
                legend = list(font = list(size = 5)),
                xaxis = list(title = "Reference # Reads", range = c(-5, 200),
@@ -132,6 +146,8 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
 #'
 #' @param title Figure title, "WSAF vs PLAF" by default
 #'
+#' @param potentialOutliers Index of potential outliers.
+#'
 #' @export
 #'
 #' @examples
@@ -157,14 +173,26 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
 #'                PG0390CoverageV$altCount)
 #'
 plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
-                                 title = "WSAF vs PLAF"){
-    plot_ly(x = plaf, y = obsWSAF, type = "scatter", mode = "markers",
-            marker = list(size = 2,
-                          color = "#c64343",
-                          line = list(color = "rgba(152, 0, 0, .8)",
-                                      width = 1)),
+                                 title = "WSAF vs PLAF",
+                                 potentialOutliers = c()){
+    wsafvsplaf = data.frame(plaf, obsWSAF)
+    wsafvsplaf$plaf.out = ifelse(rownames(wsafvsplaf) %in%
+                                     potentialOutliers, plaf, NA)
+    wsafvsplaf$obsWSAF.out = ifelse(rownames(wsafvsplaf) %in%
+                                        potentialOutliers, obsWSAF, NA)
+    wsafvsplaf$outlier = ifelse(is.na(wsafvsplaf$plaf.out),
+                                "outlier", "normal")
+    plot_ly(data = wsafvsplaf, x = ~plaf, y = ~obsWSAF,
+            type = "scatter", mode = "markers",
+            marker = list(size = 2, color = "#f47142",
+                          line = list(color = "#fc6f3c", width = 1)),
             text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
-        layout(margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
+        add_trace(x = ~plaf.out, y = ~obsWSAF.out, name = "outlier",
+                  type = "scatter", mode = "markers", symbol = I("x"),
+                  marker = list(size = 6, color = "black"),
+                  showlegend = F) %>%
+        layout(autosize = F, width = 500, height = 500,
+               margin = list(l = 65, r = 25, b = 50, t = 80, pad = 0),
                title = title, font = list(size = 18, colot = "black"),
                xaxis = list(title = "PLAF", range = c(0, 1),
                             titlefont = list(size = 18, color = "black"),

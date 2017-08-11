@@ -4,7 +4,7 @@
 \alias{plotAltVsRefPlotly}
 \title{Plot coverage}
 \usage{
-plotAltVsRefPlotly(ref, alt, title = "Alt vs Ref")
+plotAltVsRefPlotly(ref, alt, title = "Alt vs Ref", potentialOutliers = c())
 }
 \arguments{
 \item{ref}{Numeric array of reference allele count.}
@@ -12,6 +12,8 @@ plotAltVsRefPlotly(ref, alt, title = "Alt vs Ref")
 \item{alt}{Numeric array of alternative allele count.}
 
 \item{title}{Figure title, "Alt vs Ref" by default}
+
+\item{potentialOutliers}{Index of potential outliers.}
 }
 \description{
 Plot alternative allele count vs reference allele count at each

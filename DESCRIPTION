@@ -1,7 +1,7 @@
 Package: DEploid
 Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
-Version: 0.4.3
+Version: 0.4.4
 Authors@R: c(
     person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="joe.zhu@well.ox.ac.uk"),
     person('Jacob', 'Almagro-Garcia', role=c('aut', 'cph')),
