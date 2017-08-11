@@ -29,12 +29,12 @@ plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
                                potentialOutliers = c()){
     ratios <- ref / (ref + alt + 0.0000001)
     legendName <- "Ref/(Ref+Alt) Ratio"
-    refvsalt = data.frame(ref, alt)
-    refvsalt$ref.out = ifelse(rownames(refvsalt) %in%
+    refvsalt <- data.frame(ref, alt)
+    refvsalt$ref.out <- ifelse(rownames(refvsalt) %in%
                                   potentialOutliers, ref, NA)
-    refvsalt$alt.out = ifelse(rownames(refvsalt) %in%
+    refvsalt$alt.out <- ifelse(rownames(refvsalt) %in%
                                   potentialOutliers, alt, NA)
-    refvsalt$outlier = ifelse(is.na(refvsalt$ref.out),
+    refvsalt$outlier <- ifelse(is.na(refvsalt$ref.out),
                               "outlier", "normal")
     plot_ly(data = refvsalt, x = ~ref, y = ~alt,
             type = "scatter", mode = "markers", name = "normal",
@@ -108,7 +108,7 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
                                title = "Histogram 0<WSAF<1"){
   tmpWSAFIndex <- 1:length(obsWSAF)
   if (exclusive){
-    tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0)) == 1)
+    tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
   }
   xb <- list(
       start = 0,
@@ -175,12 +175,12 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
 plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
                                  title = "WSAF vs PLAF",
                                  potentialOutliers = c()){
-    wsafvsplaf = data.frame(plaf, obsWSAF)
-    wsafvsplaf$plaf.out = ifelse(rownames(wsafvsplaf) %in%
+    wsafvsplaf <- data.frame(plaf, obsWSAF)
+    wsafvsplaf$plaf.out <- ifelse(rownames(wsafvsplaf) %in%
                                      potentialOutliers, plaf, NA)
-    wsafvsplaf$obsWSAF.out = ifelse(rownames(wsafvsplaf) %in%
+    wsafvsplaf$obsWSAF.out <- ifelse(rownames(wsafvsplaf) %in%
                                         potentialOutliers, obsWSAF, NA)
-    wsafvsplaf$outlier = ifelse(is.na(wsafvsplaf$plaf.out),
+    wsafvsplaf$outlier <- ifelse(is.na(wsafvsplaf$plaf.out),
                                 "outlier", "normal")
     plot_ly(data = wsafvsplaf, x = ~plaf, y = ~obsWSAF,
             type = "scatter", mode = "markers",
