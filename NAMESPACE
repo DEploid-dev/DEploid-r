@@ -4,7 +4,7 @@ importFrom("graphics", "abline", "barplot", "hist", "plot", "points", "axis", "l
 importFrom("utils", "read.table")
 importFrom(Rcpp,evalCpp)
 importFrom("magrittr", "%>%")
-importFrom("plotly", "plot_ly", "layout")
+importFrom("plotly", "plot_ly", "layout", "add_trace")
 useDynLib(DEploid, .registration = TRUE)
 export(dEploid)
 export(plotProportions)

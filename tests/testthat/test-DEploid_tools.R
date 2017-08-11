@@ -43,6 +43,7 @@ test_that("computeObsWSAF", {
 test_that("WSAF Related", {
     obsWSAF <- computeObsWSAF(PG0390CoverageVcf$altCount,
                               PG0390CoverageVcf$refCount)
+    potentialOutliers <- c(5, 12, 25, 30, 35, 50)
     expect_that(histWSAF(obsWSAF), is_a("histogram"))
     png("histWSAF.png")
     histWSAF(obsWSAF)
@@ -52,6 +53,8 @@ test_that("WSAF Related", {
     if (htmlwidgets:::pandoc_available()){
         htmlwidgets::saveWidget(p, file = "histWSAFPlotly.html")
     }
+
+    ####
     expect_null(plotWSAFvsPLAF(plaf, obsWSAF))
     png("WSAFvsPLAF.png")
     plotWSAFvsPLAF(plaf, obsWSAF)
@@ -67,6 +70,29 @@ test_that("WSAF Related", {
     if (htmlwidgets:::pandoc_available()){
         htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotly.html")
     }
+
+    ###
+    expect_null(plotWSAFvsPLAF(plaf, obsWSAF,
+                               potentialOutliers = potentialOutliers))
+    png("WSAFvsPLAFOutlier.png")
+    plotWSAFvsPLAF(plaf, obsWSAF, potentialOutliers = potentialOutliers)
+    dev.off()
+    expect_null(plotWSAFvsPLAF(plaf, obsWSAF, expWSAF,
+                               potentialOutliers = potentialOutliers))
+    expect_that(inherits(plotWSAFVsPLAFPlotly(plaf, obsWSAF,
+                                              PG0390CoverageVcf$refCount,
+                                              PG0390CoverageVcf$altCount,
+                                              potentialOutliers =
+                                                  potentialOutliers),
+                         "plotly"), is_true())
+    p <- plotWSAFVsPLAFPlotly(plaf, obsWSAF,
+                              PG0390CoverageVcf$refCount,
+                              PG0390CoverageVcf$altCount,
+                              potentialOutliers = potentialOutliers)
+    if (htmlwidgets:::pandoc_available()){
+        htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotlyOutlier.html")
+    }
+    ###
     expect_null(plotObsExpWSAF(obsWSAF, expWSAF))
     png("ObsExpWSAF.png")
     plotObsExpWSAF(obsWSAF, expWSAF)
@@ -93,6 +119,28 @@ test_that("plotAltVsRef", {
                             PG0390CoverageVcf$altCount)
     if (htmlwidgets:::pandoc_available()){
         htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotly.html")
+    }
+})
+
+
+test_that("plotAltVsRefWithOutliers", {
+    potentialOutliers <- c(1, 10, 20, 30, 40)
+    expect_null(plotAltVsRef(PG0390CoverageVcf$refCount,
+                    PG0390CoverageVcf$altCount,
+                    potentialOutliers = potentialOutliers))
+    png("AltVsRefOutlier.png")
+    plotAltVsRef(PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount,
+                 potentialOutliers = potentialOutliers )
+    dev.off()
+    expect_that(inherits(plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
+                    PG0390CoverageVcf$altCount,
+                    potentialOutliers = potentialOutliers),
+                         "plotly"), is_true())
+    p <- plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
+                            PG0390CoverageVcf$altCount,
+                            potentialOutliers = potentialOutliers)
+    if (htmlwidgets:::pandoc_available()){
+        htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotlyOutlier.html")
     }
 })
 

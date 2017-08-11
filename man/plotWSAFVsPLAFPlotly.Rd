@@ -4,7 +4,8 @@
 \alias{plotWSAFVsPLAFPlotly}
 \title{Plot WSAF vs PLAF}
 \usage{
-plotWSAFVsPLAFPlotly(plaf, obsWSAF, ref, alt, title = "WSAF vs PLAF")
+plotWSAFVsPLAFPlotly(plaf, obsWSAF, ref, alt, title = "WSAF vs PLAF",
+  potentialOutliers = c())
 }
 \arguments{
 \item{plaf}{Numeric array of population level allele frequency.}
@@ -17,6 +18,8 @@ sample.}
 \item{alt}{Numeric array of alternative allele count.}
 
 \item{title}{Figure title, "WSAF vs PLAF" by default}
+
+\item{potentialOutliers}{Index of potential outliers.}
 }
 \description{
 Plot allele frequencies within sample against population level.

@@ -7,4 +7,6 @@ src/DEploid.dll
 DEploid.Rcheck/
 DEploid_0.*.*.tar.gz
 tests/testthat/Rplots.pdf
+tests/testthat/*png
+tests/testthat/*html
 inst/doc
