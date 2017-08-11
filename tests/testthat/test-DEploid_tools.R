@@ -43,7 +43,7 @@ test_that("computeObsWSAF", {
 test_that("WSAF Related", {
     obsWSAF <- computeObsWSAF(PG0390CoverageVcf$altCount,
                               PG0390CoverageVcf$refCount)
-    potentialOutliers = c(5, 12, 25, 30, 35, 50)
+    potentialOutliers <- c(5, 12, 25, 30, 35, 50)
     expect_that(histWSAF(obsWSAF), is_a("histogram"))
     png("histWSAF.png")
     histWSAF(obsWSAF)
@@ -124,7 +124,7 @@ test_that("plotAltVsRef", {
 
 
 test_that("plotAltVsRefWithOutliers", {
-    potentialOutliers = c(1, 10, 20, 30, 40)
+    potentialOutliers <- c(1, 10, 20, 30, 40)
     expect_null(plotAltVsRef(PG0390CoverageVcf$refCount,
                     PG0390CoverageVcf$altCount,
                     potentialOutliers = potentialOutliers))
