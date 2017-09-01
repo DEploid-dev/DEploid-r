@@ -1,4 +1,15 @@
-# DEploid_0.4.2
+# DEploid_0.4.4
+## Major changes
+ - None
+
+## Bugs
+ - None
+
+## Improvements
+ - Include outliers in plotAltVsRefPlotly, plotHistWSAFPlotly, plotWSAFVsPLAFPlotly and plotObsExpWSAFPlotly
+
+
+# DEploid_0.4.3 (DEploid_0.4.2)
 ## Major changes
  - None
 
