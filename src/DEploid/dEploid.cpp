@@ -25,7 +25,6 @@
 
 #include <iostream> // std::cout
 #include "mcmc.hpp"
-#include "panel.hpp"
 #include "dEploidIO.hpp"
 
 using namespace std;
@@ -46,10 +45,13 @@ int main( int argc, char *argv[] ){
             return EXIT_SUCCESS;
         }
 
-        if ( dEploidIO.doPainting() ){
+        if ( dEploidIO.doComputeLLK() ){
+            dEploidIO.computeLLKfromInitialHap();
+        } else if ( dEploidIO.doLsPainting() ){
             dEploidIO.chromPainting();
-        } else{
-
+        } else if ( dEploidIO.doIbdPainting() ){
+            dEploidIO.paintIBD();
+        }else{
             if (dEploidIO.useIBD()){ // ibd
                 McmcSample * ibdMcmcSample = new McmcSample();
                 MersenneTwister ibdRg(dEploidIO.randomSeed());
@@ -66,6 +68,8 @@ int main( int argc, char *argv[] ){
                                         false); // use IBD
             mcmcMachinery.runMcmcChain(true, // show progress
                                        false); // use IBD
+
+            dEploidIO.paintIBD();
             delete mcmcSample;
         }
         // Finishing, write log

@@ -29,9 +29,7 @@
 #include "mersenne_twister.hpp"
 #include "dEploidIO.hpp"
 #include "panel.hpp"
-#include "utility.hpp"
-#include "global.h"
-#include "randomSample.hpp"
+#include "randomSample.hpp"   // src/codeCogs/randomSample.hpp
 #include "ibd.hpp"
 
 #ifndef MCMC
@@ -56,7 +54,6 @@ class McmcSample {
         moves.clear();
     }
 
-    vector <double> IBDpathChangeAt;
     vector <double> siteOfTwoSwitchOne;
     vector <double> siteOfTwoMissCopyOne;
     vector <double> siteOfTwoSwitchTwo;
@@ -64,7 +61,6 @@ class McmcSample {
     vector <double> siteOfOneSwitchOne;
     vector <double> siteOfOneMissCopyOne;
 
-    vector <double> currentIBDpathChangeAt;
     vector <double> currentsiteOfTwoSwitchOne;
     vector <double> currentsiteOfTwoMissCopyOne;
     vector <double> currentsiteOfTwoSwitchTwo;
@@ -83,6 +79,7 @@ class McmcMachinery {
 #ifdef UNITTEST
   friend class TestMcmcMachinery;
 #endif
+  friend class DEploidIO;
   public:
     //McmcMachinery();
     McmcMachinery( DEploidIO* dEplioidIO, McmcSample *mcmcSample, RandomGenerator* rg_, bool useIBD = false );
@@ -117,13 +114,13 @@ class McmcMachinery {
     RandomGenerator* mcmcEventRg_;
     RandomGenerator* propRg_;
     RandomGenerator* initialHapRg_;
-    RandomGenerator* ibdRg_;
 
     //std::normal_distribution<double>* initialTitre_normal_distribution_;// (MN_LOG_TITRE, SD_LOG_TITRE);
     //std::normal_distribution<double>* deltaX_normal_distribution_;// (0, 1/PROP_SCALE);
     StandNormalRandomSample* stdNorm_;
     double initialTitreNormalVariable(){ return this->stdNorm_->genReal() * SD_LOG_TITRE + MN_LOG_TITRE; }
-    double deltaXnormalVariable(){ return this->stdNorm_->genReal() * 1.0/PROP_SCALE + MN_LOG_TITRE; }
+    //double deltaXnormalVariable(){ return this->stdNorm_->genReal() * 1.0/PROP_SCALE + MN_LOG_TITRE; }
+    double deltaXnormalVariable(){ return this->stdNorm_->genReal() * SD_LOG_TITRE* 1.0/PROP_SCALE + MN_LOG_TITRE; }
     double MN_LOG_TITRE;
     double SD_LOG_TITRE;
     double PROP_SCALE;
@@ -169,38 +166,24 @@ class McmcMachinery {
     void computeDiagnostics();
 
    /* IBD */
-    double theta_;
-    void setTheta(const double setTo) {this->theta_ = setTo;}
-    double theta() const {return this->theta_;}
+    IBDpath ibdPath;
 
-    double fSum;
-    Hprior hprior;
-    vector < vector <double> > llkSurf;
-    vector <int> uniqueEffectiveKCount;
-    vector < vector<double> > ibdTransProbs;
-    vector < vector <double> > fm;
-    vector <double> fSumState;
-    vector <size_t> ibdPath;
-
-    vector <double> computeStatePrior(double theta);
-    vector <size_t> findWhichIsSomething(vector <size_t> tmpOp, size_t something);
-    vector <double> computeLlkOfStatesAtSiteI( size_t siteI, double err = 0.01);
     vector <double> computeLlkAtAllSites(double err = 0.01);
     vector <double> averageProportion(vector < vector <double> > &proportion );
 
-    void initializeIbdEssentials();
+    void ibdInitializeEssentials();
     void makeLlkSurf(vector <double> altCount,
                      vector <double> refCount,
                      double scalingConst = 100.0,
                      double err = 0.01,
                      size_t gridSize=99);
-    void sampleMcmcEventIbdStep();
-    void makeIbdTransProbs();
+    void ibdSampleMcmcEventStep();
     void initializePropIBD();
-    void computeUniqueEffectiveKCount();
-    void updateFmAtSiteI(vector <double> & prior,
-                         vector <double> & llk);
-    void computeAndUpdateTheta();
+    void ibdSamplePath(vector <double> statePrior);
+    void ibdUpdateHaplotypesFromPrior();
+    void ibdUpdateProportionGivenHap(vector <double> &llkAtAllSites);
+    //vector <double> getIBDprobsIntegrated(vector < vector <double> > &prob);
+
 
   /* Moves */
     void updateProportion();

@@ -26,7 +26,7 @@
 #include <Rcpp.h>
 #include <iostream> // std::cout
 #include "mcmc.hpp"
-#include "panel.hpp"
+//#include "panel.hpp"
 #include "dEploidIO.hpp"
 #include <memory>
 #include "r_random_generator.h"
@@ -169,7 +169,7 @@ List dEploid(std::string args) {
     std::shared_ptr<FastFunc> ff = std::make_shared<FastFunc>();
     RRandomGenerator rrg(ff);
 
-    if ( dEploidIO.doPainting() ){
+    if ( dEploidIO.doLsPainting() ){
         //dEploidIO.chromPainting();
         stop("Painting is not implemented yet!");
     }

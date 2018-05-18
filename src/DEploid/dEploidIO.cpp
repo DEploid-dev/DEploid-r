@@ -22,13 +22,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dEploidIO.hpp"
-#include "utility.hpp"  // normailize by sum
-#include <cassert>       // assert
-#include <iomanip>      // std::setw
 #include <ctime>
 #include <iterator>
-#include "updateHap.hpp"
+#include <cassert>        // assert
+#include <iomanip>        // std::setw
+#include "utility.hpp"    // normailize by sum
+#include "updateHap.hpp"  // chromPainting
+#include "dEploidIO.hpp"
+#include "ibd.hpp"
 
 DEploidIO::DEploidIO(){
     this->init();
@@ -89,11 +90,12 @@ void DEploidIO::core() {
 
 void DEploidIO::init() {
     this->setDoExportRecombProb(false);
-    this->setRandomSeedWasSet(false);
+    this->setrandomSeedWasGiven(false);
     this->setCompressVcf(false);
     this->setInitialPropWasGiven(false);
     this->setInitialHapWasGiven(false);
     this->initialProp.clear();
+    this->setPleaseCheckInitialP(true);
     this->setExcludeSites( false );
     this->excludedMarkers = NULL;
     this->panel = NULL;
@@ -112,7 +114,8 @@ void DEploidIO::init() {
     this->setDoUpdatePair( true );
     this->setDoUpdateSingle( true );
     this->setDoExportPostProb( false );
-    this->setDoPainting( false );
+    this->setDoLsPainting( false );
+    this->setDoIbdPainting( false );
     this->setUseIBD( false );
     this->setDoExportSwitchMissCopy ( true );
     this->setDoAllowInbreeding( false );
@@ -126,10 +129,11 @@ void DEploidIO::init() {
     this->setScalingFactor(100.0);
     this->setParameterG(20.0);
     this->setParameterSigma(5.0);
-
+    this->setIBDSigma(20.0);
     this->setUseVcf(false);
     this->vcfReaderPtr_ = NULL;
     this->setDoExportVcf(false);
+    this->setDoComputeLLK(false);
 
     #ifdef COMPILEDATE
         compileTime_ = COMPILEDATE;
@@ -169,6 +173,12 @@ void DEploidIO::reInit() {
 
 
 void DEploidIO::finalize(){
+    if ( this->doIbdPainting() | this->doComputeLLK() ){
+        if (!initialPropWasGiven()){
+            throw InitialPropUngiven("");
+        }
+    }
+
     if ( this->useIBD() && this->kStrain() == 1){
         throw InvalidK();
     }
@@ -177,7 +187,7 @@ void DEploidIO::finalize(){
         throw VcfOutUnSpecified("");
     }
 
-    if ( !this->randomSeedWasSet_ ){
+    if ( !this->randomSeedWasGiven_ ){
         this->set_seed( (unsigned)(time(0)) );
     }
 
@@ -260,17 +270,18 @@ void DEploidIO::removeFilesWithSameName(){
     strIbdExportProp = this->prefix_ + ".ibd.prop";
     strIbdExportLLK = this->prefix_ + ".ibd.llk";
     strIbdExportHap = this->prefix_ + ".ibd.hap";
+    strIbdExportProbs = this->prefix_ + ".ibd.probs";
 
     strExportVcf = this->prefix_ + ".vcf";
     if ( compressVcf() ){
         strExportVcf += ".gz";
     }
-    strExportLog =  this->prefix_ + ((this->doPainting()) ? ".painting":"") + ".log";
+    strExportLog =  this->prefix_ + ((this->doLsPainting()) ? ".painting":"") + ".log";
     strExportRecombProb = this->prefix_ + ".recomb";
 
     strExportExtra = this->prefix_ + ".extra";
 
-    if ( this->doPainting() == false ){
+    if ( this->doLsPainting() == false ){
         if (this->useIBD()){
             remove(strIbdExportProp.c_str());
             remove(strIbdExportLLK.c_str());
@@ -281,9 +292,10 @@ void DEploidIO::removeFilesWithSameName(){
         remove(strExportVcf.c_str());
         remove(strExportProp.c_str());
         remove(strExportExtra.c_str());
+        remove(strIbdExportProbs.c_str());
     }
 
-    if (this->doPainting() || this->doExportPostProb() ){
+    if (this->doLsPainting() || this->doExportPostProb() ){
         if (this->useIBD()){
             strIbdExportSingleFwdProbPrefix = this->prefix_ + ".ibd.single";
             for ( size_t i = 0; i < this->kStrain_ ; i++ ){
@@ -385,6 +397,8 @@ void DEploidIO::parse (){
             this->setParameterG(readNextInput<double>());
         } else if ( *argv_i == "-sigma" ) {
             this->setParameterSigma(readNextInput<double>());
+        } else if ( *argv_i == "-ibdSigma" ) {
+            this->setIBDSigma(readNextInput<double>());
         } else if ( *argv_i == "-recomb" ) {
             this->constRecombProb_ = readNextInput<double>();
             this->useConstRecomb_ = true;
@@ -422,10 +436,16 @@ void DEploidIO::parse (){
                 throw ( FlagsConflict((*argv_i) , "-initialHap") );
             }
             this->readNextStringto ( this->initialHapFileName_ ) ;
-            this->setDoPainting( true );
+            this->setDoLsPainting( true );
             this->readInitialHaps();
         } else if ( *argv_i == "-ibd" ){
             this->setUseIBD(true);
+        } else if ( *argv_i == "-computeLLK" ){
+            this->setDoComputeLLK( true );
+        } else if ( *argv_i == "-ibdPainting" ){
+            this->setDoIbdPainting( true );
+        } else if ( *argv_i == "-skipCheckingInitialP" ){
+            this->setPleaseCheckInitialP(false);
         } else if ( *argv_i == "-initialP" ){
             this->readInitialProportions();
             this->setInitialPropWasGiven( true );
@@ -444,7 +464,7 @@ void DEploidIO::parse (){
 
             this->setKstrain(this->initialProp.size());
         } else if ( *argv_i == "-initialHap" ){
-            if ( this->doPainting() == true ){
+            if ( this->doLsPainting() == true ){
                 throw ( FlagsConflict((*argv_i) , "-painting") );
             }
             this->readNextStringto ( this->initialHapFileName_ ) ;
@@ -452,7 +472,7 @@ void DEploidIO::parse (){
             this->readInitialHaps();
         } else if ( *argv_i == "-seed"){
             this->set_seed( readNextInput<size_t>() );
-            this->setRandomSeedWasSet( true );
+            this->setrandomSeedWasGiven( true );
         } else if ( *argv_i == "-z" ){
             this->setCompressVcf(true);
         } else if ( *argv_i == "-h" || *argv_i == "-help"){
@@ -474,9 +494,9 @@ void DEploidIO::checkInput(){
         throw FileNameMissing ( "Alt count" );}
     if ( this->plafFileName_.size() == 0 ){
         throw FileNameMissing ( "PLAF" );}
-    if ( usePanel() && this->panelFileName_.size() == 0 ){
+    if ( usePanel() && this->panelFileName_.size() == 0 && !this->doIbdPainting() && !this->doComputeLLK() ){
         throw FileNameMissing ( "Reference panel" );}
-    if ( this->initialPropWasGiven() && ( abs(sumOfVec(initialProp) - 1.0) > 0.00001 )){
+    if ( this->initialPropWasGiven() && ( abs(sumOfVec(initialProp) - 1.0) > 0.00001 ) && this->pleaseCheckInitialP() ){
         throw SumOfPropNotOne ( to_string(sumOfVec(initialProp)) );}
     if ( this->initialPropWasGiven() ){
         if ( this->kStrainWasManuallySet() == true ){
@@ -561,6 +581,7 @@ void DEploidIO::printHelp(std::ostream& out){
     out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CPanelExclude -panel data/testData/labStrains.test.panel.txt" << endl;
     out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CPanelExclude -panel data/testData/labStrains.test.panel.txt -painting PG0390-CPanelExclude.hap" << endl;
     out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanel -noPanel -k 2 -ibd -nSample 250 -rate 8 -burn 0.67" <<endl;
+    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanel -ibdPainting -initialP 0.2 0.8" <<endl;
 }
 
 
@@ -593,6 +614,36 @@ void DEploidIO::readInitialHaps(){
 }
 
 
+vector <double> DEploidIO::computeExpectedWsafFromInitialHap(){
+    // Make this a separate function
+    // calculate expected wsaf
+    vector <double> expectedWsaf (this->initialHap.size(), 0.0);
+    for ( size_t i = 0; i < this->initialHap.size(); i++ ){
+        assert( kStrain_ == this->initialHap[i].size() );
+        for ( size_t k = 0; k < this->kStrain_; k++){
+            expectedWsaf[i] += this->initialHap[i][k] * finalProp[k];
+        }
+        assert ( expectedWsaf[i] >= 0 );
+        //assert ( expectedWsaf[i] <= 1.0 );
+    }
+    return expectedWsaf;
+}
+
+
+void DEploidIO::computeLLKfromInitialHap(){
+    for ( auto const& value: this->initialProp ){
+        this->finalProp.push_back(value);
+    }
+
+    vector <double> expectedWsaf = computeExpectedWsafFromInitialHap();
+    if (expectedWsaf.size() != this->refCount_.size()){
+        throw LociNumberUnequal("Hap length differs from data!");
+    }
+    vector <double> llk = calcLLKs ( this->refCount_, this->altCount_, expectedWsaf, 0, expectedWsaf.size(), this->scalingFactor());
+    this->llkFromInitialHap_ = sumOfVec(llk);
+}
+
+
 void DEploidIO::chromPainting(){
     dout << "Painting haplotypes in" << this->initialHapFileName_ <<endl;
 
@@ -605,7 +656,7 @@ void DEploidIO::chromPainting(){
     }
 
     for ( auto const& value: this->initialProp ){
-        this->filnalProp.push_back(value);
+        this->finalProp.push_back(value);
     }
 
     // Painting posterior probabilities
@@ -623,17 +674,7 @@ void DEploidIO::chromPainting(){
 
     //vector < vector <double>> hap = decovolutedStrainsToBeRead.content_;
 
-    // Make this a separate function
-    // calculate expected wsaf
-    vector <double> expectedWsaf (this->nLoci_, 0.0);
-    for ( size_t i = 0; i < this->initialHap.size(); i++ ){
-        assert( kStrain_ == this->initialHap[i].size() );
-        for ( size_t k = 0; k < this->kStrain_; k++){
-            expectedWsaf[i] += this->initialHap[i][k] * filnalProp[k];
-        }
-        assert ( expectedWsaf[i] >= 0 );
-        //assert ( expectedWsaf[i] <= 1.0 );
-    }
+    vector <double> expectedWsaf = computeExpectedWsafFromInitialHap();
 
     MersenneTwister tmpRg(this->randomSeed());
 
@@ -655,7 +696,7 @@ void DEploidIO::chromPainting(){
                                       this->altCount_,
                                       this->plaf_,
                                       expectedWsaf,
-                                      this->filnalProp, this->initialHap, &tmpRg,
+                                      this->finalProp, this->initialHap, &tmpRg,
                                       start, length,
                                       this->panel, this->missCopyProb_, this->scalingFactor(),
                                       tmpk);
@@ -663,7 +704,7 @@ void DEploidIO::chromPainting(){
             if ( this->doAllowInbreeding() == true ){
                 updatingSingle.setPanelSize(this->panel->inbreedingPanelSize());
             }
-            updatingSingle.painting( refCount_, altCount_, expectedWsaf, this->filnalProp, this->initialHap);
+            updatingSingle.painting( refCount_, altCount_, expectedWsaf, this->finalProp, this->initialHap);
             //this->writeLastSingleFwdProb( updatingSingle.fwdProbs_, chromi, tmpk, false ); // false as not using ibd
             this->writeLastSingleFwdProb( updatingSingle.fwdBwdProbs_, chromi, tmpk, false ); // false as not using ibd
         }
@@ -673,6 +714,9 @@ void DEploidIO::chromPainting(){
 
 void DEploidIO::readPanel(){
     if ( this->usePanel() == false ){
+        return;
+    }
+    if ( this->doIbdPainting() | this->doComputeLLK() ){
         return;
     }
 
@@ -685,5 +729,63 @@ void DEploidIO::readPanel(){
     panel->computeRecombProbs( this->averageCentimorganDistance(), this->parameterG(), this->useConstRecomb(), this->constRecombProb(), this->forbidCopyFromSame() );
     panel->checkForExceptions( this->nLoci(), this->panelFileName_ );
 }
+
+
+DEploidIO::DEploidIO(const DEploidIO &currentDEploidIO){
+    // This is not working! to be improved
+    //cout << this->refCount_.size() << endl;
+    this->refCount_ = currentDEploidIO.refCount_;
+    //cout << this->refCount_.size() << endl;
+}
+
+
+void DEploidIO::getIBDprobsIntegrated(vector < vector <double> > &prob){
+    if (prob.size() !=  this->nLoci()){
+        throw InvalidInput("Invalid probabilities! Check size!");
+    }
+
+    assert(this->ibdProbsIntegrated.size() == 0);
+
+    for (size_t i = 0; i < prob[0].size(); i++){
+        this->ibdProbsIntegrated.push_back(0.0);
+    }
+
+    for ( size_t siteIndex = 0; siteIndex < this->nLoci(); siteIndex++ ){
+        for (size_t i = 0; i < prob[siteIndex].size(); i++){
+            this->ibdProbsIntegrated[i] += prob[siteIndex][i];
+        }
+    }
+    normalizeBySum(this->ibdProbsIntegrated);
+}
+
+
+void DEploidIO::computeEffectiveKstrain(vector <double> proportion){
+    double tmpSumSq = 0.0;
+    for (double p : proportion){
+        tmpSumSq += p * p;
+    }
+    this->effectiveKstrain_ = 1.0 / tmpSumSq;
+}
+
+
+void DEploidIO::computeInferredKstrain(vector <double> proportion){
+    this->inferredKstrain_ = 0;
+    for (double p : proportion){
+        if ( p > 0.01 ){
+            this->inferredKstrain_ += 1;
+        }
+    }
+}
+
+
+void DEploidIO::computeAdjustedEffectiveKstrain(){
+    this->adjustedEffectiveKstrain_ = this->effectiveKstrain_;
+    if ( (this->inferredKstrain_ == 2) & (ibdProbsIntegrated.size() == 2)){
+        if ( this->ibdProbsIntegrated[1] > 0.95 ){
+            this->adjustedEffectiveKstrain_ = 1;
+        }
+    }
+}
+
 
 

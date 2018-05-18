@@ -23,12 +23,12 @@
  *
  */
 
-#include <stdlib.h>     /* strtol, strtod */
-#include <fstream>
-#include <stdexcept> // std::invalid_argument
 #include <vector>
-#include <iostream> // std::cout
-#include <sstream>      // std::stringstream
+#include <fstream>
+#include <stdlib.h>             // strtol, strtod
+#include <stdexcept>            // std::invalid_argument
+#include <iostream>             // std::cout
+#include <sstream>              // std::stringstream
 #include "global.h"
 #include "exceptions.hpp"
 #include "panel.hpp"
@@ -48,11 +48,14 @@ class DEploidIO{
 #ifdef UNITTEST
  friend class TestIO;
  friend class TestMcmcMachinery;
+ friend class TestIBDpath;
 #endif
  friend class McmcMachinery;
  friend class RMcmcSample;
+ friend class IBDpath;
   public:
     DEploidIO();
+    DEploidIO(const DEploidIO &currentDEploidIO);
     DEploidIO(const std::string &arg);
     DEploidIO(int argc, char *argv[]);
     ~DEploidIO ();
@@ -63,18 +66,26 @@ class DEploidIO{
     bool version() const { return version_; }
     // Painting related
     void chromPainting ();
-    bool doPainting() const { return this->doPainting_; }
+    bool doLsPainting() const { return this->doLsPainting_; }
+    bool doIbdPainting() const { return this->doIbdPainting_; }
+    bool doComputeLLK() const { return this->doComputeLLK_; }
+    void computeLLKfromInitialHap();
     bool useIBD() const { return this->useIBD_;}
+    void paintIBD();
+    double ibdLLK_;
+    void getIBDprobsIntegrated(vector < vector <double> > &prob);
 
     // Log
     void wrapUp();
-    bool randomSeedWasSet() const {return this->randomSeedWasSet_; }
+    bool randomSeedWasSet() const {return this->randomSeedWasGiven_; }
 
     friend std::ostream& operator<< (std::ostream& stream, const DEploidIO& dEploidIO);
+
     size_t randomSeed() const { return randomSeed_;}
 
   private:
     void core();
+    double llkFromInitialHap_;
 
     // Read in input
     string plafFileName_;
@@ -85,11 +96,12 @@ class DEploidIO{
     string initialHapFileName_;
     string prefix_;
     size_t randomSeed_;
-    bool randomSeedWasSet_;
-    void setRandomSeedWasSet(const bool random){ this->randomSeedWasSet_ = random; }
+    bool randomSeedWasGiven_;
+    void setrandomSeedWasGiven(const bool random){ this->randomSeedWasGiven_ = random; }
 
 
     bool initialPropWasGiven_;
+    bool pleaseCheckInitialP_;
     bool initialHapWasGiven_;
     bool kStrainWasManuallySet_;
     bool kStrainWasSetByHap_;
@@ -108,11 +120,12 @@ class DEploidIO{
     bool doExportPostProb_;
     bool doExportSwitchMissCopy_;
     bool doAllowInbreeding_;
-    bool doPainting_;
+    bool doLsPainting_;
+    bool doIbdPainting_;
     bool useIBD_;
 
     vector <double> initialProp;
-    vector <double> filnalProp;
+    vector <double> finalProp;
     vector < vector <double> > initialHap;
     vector <string> chrom_;
     vector < size_t > indexOfChromStarts_;
@@ -150,6 +163,9 @@ class DEploidIO{
     bool doExportRecombProb_;
     void setDoExportRecombProb( const bool exportRecombProb ){ this->doExportRecombProb_ = exportRecombProb; }
     bool doExportRecombProb() const { return this->doExportRecombProb_; }
+
+    bool doComputeLLK_;
+    void setDoComputeLLK( const bool setTo ){ this->doComputeLLK_ = setTo; }
 
     // Parameters
     double missCopyProb_;
@@ -190,6 +206,7 @@ class DEploidIO{
     string strIbdExportProp;
     string strIbdExportLLK;
     string strIbdExportHap;
+    string strIbdExportProbs;
 
     string strExportSingleFwdProbPrefix;
     string strExportPairFwdProb;
@@ -218,6 +235,7 @@ class DEploidIO{
 
     void set_seed(const size_t seed){ this->randomSeed_ = seed; }
     void removeFilesWithSameName();
+    vector <double> computeExpectedWsafFromInitialHap();
 
 
     template<class T>
@@ -259,17 +277,27 @@ class DEploidIO{
     void setDoAllowInbreeding ( const bool setTo ) { this->doAllowInbreeding_ = setTo; }
     bool doAllowInbreeding() const { return this->doAllowInbreeding_; }
 
-    void setDoPainting ( const bool setTo ){ this->doPainting_ = setTo; }
+    void setDoLsPainting ( const bool setTo ){ this->doLsPainting_ = setTo; }
+    void setDoIbdPainting ( const bool setTo ){ this->doIbdPainting_ = setTo; }
     void setUseIBD( const bool setTo){ this->useIBD_ = setTo; }
 
     bool initialPropWasGiven() const { return initialPropWasGiven_; }
     void setInitialPropWasGiven(const bool setTo){this->initialPropWasGiven_ = setTo; }
 
+    bool pleaseCheckInitialP() const { return pleaseCheckInitialP_; }
+    void setPleaseCheckInitialP(const bool setTo){this->pleaseCheckInitialP_ = setTo; }
+
     bool initialHapWasGiven() const { return initialHapWasGiven_; }
     void setInitialHapWasGiven(const bool setTo){ this->initialHapWasGiven_ = setTo; }
 
+    bool randomSeedWasGiven() const {return this->randomSeedWasGiven_; }
+
     // log and export resutls
     void writeRecombProb ( Panel * panel );
+    void writeIBDpostProb(vector < vector <double> > & reshapedProbs, vector <string> header);
+    vector <string> ibdProbsHeader;
+    vector <double> ibdProbsIntegrated;
+
     void writeLLK (McmcSample * mcmcSample, bool useIBD = false);
     void writeProp (McmcSample * mcmcSample, bool useIBD = false);
     void writeHap (McmcSample * mcmcSample, bool useIBD = false);
@@ -310,7 +338,11 @@ class DEploidIO{
     double parameterSigma_;
     void setParameterSigma ( const double setTo ) { this->parameterSigma_ = setTo; }
     double parameterSigma() const { return this->parameterSigma_; }
+    double ibdSigma_;
+    void setIBDSigma ( const double setTo ){ this->ibdSigma_ = setTo; }
+    double ibdSigma() const {return this->ibdSigma_;}
 
+    void setNLoci ( const size_t setTo ){ this->nLoci_ = setTo;}
     size_t nLoci() const { return this->nLoci_; }
     void setKstrain ( const size_t setTo ){ this->kStrain_ = setTo;}
     size_t kStrain() const { return this->kStrain_;}
@@ -335,6 +367,13 @@ class DEploidIO{
 
     bool forbidCopyFromSame() const { return this->forbidCopyFromSame_; }
     void setForbidCopyFromSame(const bool forbid){ this->forbidCopyFromSame_ = forbid; }
+
+    double effectiveKstrain_ ;
+    void computeEffectiveKstrain(vector <double> proportion);
+    int inferredKstrain_;
+    void computeInferredKstrain(vector <double> proportion);
+    double adjustedEffectiveKstrain_;
+    void computeAdjustedEffectiveKstrain();
 };
 
 #endif

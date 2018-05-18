@@ -81,14 +81,16 @@ void DEploidIO::writeLog ( ostream * writeTo ){
     (*writeTo) << "dEploid version: " << dEploidGitVersion_ << endl;
     (*writeTo) << "\n";
     (*writeTo) << "Input data: \n";
-    (*writeTo) << setw(12) << "Panel: "     << panelFileName_  << "\n";
+    if (panelFileName_.size() > 0){
+        (*writeTo) << setw(12) << "Panel: "     << panelFileName_  << "\n";
+    }
     (*writeTo) << setw(12) << "PLAF: "      << plafFileName_   << "\n";
     if ( useVcf() ) (*writeTo) << setw(12) << "VCF: " << vcfFileName_    << "\n";
     if ( refFileName_.size()>0) (*writeTo) << setw(12) << "REF count: " << refFileName_    << "\n";
     if ( altFileName_.size()>0) (*writeTo) << setw(12) << "ALT count: " << altFileName_    << "\n";
     if ( excludeSites() ){ (*writeTo) << setw(12) << "Exclude: " << excludeFileName_    << "\n"; }
     (*writeTo) << "\n";
-    if ( this->doPainting() == false ) {
+    if ( (this->doLsPainting() == false) & (this->doIbdPainting() == false) ) {
         (*writeTo) << "MCMC parameters: "<< "\n";
         (*writeTo) << setw(19) << " MCMC burn: " << mcmcBurn_ << "\n";
         (*writeTo) << setw(19) << " MCMC sample: " << nMcmcSample_ << "\n";
@@ -107,7 +109,11 @@ void DEploidIO::writeLog ( ostream * writeTo ){
     (*writeTo) << setw(20) << " Miss copy prob: "   << this->missCopyProb_ << "\n";
     (*writeTo) << setw(20) << " Avrg Cent Morgan: " << this->averageCentimorganDistance_ << "\n";
     (*writeTo) << setw(20) << " G: "               << this->parameterG() << "\n";
+    if (this->useIBD()){
+    (*writeTo) << setw(20) << " IBD sigma: "               << this->ibdSigma() << "\n";
+    } else {
     (*writeTo) << setw(20) << " sigma: "               << this->parameterSigma() << "\n";
+    }
     (*writeTo) << setw(20) << " ScalingFactor: "    << this->scalingFactor() << "\n";
     if ( this->initialPropWasGiven() ){
         (*writeTo) << setw(20) << " Initial prob: " ;
@@ -117,11 +123,11 @@ void DEploidIO::writeLog ( ostream * writeTo ){
         }
     }
     (*writeTo) << "\n";
-    if ( this->doPainting() == false ) {
+    if ( (this->doLsPainting() == false) & (this->doIbdPainting() == false) & (this->doComputeLLK() == false) ) {
         (*writeTo) << "MCMC diagnostic:"<< "\n";
         (*writeTo) << setw(19) << " Accept_ratio: " << acceptRatio_ << "\n";
         (*writeTo) << setw(19) << " Max_llks: " << maxLLKs_ << "\n";
-        (*writeTo) << setw(19) << " Mean_theta_llks: " << meanThetallks_ << "\n";
+        (*writeTo) << setw(19) << " Final_theta_llks: " << meanThetallks_ << "\n";
         (*writeTo) << setw(19) << " Mean_llks: " << meanllks_ << "\n";
         (*writeTo) << setw(19) << " Stdv_llks: " << stdvllks_ << "\n";
         (*writeTo) << setw(19) << " DIC_by_Dtheta: " << dicByTheta_ << "\n";
@@ -132,34 +138,59 @@ void DEploidIO::writeLog ( ostream * writeTo ){
     (*writeTo) << setw(14) << "Start at: "  << startingTime_  ;
     (*writeTo) << setw(14) << "End at: "    << endTime_  ;
     (*writeTo) << "\n";
-    (*writeTo) << "Output saved to:\n";
-    if ( this->doPainting() ){
-        for ( size_t i = 0; i < kStrain(); i++ ){
-            (*writeTo) << "Posterior probability of strain " << i << ": "<< strExportSingleFwdProbPrefix << i <<endl;
-        }
+    if ( this->doComputeLLK() ){
+        (*writeTo) << "Input likelihood: " << llkFromInitialHap_;
+        (*writeTo) << "\n";
     } else {
-        (*writeTo) << setw(14) << "Likelihood: "  << strExportLLK  << "\n";
-        (*writeTo) << setw(14) << "Proportions: " << strExportProp << "\n";
-        (*writeTo) << setw(14) << "Haplotypes: "  << strExportHap  << "\n";
-        if ( doExportVcf() ) { (*writeTo) << setw(14) << "Vcf: "  << strExportVcf  << "\n"; }
-        if (this->useIBD()){
-            (*writeTo) << " IBD method output saved to:\n";
-            (*writeTo) << setw(14) << "Likelihood: "  << strIbdExportProp  << "\n";
-            (*writeTo) << setw(14) << "Proportions: " << strIbdExportProp << "\n";
-            (*writeTo) << setw(14) << "Haplotypes: "  << strIbdExportHap  << "\n";
+        (*writeTo) << "Output saved to:\n";
+        if ( this->doLsPainting() ){
+            for ( size_t i = 0; i < kStrain(); i++ ){
+                (*writeTo) << "Posterior probability of strain " << i << ": "<< strExportSingleFwdProbPrefix << i <<endl;
+            }
+        } else if (this->doIbdPainting()){
+            if (this->ibdProbsIntegrated.size()>1){
+                (*writeTo) << setw(14) << "IBD probs: "  << strIbdExportProbs  << "\n\n";
+                (*writeTo) << " IBD probabilities:\n";
+                for ( size_t stateI = 0; stateI < this->ibdProbsHeader.size(); stateI++ ){
+                    (*writeTo) << setw(14) << this->ibdProbsHeader[stateI] << ": " << this->ibdProbsIntegrated[stateI] << "\n";
+                }
+            }
+        } else {
+            (*writeTo) << setw(14) << "Likelihood: "  << strExportLLK  << "\n";
+            (*writeTo) << setw(14) << "Proportions: " << strExportProp << "\n";
+            (*writeTo) << setw(14) << "Haplotypes: "  << strExportHap  << "\n";
+            if ( doExportVcf() ) { (*writeTo) << setw(14) << "Vcf: "  << strExportVcf  << "\n"; }
+            if (this->useIBD()){
+                (*writeTo) << " IBD method output saved to:\n";
+                (*writeTo) << setw(14) << "Likelihood: "  << strIbdExportLLK  << "\n";
+                (*writeTo) << setw(14) << "Proportions: " << strIbdExportProp << "\n";
+                (*writeTo) << setw(14) << "Haplotypes: "  << strIbdExportHap  << "\n";
+            }
+            if (this->ibdProbsIntegrated.size()>1){
+                (*writeTo) << setw(14) << "IBD probs: "  << strIbdExportProbs  << "\n\n";
+                (*writeTo) << " IBD probabilities:\n";
+                for ( size_t stateI = 0; stateI < this->ibdProbsHeader.size(); stateI++ ){
+                    (*writeTo) << setw(14) << this->ibdProbsHeader[stateI] << ": " << this->ibdProbsIntegrated[stateI] << "\n";
+                }
+            }
         }
+        (*writeTo) << "\n";
+        (*writeTo) << " IBD best path llk: " << ibdLLK_ << "\n\n";
+
+        this->computeEffectiveKstrain(this->finalProp);
+        (*writeTo) << "         Effective_K: " << this->effectiveKstrain_ <<"\n";
+        this->computeInferredKstrain(this->finalProp);
+        (*writeTo) << "          Inferred_K: " << this->inferredKstrain_ <<"\n";
+        this->computeAdjustedEffectiveKstrain();
+        (*writeTo) << "Adjusted_effective_K: " << this->adjustedEffectiveKstrain_ <<"\n";
     }
     (*writeTo) << "\n";
     (*writeTo) << "Proportions:\n";
-    for ( size_t ii = 0; ii < this->filnalProp.size(); ii++){
-        (*writeTo) << setw(10) << this->filnalProp[ii];
-        (*writeTo) << ((ii < (this->filnalProp.size()-1)) ? "\t" : "\n") ;
+    for ( size_t ii = 0; ii < this->finalProp.size(); ii++){
+        (*writeTo) << setw(10) << this->finalProp[ii];
+        (*writeTo) << ((ii < (this->finalProp.size()-1)) ? "\t" : "\n") ;
     }
-
 }
-
-
-
 
 
 void DEploidIO::writeEventCount(){
@@ -221,5 +252,86 @@ void DEploidIO::writeEventCount(){
 
     assert(siteIndex == this->IBDpathChangeAt.size());
     ofstreamExportTmp.close();
+}
+
+
+void DEploidIO::writeIBDpostProb(vector < vector <double> > & reshapedProbs, vector <string> header){
+    ostream * writeTo;
+    #ifdef UNITTEST
+        writeTo = &std::cout;
+    #endif
+
+    #ifndef UNITTEST
+        ofstreamExportTmp.open( strIbdExportProbs.c_str(), ios::out | ios::app | ios::binary );
+        writeTo = &ofstreamExportTmp;
+    #endif
+
+    (*writeTo) << "CHROM" << "\t" << "POS" << "\t";
+    for (string tmp : header){
+        (*writeTo) << tmp << ((tmp!=header[header.size()-1])?"\t":"\n");
+    }
+
+    size_t siteIndex = 0;
+    for ( size_t chromIndex = 0; chromIndex < position_.size(); chromIndex++){
+        for ( size_t posI = 0; posI < position_[chromIndex].size(); posI++){
+            (*writeTo) << chrom_[chromIndex] << "\t" << (int)position_[chromIndex][posI] << "\t";
+            for (size_t ij = 0; ij < reshapedProbs[siteIndex].size(); ij++){
+                (*writeTo) << reshapedProbs[siteIndex][ij] << "\t";
+            }
+            (*writeTo) << endl;
+            siteIndex++;
+        }
+    }
+    assert(siteIndex == nLoci());
+
+    #ifndef UNITTEST
+        ofstreamExportTmp.close();
+    #endif
+}
+
+
+void DEploidIO::paintIBD(){
+    vector <double> goodProp;
+    vector <size_t> goodStrainIdx;
+
+    if ( this->doIbdPainting() ){
+        this->finalProp = this->initialProp;
+    }
+
+    for ( size_t i = 0; i < this->finalProp.size(); i++){
+        if (this->finalProp[i] > 0.01){
+            goodProp.push_back(this->finalProp[i]);
+            goodStrainIdx.push_back(i);
+        }
+    }
+
+    if (goodProp.size() == 1){
+        return;
+    }
+
+    DEploidIO tmpDEploidIO; // (*this);
+    tmpDEploidIO.setKstrain(goodProp.size());
+    tmpDEploidIO.setInitialPropWasGiven(true);
+    tmpDEploidIO.initialProp = goodProp;
+    tmpDEploidIO.finalProp = goodProp;
+    tmpDEploidIO.refCount_ = this->refCount_;
+    tmpDEploidIO.altCount_ = this->altCount_;
+    tmpDEploidIO.plaf_ = this->plaf_;
+    tmpDEploidIO.nLoci_= this->nLoci();
+    tmpDEploidIO.position_ = this->position_;
+    tmpDEploidIO.chrom_ = this->chrom_;
+    //tmpDEploidIO.useConstRecomb_ = true;
+    //tmpDEploidIO.constRecombProb_ = 0.000001;
+
+    //tmpDEploidIO.writeLog (&std::cout);
+
+    MersenneTwister tmpRg(this->randomSeed());
+    IBDpath tmpIBDpath;
+    tmpIBDpath.init(tmpDEploidIO, &tmpRg);
+    tmpIBDpath.buildPathProbabilityForPainting(goodProp);
+    this->ibdLLK_ = tmpIBDpath.bestPath(goodProp);
+    this->ibdProbsHeader = tmpIBDpath.getIBDprobsHeader();
+    this->getIBDprobsIntegrated(tmpIBDpath.fwdbwd);
+    this->writeIBDpostProb(tmpIBDpath.fwdbwd, this->ibdProbsHeader);
 }
 
