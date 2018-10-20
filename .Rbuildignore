@@ -16,7 +16,7 @@
 ^\.lintr$
 
 # C++
-^.*.o$
+\.o$
 ^DEploid.*.gz$
 ^.DEploid\/*$
 ^.*\.dirstamp$
