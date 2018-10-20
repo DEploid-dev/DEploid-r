@@ -23,9 +23,9 @@
  *
  */
 
+#include "updateHap.hpp"
 #include <algorithm>    // std::reverse
 #include <cstdlib>      // div
-#include "updateHap.hpp"
 
 UpdateHap::~UpdateHap() {}
 
