@@ -22,6 +22,8 @@
 ^.*\.dirstamp$
 ^.*\.gcda$
 ^pf3k-dEploid.*$
+src/DEploid/dEploid.cpp
+src/DEploid/lasso/lassoOut.cpp
 
 # extras
 ^extra$

@@ -108,7 +108,7 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
                                title = "Histogram 0<WSAF<1"){
   tmpWSAFIndex <- 1:length(obsWSAF)
   if (exclusive){
-    tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
+    tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
   }
   xb <- list(
       start = 0,
