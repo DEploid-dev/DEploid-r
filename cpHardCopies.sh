@@ -9,7 +9,7 @@ rsync -avu R/DEploidR.R .DEploid/utilities/DEploidR.R
 
 # sync from DEploid to DEploid-r
 rsync -avu .DEploid/src/ src/DEploid/
-rsync -avu .DEploid/src/lasso/*pp src/DEploid/lasso/*pp
+rsync -avu .DEploid/src/lasso/*pp src/DEploid/lasso/
 #cp .DEploid/DEploid-Lasso-lib/src/*pp lasso
 
 # tidy up
