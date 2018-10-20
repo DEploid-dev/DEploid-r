@@ -29,7 +29,7 @@
 #include <stdlib.h>     /* strtol, strtod */
 #include "exceptions.hpp"
 #include "variantIndex.hpp"
-#include "gzstream.h"
+#include "gzstream/gzstream.h"
 
 #ifndef VCF
 #define VCF

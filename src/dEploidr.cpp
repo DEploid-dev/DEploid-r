@@ -30,6 +30,7 @@
 #include "dEploidIO.hpp"
 #include <memory>
 #include "r_random_generator.h"
+#include "lasso/dEploidLasso.hpp"
 
 
 using namespace Rcpp;
@@ -172,11 +173,19 @@ List dEploid(std::string args) {
     if ( dEploidIO.doLsPainting() ){
         //dEploidIO.chromPainting();
         stop("Painting is not implemented yet!");
+    } else if (dEploidIO.useLasso()) {
+        dEploidIO.dEploidLasso();
+        MersenneTwister lassoRg(dEploidIO.randomSeed());
+        DEploidIO tmpIO(dEploidIO);
     }
-
     if (dEploidIO.useIBD()){ // ibd
         McmcSample * ibdMcmcSample = new McmcSample();
-        McmcMachinery ibdMcmcMachinery(&dEploidIO, ibdMcmcSample, &rrg, true);
+        McmcMachinery ibdMcmcMachinery(&dEploidIO.plaf_,
+                                       &dEploidIO.refCount_,
+                                       &dEploidIO.altCount_,
+                                       dEploidIO.panel,
+                                       &dEploidIO,
+                                       ibdMcmcSample, &rrg, true);
         ibdMcmcMachinery.runMcmcChain(true, // show progress
                                       true, // use IBD
                                       false ); // not in R
@@ -184,7 +193,12 @@ List dEploid(std::string args) {
     }
     McmcSample * mcmcSample = new McmcSample();
 
-    McmcMachinery mcmcMachinery(&dEploidIO, mcmcSample, &rrg,
+    McmcMachinery mcmcMachinery(&dEploidIO.plaf_,
+                               &dEploidIO.refCount_,
+                               &dEploidIO.altCount_,
+                               dEploidIO.panel,
+                               &dEploidIO,
+                               mcmcSample, &rrg,
                                 false); // use IBD
     mcmcMachinery.runMcmcChain(true, // show progress
                                false, // use IBD    RMcmcSample rMcmcSample(&dEploidIO, mcmcSample);

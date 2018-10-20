@@ -23,34 +23,35 @@
  *
  */
 
-#ifndef VARIANTINDEX
-#define VARIANTINDEX
+#ifndef DEPLOID_SRC_VARIANTINDEX_HPP_
+#define DEPLOID_SRC_VARIANTINDEX_HPP_
 
 
 #include <vector>
 #include <string>
 #include <cassert>
-#include "global.h"
+#include "global.hpp"
 
 
-using namespace std;
+using std::vector;
+using std::string;
 
 class ExcludeMarker;
 
 class VariantIndex {
-#ifdef UNITTEST
- friend class TestPanel;
- friend class TestTxtReader;
- friend class TestInitialHaplotypes;
-#endif
- friend class DEploidIO;
- friend class TxtReader;
- friend class ExcludeMarker;
- friend class Panel;
- friend class IBDrecombProbs;
- friend class VcfReader;
+    #ifdef UNITTEST
+    friend class TestPanel;
+    friend class TestTxtReader;
+    friend class TestInitialHaplotypes;
+    #endif
+    friend class DEploidIO;
+    friend class TxtReader;
+    friend class ExcludeMarker;
+    friend class Panel;
+    friend class IBDrecombProbs;
+    friend class VcfReader;
 
-  private:
+ private:
     // Members
     vector <string> chrom_;
     vector < size_t > indexOfChromStarts_;
@@ -59,28 +60,35 @@ class VariantIndex {
     size_t nLoci_;
 
     // For removing markers and positions
-    void findWhoToBeKept (ExcludeMarker* excludedMarkers );
-    virtual void removeMarkers ();
+    void findWhoToBeKept(ExcludeMarker* excludedMarkers);
+    void findWhoToBeKeptWsafGt0(const vector <size_t> & wsafGt0At);
+
+    virtual void removeMarkers();
 
     /* Index of content/info will be kept */
     vector < size_t > indexOfContentToBeKept;
-    /* Index of positions entry to be kept, this will have the same size as this->chrom_, */
+    /* Index of positions entry to be kept,
+     * this will have the same size as this->chrom_, */
     vector < vector < size_t > > indexOfPosToBeKept;
 
     bool doneGetIndexOfChromStarts_;
-    bool doneGetIndexOfChromStarts() const { return doneGetIndexOfChromStarts_; }
-    void setDoneGetIndexOfChromStarts ( const bool setTo ){ this->doneGetIndexOfChromStarts_ = setTo; }
+    bool doneGetIndexOfChromStarts() const {
+        return doneGetIndexOfChromStarts_; }
+    void setDoneGetIndexOfChromStarts(const bool setTo) {
+        this->doneGetIndexOfChromStarts_ = setTo; }
 
     // Methods
     void init();
     void getIndexOfChromStarts();
     void removePositions();
+    void checkSortedPositions(string fileName);
+    void findAndKeepMarkers(ExcludeMarker* excludedMarkers);
+    void findAndKeepMarkersAtWsafGt0(const vector <size_t> & wsafGt0At);
 
-  public:
+ public:
     VariantIndex();
-    virtual ~VariantIndex(){};
-    void findAndKeepMarkers( ExcludeMarker* excludedMarkers );
+    virtual ~VariantIndex() {}
 };
 
 
-#endif
+#endif  // DEPLOID_SRC_VARIANTINDEX_HPP_

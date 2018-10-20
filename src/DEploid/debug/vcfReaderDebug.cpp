@@ -23,8 +23,8 @@
  *
  */
 
-#include "global.h"
 #include <iostream>      // std::cout
+#include "global.hpp"
 #include "vcfReader.hpp"
 
 using namespace std;
