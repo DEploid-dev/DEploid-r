@@ -24,6 +24,8 @@
 ^pf3k-dEploid.*$
 src/DEploid/dEploid.cpp
 src/DEploid/lasso/lassoOut.cpp
+src/DEploid/gzstream/version
+\.gcno$
 
 # extras
 ^extra$
