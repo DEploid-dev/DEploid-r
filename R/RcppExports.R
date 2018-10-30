@@ -40,6 +40,10 @@ dEploid <- function(args) {
     .Call(`_DEploid_dEploid`, args)
 }
 
+extractVcf <- function(filename) {
+    .Call(`_DEploid_extractVcf`, filename)
+}
+
 test_RRG_sample <- function() {
     .Call(`_DEploid_test_RRG_sample`)
 }

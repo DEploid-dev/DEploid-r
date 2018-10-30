@@ -22,4 +22,5 @@
 #'
 #' @importFrom Rcpp evalCpp
 #' @useDynLib _DEploid_dEploid
+#' @useDynLib _DEploid_extractVcf
 NULL

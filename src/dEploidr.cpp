@@ -28,6 +28,7 @@
 #include "mcmc.hpp"
 //#include "panel.hpp"
 #include "dEploidIO.hpp"
+#include "vcfReader.hpp"
 #include <memory>
 #include "r_random_generator.h"
 #include "lasso/dEploidLasso.hpp"
