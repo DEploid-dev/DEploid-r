@@ -50,7 +50,7 @@ class VariantIndex {
     friend class Panel;
     friend class IBDrecombProbs;
     friend class VcfReader;
-
+    friend class Rvcf;
  private:
     // Members
     vector <string> chrom_;

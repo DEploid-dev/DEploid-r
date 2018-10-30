@@ -1,4 +1,4 @@
-OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o init.o
+OBJECTS.dEploidr = rvcf.o dEploidr.o test_exports.o RcppExports.o init.o
 
 OBJECTS.dEploid = DEploid/dEploidIO.o \
     DEploid/ibd.o \

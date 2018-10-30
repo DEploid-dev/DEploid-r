@@ -77,6 +77,7 @@ struct VcfCoverageFieldNotFound : public VcfInvalidVariantEntry{
 
 class VariantLine{
   friend class VcfReader;
+  friend class Rvcf;
   friend class DEploidIO;
  public:
     explicit VariantLine(string tmpLine);
@@ -126,6 +127,7 @@ class VcfReader : public VariantIndex {
   friend class TestVCF;
 #endif
   friend class DEploidIO;
+  friend class Rvcf;
  public:
     // Constructors and Destructors
     explicit VcfReader(string fileName);  // parse in exclude sites
