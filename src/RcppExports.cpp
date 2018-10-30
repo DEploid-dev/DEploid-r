@@ -17,13 +17,13 @@ BEGIN_RCPP
 END_RCPP
 }
 // extractVcf
-List extractVcf(std::string args);
-RcppExport SEXP _DEploid_extractVcf(SEXP argsSEXP) {
+Rcpp::DataFrame extractVcf(std::string filename);
+RcppExport SEXP _DEploid_extractVcf(SEXP filenameSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type args(argsSEXP);
-    rcpp_result_gen = Rcpp::wrap(dEploid(args));
+    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
+    rcpp_result_gen = Rcpp::wrap(extractVcf(filename));
     return rcpp_result_gen;
 END_RCPP
 }
