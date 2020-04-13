@@ -26,7 +26,7 @@
 #' plotAltVsRefPlotly(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
 plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
-                               potentialOutliers = c()){
+                               potentialOutliers = c()) {
     ratios <- ref / (ref + alt + 0.0000001)
     legendName <- "Ref/(Ref+Alt) Ratio"
     refvsalt <- data.frame(ref, alt)
@@ -105,10 +105,10 @@ plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
 #' myhist = plotHistWSAFPlotly(obsWSAF)
 #'
 plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
-                               title = "Histogram 0<WSAF<1"){
+                               title = "Histogram 0<WSAF<1") {
   tmpWSAFIndex <- 1:length(obsWSAF)
-  if (exclusive){
-    tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
+  if (exclusive) {
+    tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
   }
   xb <- list(
       start = 0,
@@ -174,7 +174,7 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
 #'
 plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
                                  title = "WSAF vs PLAF",
-                                 potentialOutliers = c()){
+                                 potentialOutliers = c()) {
     wsafvsplaf <- data.frame(plaf, obsWSAF)
     wsafvsplaf$plaf.out <- ifelse(rownames(wsafvsplaf) %in%
                                      potentialOutliers, plaf, NA)
@@ -234,7 +234,7 @@ plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
 #' }
 #'
 plotObsExpWSAFPlotly <- function(obsWSAF, expWSAF,
-                                 title = "WSAF(observed vs expected)"){
+                                 title = "WSAF(observed vs expected)") {
     compare <- data.frame(obsWSAF, expWSAF)
     plot_ly(compare, x = ~obsWSAF, y = ~expWSAF, type = "scatter",
             mode = "markers", marker = list(color = "blue", size = 3)) %>%
