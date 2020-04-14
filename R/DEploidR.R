@@ -273,7 +273,7 @@ histWSAF <- function(obsWSAF, exclusive = TRUE,
                 cex.lab = 1, cex.main = 1, cex.axis = 1) {
     tmpWSAFIndex <- 1:length(obsWSAF)
     if (exclusive) {
-        tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0)) == 1)
+        tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
     }
     return(hist(obsWSAF[tmpWSAFIndex], main = title,
         breaks = seq(0, 1, by = 0.1), xlab = "WSAF", col = "gray",
