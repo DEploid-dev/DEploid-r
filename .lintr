@@ -1,4 +1,5 @@
-linters: with_defaults(camel_case_linter = NULL,
+linters: with_defaults(object_name_linter("camelCase"),
+    camel_case_linter = NULL,
     snake_case_linter = NULL,
     line_length_linter(80),
     commented_code_linter = NULL)
