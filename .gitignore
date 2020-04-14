@@ -13,3 +13,8 @@ inst/doc
 
 src/DEploid/dEploid.cpp
 src/DEploid/lasso/lassoOut.cpp
+
+*gcda
+*gcno
+*.deps
+*.dirstamp

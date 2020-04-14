@@ -4,8 +4,16 @@
 \alias{plotWSAFvsPLAF}
 \title{Plot WSAF vs PLAF}
 \usage{
-plotWSAFvsPLAF(plaf, obsWSAF, expWSAF = c(), potentialOutliers = c(),
-  title = "WSAF vs PLAF", cex.lab = 1, cex.main = 1, cex.axis = 1)
+plotWSAFvsPLAF(
+  plaf,
+  obsWSAF,
+  expWSAF = c(),
+  potentialOutliers = c(),
+  title = "WSAF vs PLAF",
+  cex.lab = 1,
+  cex.main = 1,
+  cex.axis = 1
+)
 }
 \arguments{
 \item{plaf}{Numeric array of population level allele frequency.}
