@@ -106,7 +106,7 @@ plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
 #'
 plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
                                title = "Histogram 0<WSAF<1") {
-  tmpWSAFIndex <- 1:length(obsWSAF)
+  tmpWSAFIndex <- seq_len(length(obsWSAF))
   if (exclusive) {
     tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
   }
@@ -178,7 +178,7 @@ plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
     wsafvsplaf <- data.frame(plaf, obsWSAF)
     wsafvsplaf$plaf.out <- ifelse(rownames(wsafvsplaf) %in%
                                      potentialOutliers, plaf, NA)
-    wsafvsplaf$obsWSAF.out <- ifelse(rownames(wsafvsplaf) %in%
+    wsafvsplaf$obsWsafOut <- ifelse(rownames(wsafvsplaf) %in%
                                         potentialOutliers, obsWSAF, NA)
     wsafvsplaf$outlier <- ifelse(is.na(wsafvsplaf$plaf.out),
                                 "outlier", "normal")
@@ -187,7 +187,7 @@ plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
             marker = list(size = 2, color = "#f47142",
                           line = list(color = "#fc6f3c", width = 1)),
             text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
-        add_trace(x = ~plaf.out, y = ~obsWSAF.out, name = "outlier",
+        add_trace(x = ~plaf.out, y = ~obsWsafOut, name = "outlier",
                   type = "scatter", mode = "markers", symbol = I("x"),
                   marker = list(size = 6, color = "black"),
                   showlegend = F) %>%

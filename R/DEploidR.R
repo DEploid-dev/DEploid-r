@@ -271,7 +271,7 @@ plotAltVsRef <- function(ref, alt, title = "Alt vs Ref",
 histWSAF <- function(obsWSAF, exclusive = TRUE,
                 title ="Histogram 0<WSAF<1",
                 cex.lab = 1, cex.main = 1, cex.axis = 1) {
-    tmpWSAFIndex <- 1:length(obsWSAF)
+    tmpWSAFIndex <- seq_len(length(obsWSAF))
     if (exclusive) {
         tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
     }
@@ -368,10 +368,10 @@ plotWSAFvsPLAF <- function(plaf, obsWSAF, expWSAF = c(),
 #' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'  package = "DEploid")
-#' PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+#' PG0390.deconv = dEploid(paste("-vcf", vcfFile,
 #'                                        "-plaf", plafFile, "-noPanel"))
-#' prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
-#' expWSAF = t(PG0390CoverageV.deconv$Haps) %*% prop
+#' prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
+#' expWSAF = t(PG0390.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
 #' }
 #'
