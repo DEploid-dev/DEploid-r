@@ -32,8 +32,8 @@
 #include "mcmc.hpp"
 #include "utility.hpp"
 
-McmcSample::McmcSample() {};
-McmcSample::~McmcSample() {};
+McmcSample::McmcSample() {}
+McmcSample::~McmcSample() {}
 
 McmcMachinery::McmcMachinery( vector <double> * plaf,
                               vector <double> * refCount,
@@ -704,5 +704,3 @@ void McmcMachinery::findUpdatingStrainPair( ) {
     assert( strainIndex1_ != strainIndex2_ );
     dout << "  Updating hap: "<< this->strainIndex1_ << " and " << strainIndex2_ <<endl;
 }
-
-

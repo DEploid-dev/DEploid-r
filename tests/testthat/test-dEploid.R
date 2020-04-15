@@ -4,7 +4,7 @@ vcfFileName <- system.file("extdata", "PG0390-C.test.vcf.gz",
     package = "DEploid")
 plafFileName <- system.file("extdata", "labStrains.test.PLAF.txt",
     package = "DEploid")
-panel_file <- system.file("extdata", "labStrains.test.panel.txt",
+panelFileName <- system.file("extdata", "labStrains.test.panel.txt",
     package = "DEploid")
 
 
@@ -23,7 +23,7 @@ test_that("parsing arguments works", {
     expect_error(dEploid("--version"))
     expect_error(dEploid(paste("-vcf", vcfFileName, "-plaf", plafFileName)))
     expect_error(dEploid(paste("-vcf", vcfFileName, "-plaf", plafFileName,
-        "-panel", panel_file, "-noPanel")))
+        "-panel", panelFileName, "-noPanel")))
 })
 
 
@@ -38,10 +38,10 @@ test_that("runs a reproducible", {
 
     set.seed(119)
     res3 <- dEploid(paste("-vcf", vcfFileName, "-plaf", plafFileName, "-panel",
-        panel_file))
+        panelFileName))
     set.seed(119)
     res4 <- dEploid(paste("-vcf", vcfFileName, "-plaf", plafFileName, "-panel",
-        panel_file))
+        panelFileName))
     expect_equal(res3, res4)
 })
 

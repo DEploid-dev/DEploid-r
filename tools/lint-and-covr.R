@@ -6,4 +6,3 @@ covr::coveralls(line_exclusions = c("R/RcppExports.R",
                                     list.files("src/DEploid",
                                                recursive = TRUE,
                                                full.names = TRUE)))
-
