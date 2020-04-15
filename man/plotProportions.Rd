@@ -4,8 +4,13 @@
 \alias{plotProportions}
 \title{Plot proportions}
 \usage{
-plotProportions(proportions, title = "Components", cex.lab = 1,
-  cex.main = 1, cex.axis = 1)
+plotProportions(
+  proportions,
+  title = "Components",
+  cex.lab = 1,
+  cex.main = 1,
+  cex.axis = 1
+)
 }
 \arguments{
 \item{proportions}{Matrix of the MCMC proportion samples. The matrix size is

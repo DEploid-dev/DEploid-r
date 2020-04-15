@@ -4,8 +4,14 @@
 \alias{plotObsExpWSAF}
 \title{Plot WSAF}
 \usage{
-plotObsExpWSAF(obsWSAF, expWSAF, title = "WSAF(observed vs expected)",
-  cex.lab = 1, cex.main = 1, cex.axis = 1)
+plotObsExpWSAF(
+  obsWSAF,
+  expWSAF,
+  title = "WSAF(observed vs expected)",
+  cex.lab = 1,
+  cex.main = 1,
+  cex.axis = 1
+)
 }
 \arguments{
 \item{obsWSAF}{Numeric array of observed WSAF.}
@@ -31,10 +37,10 @@ PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
  package = "DEploid")
-PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+PG0390.deconv = dEploid(paste("-vcf", vcfFile,
                                        "-plaf", plafFile, "-noPanel"))
-prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
-expWSAF = t(PG0390CoverageV.deconv$Haps) \%*\% prop
+prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
+expWSAF = t(PG0390.deconv$Haps) \%*\% prop
 plotObsExpWSAF(obsWSAF, expWSAF)
 }
 

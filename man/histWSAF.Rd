@@ -4,8 +4,14 @@
 \alias{histWSAF}
 \title{WSAF histogram}
 \usage{
-histWSAF(obsWSAF, exclusive = TRUE, title = "Histogram 0<WSAF<1",
-  cex.lab = 1, cex.main = 1, cex.axis = 1)
+histWSAF(
+  obsWSAF,
+  exclusive = TRUE,
+  title = "Histogram 0<WSAF<1",
+  cex.lab = 1,
+  cex.main = 1,
+  cex.axis = 1
+)
 }
 \arguments{
 \item{obsWSAF}{Observed allele frequency within sample}
