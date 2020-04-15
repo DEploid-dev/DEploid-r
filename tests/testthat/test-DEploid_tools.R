@@ -50,7 +50,7 @@ test_that("WSAF Related", {
     dev.off()
     expect_that(inherits(plotHistWSAFPlotly(obsWSAF), "plotly"), is_true())
     p <- plotHistWSAFPlotly(obsWSAF)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "histWSAFPlotly.html")
     }
 
@@ -67,7 +67,7 @@ test_that("WSAF Related", {
     p <- plotWSAFVsPLAFPlotly(plaf, obsWSAF,
                               PG0390CoverageVcf$refCount,
                               PG0390CoverageVcf$altCount)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotly.html")
     }
 
@@ -89,7 +89,7 @@ test_that("WSAF Related", {
                               PG0390CoverageVcf$refCount,
                               PG0390CoverageVcf$altCount,
                               potentialOutliers = potentialOutliers)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "WSAFvsPLAFPlotlyOutlier.html")
     }
     ###
@@ -100,7 +100,7 @@ test_that("WSAF Related", {
     expect_that(inherits(plotObsExpWSAFPlotly(obsWSAF, expWSAF),
                          "plotly"), is_true())
     p <- plotObsExpWSAFPlotly(obsWSAF, expWSAF)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "ObsExpWSAFPlotly.html")
     }
 })
@@ -117,7 +117,7 @@ test_that("plotAltVsRef", {
                          "plotly"), is_true())
     p <- plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
                             PG0390CoverageVcf$altCount)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotly.html")
     }
 })
@@ -130,7 +130,7 @@ test_that("plotAltVsRefWithOutliers", {
                     potentialOutliers = potentialOutliers))
     png("AltVsRefOutlier.png")
     plotAltVsRef(PG0390CoverageVcf$refCount, PG0390CoverageVcf$altCount,
-                 potentialOutliers = potentialOutliers )
+                 potentialOutliers = potentialOutliers)
     dev.off()
     expect_that(inherits(plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
                     PG0390CoverageVcf$altCount,
@@ -139,7 +139,7 @@ test_that("plotAltVsRefWithOutliers", {
     p <- plotAltVsRefPlotly(PG0390CoverageVcf$refCount,
                             PG0390CoverageVcf$altCount,
                             potentialOutliers = potentialOutliers)
-    if (rmarkdown:::pandoc_available()){
+    if (rmarkdown:::pandoc_available()) {
         htmlwidgets::saveWidget(p, file = "plotAltVsRefPlotlyOutlier.html")
     }
 })

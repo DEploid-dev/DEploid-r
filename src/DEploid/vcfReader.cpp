@@ -54,7 +54,8 @@ void VcfReader::checkFileCompressed(){
 
     unsigned char magic[2];
 
-    fread((void *)magic, 1, 2, f);
+    size_t freadResults = fread((void *)magic, 1, 2, f);
+    dout << "Check if vcf is compressed " << freadResults << endl;
     this->setIsCompressed( (int(magic[0]) == 0x1f) && (int(magic[1]) == 0x8b) );
     fclose(f);
 }
@@ -340,5 +341,3 @@ void VariantLine::extract_field_VARIANT ( ){
     }
 
 }
-
-

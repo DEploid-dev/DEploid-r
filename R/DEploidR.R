@@ -20,7 +20,8 @@
 #' altFile = system.file("extdata", "PG0390-C.test.alt", package = "DEploid")
 #' PG0390 = extractCoverageFromTxt(refFile, altFile)
 #'
-extractCoverageFromTxt <- function(refFileName, altFileName){
+
+extractCoverageFromTxt <- function(refFileName, altFileName) {
     ref <- read.table(refFileName, header = TRUE, comment.char = "")
     alt <- read.table(altFileName, header = TRUE, comment.char = "")
     return(data.frame(CHROM = ref[, 1],
@@ -51,9 +52,10 @@ extractCoverageFromTxt <- function(refFileName, altFileName){
 #' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
 #' PG0390 = extractCoverageFromVcf(vcfFile)
 #'
-extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2){
+
+extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2) {
     # Assume that AD is the second field
-    h <- function(w){
+    h <- function(w) {
          if (any(grepl("gzfile connection", w)))
          invokeRestart("muffleWarning")
     }
@@ -61,8 +63,8 @@ extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2){
     gzf <- gzfile(vcfFileName, open = "rb")
     numberOfHeaderLines <- 0
     line <- withCallingHandlers(readLines(gzf, n = 1), warning = h)
-    while (length(line) > 0){
-        if (grepl("##", line)){
+    while (length(line) > 0) {
+        if (grepl("##", line)) {
             numberOfHeaderLines <- numberOfHeaderLines + 1
         } else {
             break
@@ -111,7 +113,8 @@ extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2){
 #'   package = "DEploid")
 #' plaf = extractPLAF(plafFile)
 #'
-extractPLAF <- function(plafFileName){
+
+extractPLAF <- function(plafFileName) {
     return(read.table(plafFileName, header = T)$PLAF)
 }
 
@@ -148,8 +151,9 @@ extractPLAF <- function(plafFileName){
 #' plotProportions(PG0390Coverage.deconv$Proportions, "PG0390-C proportions")
 #' }
 #'
+
 plotProportions <- function(proportions, title = "Components",
-                       cex.lab = 1, cex.main = 1, cex.axis = 1){
+                       cex.lab = 1, cex.main = 1, cex.axis = 1) {
     rainbowColorBin <- 16
     barplot(t(proportions), beside = F, border = NA,
         col = rainbow(rainbowColorBin), space = 0, xlab = "Iteration",
@@ -197,10 +201,11 @@ plotProportions <- function(proportions, title = "Components",
 #' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 #' plotAltVsRef(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
+
 plotAltVsRef <- function(ref, alt, title = "Alt vs Ref",
                     exclude.ref = c(), exclude.alt = c(),
                     potentialOutliers = c(), cex.lab = 1, cex.main = 1,
-                    cex.axis = 1){
+                    cex.axis = 1) {
     cr <- colorRampPalette(colors = c("#de2d26", "#2b8cbe"))
     colors <- cr(31)
     ratios <- ref / (ref + alt + 0.0000001)
@@ -220,7 +225,7 @@ plotAltVsRef <- function(ref, alt, title = "Alt vs Ref",
     abline(h = 150, untf = FALSE, lty = 2)
     abline(v = 150, untf = FALSE, lty = 2)
 
-    if (length(potentialOutliers) > 0){
+    if (length(potentialOutliers) > 0) {
         points(ref[potentialOutliers], alt[potentialOutliers], col = "black",
                pch = "x", cex = 2)
     }
@@ -265,10 +270,10 @@ plotAltVsRef <- function(ref, alt, title = "Alt vs Ref",
 #'
 histWSAF <- function(obsWSAF, exclusive = TRUE,
                 title ="Histogram 0<WSAF<1",
-                cex.lab = 1, cex.main = 1, cex.axis = 1){
-    tmpWSAFIndex <- 1:length(obsWSAF)
-    if (exclusive){
-        tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0)) == 1)
+                cex.lab = 1, cex.main = 1, cex.axis = 1) {
+    tmpWSAFIndex <- seq_len(length(obsWSAF))
+    if (exclusive) {
+        tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
     }
     return(hist(obsWSAF[tmpWSAFIndex], main = title,
         breaks = seq(0, 1, by = 0.1), xlab = "WSAF", col = "gray",
@@ -322,14 +327,14 @@ histWSAF <- function(obsWSAF, exclusive = TRUE,
 #'
 plotWSAFvsPLAF <- function(plaf, obsWSAF, expWSAF = c(),
                       potentialOutliers = c(), title = "WSAF vs PLAF",
-                      cex.lab = 1, cex.main = 1, cex.axis = 1){
+                      cex.lab = 1, cex.main = 1, cex.axis = 1) {
     plot(plaf, obsWSAF, cex = 0.5, xlim = c(0, 1), ylim = c(0, 1),
         col = "red", main = title, xlab = "PLAF", ylab = "WSAF",
         cex.lab = cex.lab, cex.main = cex.main, cex.axis = cex.axis)
-    if (length(expWSAF) > 0){
+    if (length(expWSAF) > 0) {
         points(plaf, expWSAF, cex = 0.5, col = "blue")
     }
-    if (length(potentialOutliers) > 0){
+    if (length(potentialOutliers) > 0) {
         points(plaf[potentialOutliers], obsWSAF[potentialOutliers],
         col = "black", pch = "x", cex = 2)
     }
@@ -363,16 +368,16 @@ plotWSAFvsPLAF <- function(plaf, obsWSAF, expWSAF = c(),
 #' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #' plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
 #'  package = "DEploid")
-#' PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
+#' PG0390.deconv = dEploid(paste("-vcf", vcfFile,
 #'                                        "-plaf", plafFile, "-noPanel"))
-#' prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv$Proportions)[1],]
-#' expWSAF = t(PG0390CoverageV.deconv$Haps) %*% prop
+#' prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
+#' expWSAF = t(PG0390.deconv$Haps) %*% prop
 #' plotObsExpWSAF(obsWSAF, expWSAF)
 #' }
 #'
 plotObsExpWSAF <- function(obsWSAF, expWSAF,
                       title = "WSAF(observed vs expected)",
-                      cex.lab = 1, cex.main = 1, cex.axis = 1){
+                      cex.lab = 1, cex.main = 1, cex.axis = 1) {
     plot(obsWSAF, expWSAF, pch = 19, col = "blue",
         xlab = "Observed WSAF (ALT/(ALT+REF))", ylab = "Expected WSAF (h%*%p)",
         main = title, xlim = c(-0.05, 1.05), cex = 0.5, ylim = c(-0.05, 1.05),
@@ -408,7 +413,7 @@ plotObsExpWSAF <- function(obsWSAF, expWSAF,
 #' PG0390CoverageV = extractCoverageFromVcf(vcfFile)
 #' obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 #'
-computeObsWSAF <- function(alt, ref){
+computeObsWSAF <- function(alt, ref) {
     return(alt / (ref + alt + 0.00000001))
 }
 
@@ -430,10 +435,10 @@ computeObsWSAF <- function(alt, ref){
 #' @export
 #'
 haplotypePainter <- function(posteriorProbabilities, title = "", labelScaling,
-                        numberOfInbreeding = 0){
+                        numberOfInbreeding = 0) {
     rainbowColorBin <- 16
     rainbowColors <- rainbow(rainbowColorBin)
-    if (numberOfInbreeding > 0){
+    if (numberOfInbreeding > 0) {
         panelSize <- dim(posteriorProbabilities)[2] - numberOfInbreeding
         rainbowColors <- c(rep("#46a8e1", panelSize),
                            rep("#f34747", numberOfInbreeding))

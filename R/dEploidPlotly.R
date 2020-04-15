@@ -26,7 +26,7 @@
 #' plotAltVsRefPlotly(PG0390CoverageV$refCount, PG0390CoverageV$altCount)
 #'
 plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
-                               potentialOutliers = c()){
+                               potentialOutliers = c()) {
     ratios <- ref / (ref + alt + 0.0000001)
     legendName <- "Ref/(Ref+Alt) Ratio"
     refvsalt <- data.frame(ref, alt)
@@ -105,10 +105,10 @@ plotAltVsRefPlotly <- function(ref, alt, title = "Alt vs Ref",
 #' myhist = plotHistWSAFPlotly(obsWSAF)
 #'
 plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
-                               title = "Histogram 0<WSAF<1"){
-  tmpWSAFIndex <- 1:length(obsWSAF)
-  if (exclusive){
-    tmpWSAFIndex <- which( ( (obsWSAF < 1) * (obsWSAF > 0) ) == 1)
+                               title = "Histogram 0<WSAF<1") {
+  tmpWSAFIndex <- seq_len(length(obsWSAF))
+  if (exclusive) {
+    tmpWSAFIndex <- which(((obsWSAF < 1) * (obsWSAF > 0)) == 1)
   }
   xb <- list(
       start = 0,
@@ -174,11 +174,11 @@ plotHistWSAFPlotly <- function(obsWSAF, exclusive = TRUE,
 #'
 plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
                                  title = "WSAF vs PLAF",
-                                 potentialOutliers = c()){
+                                 potentialOutliers = c()) {
     wsafvsplaf <- data.frame(plaf, obsWSAF)
     wsafvsplaf$plaf.out <- ifelse(rownames(wsafvsplaf) %in%
                                      potentialOutliers, plaf, NA)
-    wsafvsplaf$obsWSAF.out <- ifelse(rownames(wsafvsplaf) %in%
+    wsafvsplaf$obsWsafOut <- ifelse(rownames(wsafvsplaf) %in%
                                         potentialOutliers, obsWSAF, NA)
     wsafvsplaf$outlier <- ifelse(is.na(wsafvsplaf$plaf.out),
                                 "outlier", "normal")
@@ -187,7 +187,7 @@ plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
             marker = list(size = 2, color = "#f47142",
                           line = list(color = "#fc6f3c", width = 1)),
             text = paste("RefCount: ", ref, " ;  ", "AltCount: ", alt)) %>%
-        add_trace(x = ~plaf.out, y = ~obsWSAF.out, name = "outlier",
+        add_trace(x = ~plaf.out, y = ~obsWsafOut, name = "outlier",
                   type = "scatter", mode = "markers", symbol = I("x"),
                   marker = list(size = 6, color = "black"),
                   showlegend = F) %>%
@@ -234,7 +234,7 @@ plotWSAFVsPLAFPlotly <- function(plaf, obsWSAF, ref, alt,
 #' }
 #'
 plotObsExpWSAFPlotly <- function(obsWSAF, expWSAF,
-                                 title = "WSAF(observed vs expected)"){
+                                 title = "WSAF(observed vs expected)") {
     compare <- data.frame(obsWSAF, expWSAF)
     plot_ly(compare, x = ~obsWSAF, y = ~expWSAF, type = "scatter",
             mode = "markers", marker = list(color = "blue", size = 3)) %>%
