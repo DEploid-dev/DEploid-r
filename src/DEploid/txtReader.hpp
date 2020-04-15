@@ -31,6 +31,7 @@
 #include <string>
 #include "variantIndex.hpp"
 #include "exceptions.hpp"
+#include "gzstream/gzstream.h"
 
 class TxtReader : public VariantIndex {
     #ifdef UNITTEST
@@ -46,9 +47,15 @@ class TxtReader : public VariantIndex {
     friend class DEploidIO;
  private:
     // Members
-
+    string fileName_;
+    ifstream inFile;
+    igzstream inFileGz;
+    bool isCompressed_;
+    bool isCompressed() const { return this->isCompressed_; }
+    void setIsCompressed(const bool compressed) {
+        this->isCompressed_ = compressed; }
+    void checkFileCompressed();
     // content is a matrix of n.loci by n.strains, i.e. content length is n.loci
-    vector < vector < double > > content_;
     vector < vector < double > > keptContent_;
     // info_ only refers to the first column of the content
     vector <double> info_;
@@ -64,9 +71,9 @@ class TxtReader : public VariantIndex {
     void extractPOS(const string & tmp_str);
     void extractHeader(const string &line);
     void reshapeContentToInfo();
-    string fileName;
 
  public:  // move the following to private
+    vector < vector < double > > content_;
     TxtReader() {}
     virtual void readFromFile(const char inchar[]) {
         this->readFromFileBase(inchar); }

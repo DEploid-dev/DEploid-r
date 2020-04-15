@@ -26,13 +26,13 @@
 #include "dEploidIO.hpp"
 #include "mcmc.hpp"
 
-void DEploidIO::writeMcmcRelated (McmcSample * mcmcSample, bool useIBD){
-    this->writeProp( mcmcSample, useIBD );
-    this->writeLLK( mcmcSample, useIBD );
-    this->writeHap(mcmcSample->hap, useIBD);
+void DEploidIO::writeMcmcRelated (McmcSample * mcmcSample, string jobbrief, bool useIBD){
+    this->writeProp( mcmcSample, jobbrief);
+    this->writeLLK(mcmcSample, jobbrief);
+    this->writeHap(mcmcSample->hap, jobbrief);
 
     if ( useIBD == false ){
-        this->writeVcf( mcmcSample );
+        this->writeVcf(mcmcSample->hap, mcmcSample->proportion.back(), jobbrief);
         this->siteOfTwoSwitchOne = mcmcSample->siteOfTwoSwitchOne;
         this->siteOfTwoMissCopyOne = mcmcSample->siteOfTwoMissCopyOne;
         this->siteOfTwoSwitchTwo = mcmcSample->siteOfTwoSwitchTwo;
@@ -55,12 +55,10 @@ void DEploidIO::writeMcmcRelated (McmcSample * mcmcSample, bool useIBD){
 }
 
 
-void DEploidIO::writeProp( McmcSample * mcmcSample, bool useIBD){
-    if ( useIBD ){
-        ofstreamExportTmp.open( strIbdExportProp.c_str(), ios::out | ios::app | ios::binary );
-    } else {
-        ofstreamExportTmp.open( strExportProp.c_str(), ios::out | ios::app | ios::binary );
-    }
+void DEploidIO::writeProp( McmcSample * mcmcSample, string jobbrief){
+    string strExport = this->prefix_ + "." + jobbrief + ".prop";
+    remove(strExport.c_str());
+    ofstreamExportTmp.open( strExport.c_str(), ios::out | ios::app | ios::binary );
     for ( size_t i = 0; i < mcmcSample->proportion.size(); i++){
         for ( size_t ii = 0; ii < mcmcSample->proportion[i].size(); ii++){
             ofstreamExportTmp << setw(10) << mcmcSample->proportion[i][ii];
@@ -71,12 +69,11 @@ void DEploidIO::writeProp( McmcSample * mcmcSample, bool useIBD){
 }
 
 
-void DEploidIO::writeLLK( McmcSample * mcmcSample, bool useIBD){
-    if ( useIBD ){
-        ofstreamExportTmp.open( strIbdExportLLK.c_str(), ios::out | ios::app | ios::binary );
-    } else {
-        ofstreamExportTmp.open( strExportLLK.c_str(), ios::out | ios::app | ios::binary );
-    }
+void DEploidIO::writeLLK( McmcSample * mcmcSample, string jobbrief){
+
+    string strExport = this->prefix_ + "." + jobbrief + ".llk";
+    remove(strExport.c_str());
+    ofstreamExportTmp.open( strExport.c_str(), ios::out | ios::app | ios::binary );
     for ( size_t i = 0; i < mcmcSample->sumLLKs.size(); i++){
         ofstreamExportTmp << mcmcSample->moves[i] << "\t" << mcmcSample->sumLLKs[i] << endl;
     }
@@ -84,12 +81,10 @@ void DEploidIO::writeLLK( McmcSample * mcmcSample, bool useIBD){
 }
 
 
-void DEploidIO::writeHap(vector < vector <double> > &hap, bool useIBD){
-    if ( useIBD ){
-        ofstreamExportTmp.open( strIbdExportHap.c_str(), ios::out | ios::app | ios::binary );
-    } else {
-        ofstreamExportTmp.open( strExportHap.c_str(), ios::out | ios::app | ios::binary );
-    }
+void DEploidIO::writeHap(vector < vector <double> > &hap, string jobbrief){
+    string strExport = this->prefix_ + "." + jobbrief + ".hap";
+    remove(strExport.c_str());
+    ofstreamExportTmp.open( strExport.c_str(), ios::out | ios::app | ios::binary );
     // HEADER
     ofstreamExportTmp << "CHROM" << "\t" << "POS" << "\t";;
     for ( size_t ii = 0; ii < kStrain_; ii++){
@@ -99,6 +94,7 @@ void DEploidIO::writeHap(vector < vector <double> > &hap, bool useIBD){
 
     size_t siteIndex = 0;
     for ( size_t chromI = 0; chromI < chrom_.size(); chromI++ ){
+        dout << "chrom " << chromI << " length " << position_[chromI].size() << endl;
         for ( size_t posI = 0; posI < position_[chromI].size(); posI++){
             ofstreamExportTmp << chrom_[chromI] << "\t" << (int)position_[chromI][posI] << "\t";
             for ( size_t ii = 0; ii < hap[siteIndex].size(); ii++){
@@ -143,8 +139,16 @@ void DEploidIO::writePanel(Panel *panel, size_t chromI, vector <string> hdr){
 
 
 
-void DEploidIO::writeVcf( McmcSample * mcmcSample ){
+void DEploidIO::writeVcf(vector < vector <double> > &hap,
+    vector <double> &prop,
+    string jobbrief){
     if ( !doExportVcf() ) return;
+
+    this->strExportVcf = this->prefix_ + "." + jobbrief + ".vcf";
+    if ( compressVcf() ) {
+        strExportVcf += ".gz";
+    }
+    remove(strExportVcf.c_str());
 
     ogzstream ogstreamExport;
     ostream * writeTo;
@@ -172,11 +176,11 @@ void DEploidIO::writeVcf( McmcSample * mcmcSample ){
     (*writeTo) << endl;
 
     // Include proportions
-    for ( size_t ii = 0; ii < kStrain_; ii++){
+    for ( size_t ii = 0; ii < prop.size(); ii++){
         (*writeTo) << "##Proportion of strain "
                    << ( this->useVcf() ? this->vcfReaderPtr_->sampleName : "h" )
                    << "." << (ii+1)
-                   << "=" << mcmcSample->proportion.back()[ii] << endl;
+                   << "=" << prop[ii] << endl;
     }
 
     // HEADER
@@ -220,19 +224,18 @@ void DEploidIO::writeVcf( McmcSample * mcmcSample ){
                            << "GT"                         << "\t";
             }
 
-            for ( size_t ii = 0; ii < mcmcSample->hap[siteIndex].size(); ii++){
-                (*writeTo) << mcmcSample->hap[siteIndex][ii];
-                (*writeTo) << ((ii < (mcmcSample->hap[siteIndex].size()-1)) ? "\t" : "\n") ;
+            for ( size_t ii = 0; ii < hap[siteIndex].size(); ii++){
+                (*writeTo) << hap[siteIndex][ii];
+                (*writeTo) << ((ii < (hap[siteIndex].size()-1)) ? "\t" : "\n") ;
             }
             siteIndex++;
         }
     }
 
-    assert ( siteIndex == mcmcSample->hap.size());
+    assert ( siteIndex == hap.size());
     if ( compressVcf() ){
         ogstreamExport.close();
     } else {
         ofstreamExportTmp.close();
     }
 }
-
