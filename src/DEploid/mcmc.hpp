@@ -175,9 +175,9 @@ class McmcMachinery {
 
     void printArray(vector <double> array) {
         for (auto const& value : array) {
-            cout << value << " ";
+            dout << value << " ";
         }
-        cout << endl;
+        dout << endl;
     }
 
     void sampleMcmcEvent(bool useIBD = false);
@@ -231,4 +231,3 @@ class McmcMachinery {
 };
 
 #endif
-
