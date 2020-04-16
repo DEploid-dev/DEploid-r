@@ -25,6 +25,21 @@
 src/DEploid/dEploid.cpp
 src/DEploid/lasso/lassoOut.cpp
 src/DEploid/gzstream/version
+src/DEploid/lasso/.ci/
+src/DEploid/lasso/.gitignore
+src/DEploid/lasso/.travis.yml
+src/DEploid/lasso/Brewfile
+src/DEploid/lasso/COPYING
+src/DEploid/lasso/Makefile.am
+src/DEploid/lasso/README.md
+src/DEploid/lasso/bootstrap
+src/DEploid/lasso/configure.ac
+src/DEploid/lasso/data/
+src/DEploid/lasso/main.cpp
+src/DEploid/lasso/tests/
+src/DEploid/lasso/utility/
+src/DEploid/lasso/version
+
 \.gcno$
 
 # extras
