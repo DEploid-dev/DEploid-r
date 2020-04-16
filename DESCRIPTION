@@ -22,8 +22,8 @@ Description: Traditional phasing programs are limited to diploid organisms.
  patient blood sample, which often contains more than one parasite strain, with
  unknown proportions. This package is used for deconvoluting mixed haplotypes,
  and reporting the mixture proportions from each sample.
-URL: https://github.com/mcveanlab/DEploid-r
-BugReports: https://github.com/mcveanlab/DEploid-r/issues
+URL: https://github.com/DEploid-dev/DEploid-r
+BugReports: https://github.com/DEploid-dev/DEploid-r/issues
 License: GPL (>= 3)
 Depends:
     R (>= 3.1.0)

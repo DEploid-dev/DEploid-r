@@ -1,12 +1,13 @@
 /*
  * dEploid is used for deconvoluting Plasmodium falciparum genome from
- * mix-infected patient sample.
+ * mix-infected patient sample. DEploid-Lasso-lib is a submodule for
+ * choosing the appropriate reference panel using the LASSO algorithm.
  *
- * Copyright (C) 2016-2017 University of Oxford
+ * Copyright (C) 2018 University of Oxford
  *
  * Author: Sha (Joe) Zhu
  *
- * This file is part of dEploid.
+ * This file is part of DEploid-Lasso-lib.
  *
  * dEploid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,13 +24,9 @@
  *
  */
 
-#define dEploid_src_macros
-// #pragma GCC diagnostic ignored "-Wunused-result"
-
 #ifndef NDEBUG
 #define dout std::cout << "   "
 #else
 // #pragma GCC diagnostic ignored "-Wunused-value"
 #define dout 0 && std::cout
 #endif
-

@@ -23,13 +23,34 @@
  *
  */
 
-#define dEploid_src_macros
-// #pragma GCC diagnostic ignored "-Wunused-result"
+#include <cassert>
+#include <vector>
+using std::vector;
 
-#ifndef NDEBUG
-#define dout std::cout << "   "
-#else
-// #pragma GCC diagnostic ignored "-Wunused-value"
-#define dout 0 && std::cout
+#ifndef CHOOSEK
+#define CHOOSEK
+
+class ChooseK {
+  friend class DEploidIO;
+ public:
+    void appendProportions(const vector <double> &p);
+    vector <double> chosenP();
+
+ private:
+    ChooseK() {this->haveChosenP_ = false;}
+    ~ChooseK() {}
+    size_t chosenK() const {
+        assert(this->haveChosenP_ == true);
+        return this->max_at_+1; }
+
+    void findKmode();
+    vector < vector<double> > proportions_;
+    vector < size_t > ks;
+    void gatherKs();
+    size_t max_at_;
+    bool haveChosenP_;
+    double confidence_;
+    double confidence() const { return this->confidence_; }
+};
+
 #endif
-
