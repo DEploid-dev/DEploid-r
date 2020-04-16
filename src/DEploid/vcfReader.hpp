@@ -87,6 +87,7 @@ struct VcfVQSLODNotFound : public VcfInvalidVariantEntry{
 class VariantLine{
   friend class VcfReader;
   friend class DEploidIO;
+
  public:
     explicit VariantLine(string tmpLine);
     ~VariantLine() {}

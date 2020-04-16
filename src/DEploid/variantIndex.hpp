@@ -50,7 +50,8 @@ class VariantIndex {
     friend class Panel;
     friend class IBDrecombProbs;
     friend class VcfReader;
-
+    friend class Rvcf;
+    
  private:
     // Members
     size_t nLoci_;
