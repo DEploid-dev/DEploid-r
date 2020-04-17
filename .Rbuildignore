@@ -14,6 +14,7 @@
 ^\.travis\.yml$
 ^appveyor\.yml$
 ^\.lintr$
+lint-and-covr.Rout
 
 # C++
 \.o$
@@ -25,7 +26,10 @@
 src/DEploid/dEploid.cpp
 src/DEploid/lasso/lassoOut.cpp
 src/DEploid/gzstream/version
+src/DEploid/export/mcmcIO.cpp
+src/DEploid/gzstream/version
 src/DEploid/lasso/.ci/
+src/DEploid/lasso/.git
 src/DEploid/lasso/.gitignore
 src/DEploid/lasso/.travis.yml
 src/DEploid/lasso/Brewfile
