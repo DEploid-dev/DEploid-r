@@ -24,5 +24,5 @@ OBJECTS.dEploid = DEploid/dEploidIO.o \
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
 CXX_STD = CXX11
-PKG_CXXFLAGS = -I/usr/share/R/include/ -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -IDEploid/lasso/  -DVERSION="\"R\"" -DRBUILD
+PKG_CXXFLAGS = -I/usr/share/R/include/ -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/gzstream/ -IDEploid/lasso/  -DVERSION="\"R\"" -DRBUILD -DSTRICT_R_HEADERS
 PKG_LIBS = -lz
