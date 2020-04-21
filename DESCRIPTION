@@ -41,4 +41,4 @@ SystemRequirements: C++11
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 7.1.0
-Date: 2018-10-23
+Date: 2020-04-21
