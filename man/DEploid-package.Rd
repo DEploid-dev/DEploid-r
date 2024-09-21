@@ -2,6 +2,7 @@
 % Please edit documentation in R/dEploid.R
 \docType{package}
 \name{DEploid-package}
+\alias{DEploid}
 \alias{DEploid-package}
 \title{Deconvolute Mixed Genomes with Unknown Proportions}
 \description{
@@ -16,6 +17,14 @@ extracted from patient blood sample, which often contains more than one
 parasite strain, with unknown proportions. This package is used for
 deconvoluting mixed haplotypes, #' and reporting the mixture proportions from
 each sample.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/DEploid-dev/DEploid-r}
+  \item Report bugs at \url{https://github.com/DEploid-dev/DEploid-r/issues}
+}
+
 }
 \author{
 Zhu Sha
