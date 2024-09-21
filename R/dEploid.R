@@ -18,9 +18,18 @@
 #' Maintainer: Joe Zhu \email{sha.joe.zhu@gmail.com}
 #'
 #' @name DEploid-package
-#' @docType package
+#' @docType _PACKAGE
 #'
 #' @importFrom Rcpp evalCpp
+#' @importFrom scales alpha
+#' @importFrom grDevices rainbow colorRampPalette
+#' @importFrom graphics abline barplot hist plot points axis legend
+#' @importFrom utils read.table
+#' @importFrom magrittr %>% 
+#' @importFrom plotly plot_ly layout add_trace
+#' @importFrom rmarkdown pandoc_available
+#' @importFrom htmlwidgets saveWidget
 #' @useDynLib _DEploid_dEploid
 #' @useDynLib _DEploid_extractVcf
 NULL
+
