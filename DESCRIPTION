@@ -4,8 +4,8 @@ Title: Deconvolute Mixed Genomes with Unknown Proportions
 Version: 0.5.4
 Authors@R: c(
     person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="sha.joe.zhu@gmail.com"),
-    person('Jacob', 'Almagro-Garcia', role=c('aut', 'cph')),
-    person('Gil', 'McVean', role=c('aut', 'cph')),
+    person('Jacob', 'Almagro-Garcia', role=c('aut')),
+    person('Gil', 'McVean', role=c('aut')),
     person('University of Oxford', '', role=c('cph')),
     person('Yinghan', 'Liu', role=c('ctb')),
     person('CodeCogs', 'Zyba Ltd', role=c('com', "cph")),
@@ -42,4 +42,4 @@ VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
 Encoding: UTF-8
-Date: 2020-04-21
+Date: 2024-10-8
