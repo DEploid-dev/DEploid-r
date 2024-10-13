@@ -62,3 +62,4 @@ src/DEploid/lasso/version
 # vignettes/
 ^vignettes/commbine.sh
 ^vignettes/dEploid-Arguments.Rmd.src
+^\.github$
