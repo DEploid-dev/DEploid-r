@@ -2,9 +2,12 @@
 % Please edit documentation in R/dEploid.R
 \docType{package}
 \name{DEploid-package}
+\alias{DEploid}
 \alias{DEploid-package}
-\title{Deconvolute Mixed Genomes with Unknown Proportions}
+\title{DEploid: Deconvolute Mixed Genomes with Unknown Proportions}
 \description{
+Traditional phasing programs are limited to diploid organisms. Our method modifies Li and Stephens algorithm with Markov chain Monte Carlo (MCMC) approaches, and builds a generic framework that allows haplotype searches in a multiple infection setting. This package is primarily developed as part of the Pf3k project, which is a global collaboration using the latest sequencing technologies to provide a high-resolution view of natural variation in the malaria parasite Plasmodium falciparum. Parasite DNA are extracted from patient blood sample, which often contains more than one parasite strain, with unknown proportions. This package is used for deconvoluting mixed haplotypes, and reporting the mixture proportions from each sample.
+
 Traditional phasing programs are limited to diploid organisms.
 Our method modifies Li and Stephens algorithm with Markov chain Monte Carlo
 (MCMC) approaches, and builds a generic framework that allows haplotype
@@ -17,8 +20,35 @@ parasite strain, with unknown proportions. This package is used for
 deconvoluting mixed haplotypes, #' and reporting the mixture proportions from
 each sample.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/DEploid-dev/DEploid-r}
+  \item Report bugs at \url{https://github.com/DEploid-dev/DEploid-r/issues}
+}
+
+}
 \author{
+\strong{Maintainer}: Joe Zhu \email{sha.joe.zhu@gmail.com} [copyright holder]
+
+Authors:
+\itemize{
+  \item Jacob Almagro-Garcia
+  \item Gil McVean
+}
+
+Other contributors:
+\itemize{
+  \item University of Oxford [copyright holder]
+  \item Yinghan Liu [contributor]
+  \item CodeCogs Zyba Ltd [compiler, copyright holder]
+  \item Deepak Bandyopadhyay [compiler, copyright holder]
+  \item Lutz Kettner [compiler, copyright holder]
+}
+
+
 Zhu Sha
 
 Maintainer: Joe Zhu \email{sha.joe.zhu@gmail.com}
 }
+\keyword{internal}

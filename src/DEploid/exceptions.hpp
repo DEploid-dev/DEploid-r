@@ -39,7 +39,8 @@ struct ShouldNotBeCalled : std::exception{
   ShouldNotBeCalled() { }
   virtual ~ShouldNotBeCalled() throw() {}
   virtual const char* what() const noexcept {
-      return string("Should not reach here").c_str();
+      static const std::string msg = "Should not reach here";
+      return msg.c_str();
   }
 };
 
@@ -75,7 +76,8 @@ struct OutOfVectorSize : std::exception{
   OutOfVectorSize() { }
   virtual ~OutOfVectorSize() throw() {}
   virtual const char* what() const noexcept {
-      return string("Out of vector size!").c_str();
+      static const std::string msg = "Out of vector size!";
+      return msg.c_str();
   }
 };
 

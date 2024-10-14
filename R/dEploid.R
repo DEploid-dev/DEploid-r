@@ -1,3 +1,6 @@
+#' @keywords internal
+"_PACKAGE"
+
 #' Deconvolute Mixed Genomes with Unknown Proportions
 #'
 #' Traditional phasing programs are limited to diploid organisms.
@@ -18,9 +21,16 @@
 #' Maintainer: Joe Zhu \email{sha.joe.zhu@gmail.com}
 #'
 #' @name DEploid-package
-#' @docType package
 #'
 #' @importFrom Rcpp evalCpp
-#' @useDynLib _DEploid_dEploid
-#' @useDynLib _DEploid_extractVcf
+#' @importFrom scales alpha
+#' @importFrom grDevices rainbow colorRampPalette
+#' @importFrom graphics abline barplot hist plot points axis legend
+#' @importFrom utils read.table
+#' @importFrom magrittr %>%
+#' @importFrom plotly plot_ly layout add_trace
+#' @importFrom rmarkdown pandoc_available
+#' @importFrom htmlwidgets saveWidget
+#' @useDynLib DEploid, .registration = TRUE
 NULL
+

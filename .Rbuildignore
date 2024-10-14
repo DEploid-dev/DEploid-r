@@ -2,7 +2,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.Rhistory$
-^tmp$
+^tmp.*
 ^NEWS\.md$
 
 # bash scripts

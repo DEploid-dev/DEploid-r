@@ -190,7 +190,7 @@ void DEploidIO::reInit() {
 
 
 void DEploidIO::finalize() {
-    if ( this->doIbdPainting() | this->doComputeLLK() | this->doIbdViterbiPainting() ) {
+    if ( this->doIbdPainting() || this->doComputeLLK() || this->doIbdViterbiPainting() ) {
         if (!initialPropWasGiven()) {
             throw InitialPropUngiven("");
         }
@@ -541,7 +541,7 @@ void DEploidIO::checkInput() {
             // set k strain by proportion length
         }
     }
-    if (this->useBestPractice() & (!this->usePanel())){
+    if (this->useBestPractice() && (!this->usePanel())){
         throw FlagsConflict("-best" , string("-noPanel. Reference panel is") +
             string("required for using best-practices."));
     }
@@ -764,7 +764,7 @@ void DEploidIO::readPanel() {
     if ( this->usePanel() == false ) {
         return;
     }
-    if ( this->doIbdPainting() | this->doComputeLLK() ) {
+    if ( this->doIbdPainting() || this->doComputeLLK() ) {
         return;
     }
 
