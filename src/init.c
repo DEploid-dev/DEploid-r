@@ -10,9 +10,9 @@
 /* .Call calls */
 extern SEXP _DEploid_dEploid(SEXP);
 extern SEXP _DEploid_extractVcf(SEXP);
-extern SEXP _DEploid_test_RRG_sample();
+extern SEXP _DEploid_test_RRG_sample(void);
 extern SEXP _DEploid_test_RRG_sampleExpoExpoLimit(SEXP, SEXP, SEXP);
-extern SEXP _DEploid_test_RRG_sampleUnitExpo();
+extern SEXP _DEploid_test_RRG_sampleUnitExpo(void);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_DEploid_dEploid",                      (DL_FUNC) &_DEploid_dEploid,                      1},

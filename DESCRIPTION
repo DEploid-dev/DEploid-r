@@ -1,11 +1,11 @@
 Package: DEploid
 Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
-Version: 0.5.3
+Version: 0.5.4
 Authors@R: c(
     person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="sha.joe.zhu@gmail.com"),
-    person('Jacob', 'Almagro-Garcia', role=c('aut', 'cph')),
-    person('Gil', 'McVean', role=c('aut', 'cph')),
+    person('Jacob', 'Almagro-Garcia', role=c('aut')),
+    person('Gil', 'McVean', role=c('aut')),
     person('University of Oxford', '', role=c('cph')),
     person('Yinghan', 'Liu', role=c('ctb')),
     person('CodeCogs', 'Zyba Ltd', role=c('com', "cph")),
@@ -37,8 +37,8 @@ Imports:
 Suggests:
     knitr,
     testthat (>= 0.9.0)
-SystemRequirements: C++11
 VignetteBuilder: knitr
 LinkingTo: Rcpp
-RoxygenNote: 7.1.0
-Date: 2020-04-21
+RoxygenNote: 7.3.2
+Encoding: UTF-8
+Date: 2024-10-8
