@@ -33,4 +33,3 @@
 #' @importFrom htmlwidgets saveWidget
 #' @useDynLib DEploid, .registration = TRUE
 NULL
-

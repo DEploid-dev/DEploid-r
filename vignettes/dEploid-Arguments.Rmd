@@ -125,30 +125,30 @@ Data exploration, plot the read count `ALT` vs `REF`.
 ```{r, fig.show='hold', fig.width=5, fig.height=5}
 library(DEploid)
 
-vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390 = extractCoverageFromVcf(vcfFile)
-plotAltVsRef( PG0390$refCount, PG0390$altCount )
+vcfFile <- system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
+PG0390 <- extractCoverageFromVcf(vcfFile)
+plotAltVsRef(PG0390$refCount, PG0390$altCount)
 ```
 
 Plot the histogram of the observed allele frequency within sample.
 ```{r, fig.show='hold', fig.width=5, fig.height=5}
-obsWSAF = computeObsWSAF( PG0390$altCount, PG0390$refCount )
+obsWSAF <- computeObsWSAF(PG0390$altCount, PG0390$refCount)
 histWSAF(obsWSAF)
 ```
 
 Load prior information: PLAF and reference panel
 ```{r, fig.show='hold', fig.width=5, fig.height=5}
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
-plaf = extractPLAF(plafFile)
-panelFile = system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
+plafFile <- system.file("extdata", "labStrains.test.PLAF.txt", package = "DEploid")
+plaf <- extractPLAF(plafFile)
+panelFile <- system.file("extdata", "labStrains.test.panel.txt", package = "DEploid")
 ```
 
 Deconvolute the haplotypes
 ```{r, fig.show='hold', fig.width=5, fig.height=5}
 set.seed(1)
-PG0390.deconv = dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
-prop = PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1],]
-expWSAF = t(PG0390.deconv$Haps) %*% prop
+PG0390.deconv <- dEploid(paste("-vcf", vcfFile, "-plaf", plafFile, "-panel", panelFile))
+prop <- PG0390.deconv$Proportions[dim(PG0390.deconv$Proportions)[1], ]
+expWSAF <- t(PG0390.deconv$Haps) %*% prop
 ```
 
 Plot the allele frequency within sample (observed in red, expected in blue) against the population level allele frequency.
