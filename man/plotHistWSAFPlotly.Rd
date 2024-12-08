@@ -30,7 +30,7 @@ myhist = plotHistWSAFPlotly(obsWSAF)
 
 # Example 2
 vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390CoverageV = extractCoverageFromVcf(vcfFile)
+PG0390CoverageV = extractCoverageFromVcf(vcfFile, "PG0390-C")
 obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
 plotHistWSAFPlotly(obsWSAF)
 myhist = plotHistWSAFPlotly(obsWSAF)
