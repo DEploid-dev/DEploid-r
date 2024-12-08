@@ -63,7 +63,7 @@ old_extractCoverageFromVcf <- function(vcfFileName, ADFieldIndex = 2) {
 test_that("test R vs cpp vcf extract",
           {
               vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid.utils")
-              vcf = DEploid.utils::extractVcf(vcfFile, "PG0390-C")
+              vcf = extractCoverageFromVcf(vcfFile, "PG0390-C")
               PG0390 = old_extractCoverageFromVcf(vcfFile)
               testthat::expect_equal(names(vcf), names(PG0390))
               testthat::expect_equal(vcf$CHROM, PG0390$CHROM)

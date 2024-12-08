@@ -58,6 +58,7 @@ src/DEploid/lasso/version
 ^tests/testthat/Rplots.pdf$
 ^tests/testthat/.*\.png$
 ^tests/testthat/.*\.html$
+codecov.yml
 
 # vignettes/
 ^vignettes/commbine.sh
