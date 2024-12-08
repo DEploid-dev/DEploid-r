@@ -19,18 +19,21 @@ Plot observed alternative allele frequency within sample against
 }
 \examples{
 \dontrun{
-vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-PG0390CoverageV = extractCoverageFromVcf(vcfFile, "PG0390-C")
-obsWSAF = computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
-plafFile = system.file("extdata", "labStrains.test.PLAF.txt",
- package = "DEploid")
-PG0390CoverageV.deconv = dEploid(paste("-vcf", vcfFile,
-                                       "-plaf", plafFile, "-noPanel"))
+vcfFile <- system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
+PG0390CoverageV <- extractCoverageFromVcf(vcfFile, "PG0390-C")
+obsWSAF <- computeObsWSAF(PG0390CoverageV$altCount, PG0390CoverageV$refCount)
+plafFile <- system.file("extdata", "labStrains.test.PLAF.txt",
+  package = "DEploid"
+)
+PG0390CoverageV.deconv <- dEploid(paste(
+  "-vcf", vcfFile,
+  "-plaf", plafFile, "-noPanel"
+))
 
-prop = PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv
-                                              $Proportions)[1],]
+prop <- PG0390CoverageV.deconv$Proportions[dim(PG0390CoverageV.deconv
+$Proportions)[1], ]
 
-expWSAF = t(PG0390CoverageV.deconv$Haps) \%*\% prop
+expWSAF <- t(PG0390CoverageV.deconv$Haps) \%*\% prop
 plotObsExpWSAFPlotly(obsWSAF, expWSAF)
 }
 
