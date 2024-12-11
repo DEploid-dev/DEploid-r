@@ -1,7 +1,7 @@
 Package: DEploid
 Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
-Version: 0.5.4
+Version: 0.5.5
 Authors@R: c(
     person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="sha.joe.zhu@gmail.com"),
     person('Jacob', 'Almagro-Garcia', role=c('aut')),
@@ -26,20 +26,20 @@ URL: https://github.com/DEploid-dev/DEploid-r
 BugReports: https://github.com/DEploid-dev/DEploid-r/issues
 License: GPL (>= 3)
 Depends:
-    R (>= 3.1.0)
+    R (>= 3.1.0),
+    DEploid.utils (>= 0.0.1)
 Imports:
     Rcpp (>= 0.11.2),
     scales (>= 0.4.0),
     plotly (>= 4.7.1),
     magrittr (>= 1.5),
     rmarkdown(>= 1.6),
-    htmlwidgets (>= 1.0),
-    DEploid.utils
+    htmlwidgets (>= 1.0)
 Suggests:
     knitr,
     testthat (>= 0.9.0)
 Remotes:
-    DEploid-dev/DEploid.utils
+    DEploid-dev/DEploid.utils@main
 VignetteBuilder: knitr
 LinkingTo: Rcpp
 RoxygenNote: 7.3.2
