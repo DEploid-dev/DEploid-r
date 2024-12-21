@@ -23,22 +23,13 @@
  *
  */
 
-#include "mcmc.hpp"
+#include <iostream>      // std::cout
+#include "global.hpp"
+#include "vcfReader.hpp"
 
+using std::endl;
 
-bool McmcMachinery::doutProp() {
-    dout << "  Update proportion to: ";
-
-    for (auto const& value : this->currentProp_) {
-        dout << value << " ";
-    }
-    dout << endl;
-    return true;
-}
-
-
-bool McmcMachinery::doutLLK() {
-    dout << " Current log likelihood = " <<
-        log(product(this->currentSiteLikelihoods_)) << endl;
+bool VcfReader::printSampleName() {
+    dout << "Sample name is " << this->sampleName_ << endl;
     return true;
 }

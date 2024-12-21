@@ -89,16 +89,16 @@ class UpdateHap{
                            vector <double> &plaf,
                            vector <double> &expectedWsaf,
                            vector <double> &proportion,
-                           vector < vector <double> > &haplotypes );
-    virtual void calcExpectedWsaf( vector <double> & expectedWsaf, vector <double> &proportion, vector < vector <double> > &haplotypes);
-    virtual void calcHapLLKs( vector <double> &refCount, vector <double> &altCount);
-    virtual void buildEmission( double missCopyProb );
+                           vector < vector <double> > &haplotypes ) = 0;
+    virtual void calcExpectedWsaf( vector <double> & expectedWsaf, vector <double> &proportion, vector < vector <double> > &haplotypes) = 0;
+    virtual void calcHapLLKs( vector <double> &refCount, vector <double> &altCount) = 0;
+    virtual void buildEmission( double missCopyProb ) = 0;
     // calcFwdProbs() differ for class UpdateSingleHap and UpdatePairHap
-    //virtual void calcFwdProbs();
-    virtual void samplePaths();
-    virtual void addMissCopying( double missCopyProb );
-    virtual void updateLLK();
-    virtual void sampleHapIndependently(vector <double> &plaf);
+    //virtual void calcFwdProbs() = 0;
+    virtual void samplePaths() = 0;
+    virtual void addMissCopying( double missCopyProb ) = 0;
+    virtual void updateLLK() = 0;
+    virtual void sampleHapIndependently(vector <double> &plaf) = 0;
 };
 
 
@@ -134,11 +134,11 @@ class UpdateSingleHap : public UpdateHap{
     size_t strainIndex_;
     vector <double> expectedWsaf0_;
     vector <double> expectedWsaf1_;
-    vector <double> llk0_;
-    vector <double> llk1_;
+    vector <log_double_t> siteLikelihoods0_;
+    vector <log_double_t> siteLikelihoods1_;
 
-    vector <double> path_;
-    vector <double> hap_;
+    vector <int> path_;
+    vector <int> hap_;
 
     // Methods
     void core( vector <double> &refCount,

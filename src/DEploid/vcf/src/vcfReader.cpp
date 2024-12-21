@@ -35,9 +35,12 @@ using std::min;
 /*! Initialize vcf file, search for the end of the vcf header.
  *  Extract the first block of data ( "buffer_length" lines ) into buff
  */
-VcfReader::VcfReader(string fileName) {
+VcfReader::VcfReader(string fileName, string sampleName, bool extractPlaf) {
     /*! Initialize by read in the vcf header file */
     this->init(fileName);
+    this->sampleName_ = sampleName;
+    this->extractPlaf_ = extractPlaf;
+    this->sampleColumnIndex_ = 0;
     this->readHeader();
     this->readVariants();
     this->getChromList();
@@ -83,6 +86,7 @@ void VcfReader::finalize() {
         this->refCount.push_back(static_cast<double>(this->variants[i].ref));
         this->altCount.push_back(static_cast<double>(this->variants[i].alt));
         this->vqslod.push_back(this->variants[i].vqslod);
+        this->plaf.push_back(this->variants[i].plaf);
     }
 
     if ( this->isCompressed() ) {
@@ -154,14 +158,18 @@ void VcfReader::checkFeilds() {
             case 6: correctFieldValue =  "FILTER"; break;
             case 7: correctFieldValue =  "INFO";   break;
             case 8: correctFieldValue =  "FORMAT"; break;
-            case 9: sampleName = this->tmpStr_;    break;
         }
 
         if (this->tmpStr_ != correctFieldValue && field_index < 9) {
             throw VcfInvalidHeaderFieldNames(correctFieldValue, this->tmpStr_);
         }
 
-        if (field_index == 9) {
+        if ((field_index == 9) & (this->sampleName_ == "")) {
+            this->sampleName_ = this->tmpStr_;
+        }
+
+        if (this->tmpStr_ == this->sampleName_) {
+            sampleColumnIndex_ = field_index;
             break;
         }
 
@@ -169,7 +177,10 @@ void VcfReader::checkFeilds() {
         field_index++;
     }  // End of while loop: field_end < line.size()
 
-    assert(field_index == 9);
+    if (sampleColumnIndex_ == 0) {
+        throw InvalidSampleInVcf(this->sampleName_, this->fileName_);
+    }
+    assert(sampleColumnIndex_ != 0);
     assert(printSampleName());
 }
 
@@ -181,7 +192,8 @@ void VcfReader::readVariants() {
         getline(inFile, this->tmpLine_);
     }
     while (inFile.good() && this->tmpLine_.size() > 0) {
-        VariantLine newVariant(this->tmpLine_);
+        VariantLine newVariant(this->tmpLine_, this->sampleColumnIndex_,
+            this->extractPlaf_);
         // check variantLine quality
         this->variants.push_back(newVariant);
         if (this->isCompressed()) {
@@ -266,8 +278,9 @@ void VcfReader::findLegitSnpsGivenVQSLODHalf(double vqslodThreshold) {
 }
 
 
-VariantLine::VariantLine(string tmpLine) {
-    this->init(tmpLine);
+VariantLine::VariantLine(string tmpLine, size_t sampleColumnIndex,
+    bool extractPlaf) {
+    this->init(tmpLine, sampleColumnIndex, extractPlaf);
 
     while (fieldEnd_ < this->tmpLine_.size()) {
         fieldEnd_ = min(this->tmpLine_.find('\t', feildStart_),
@@ -284,21 +297,27 @@ VariantLine::VariantLine(string tmpLine) {
             case 6: this->extract_field_FILTER();  break;
             case 7: this->extract_field_INFO();    break;
             case 8: this->extract_field_FORMAT();  break;
-            case 9: this->extract_field_VARIANT(); break;
         }
 
+        if (fieldIndex_ == this->sampleColumnIndex_) {
+            this->extract_field_VARIANT();
+            break;
+        }
         feildStart_ = fieldEnd_+1;
         fieldIndex_++;
     }
 }
 
 
-void VariantLine::init(string tmpLine) {
+void VariantLine::init(string tmpLine, size_t sampleColumnIndex,
+    bool extractPlaf) {
     this->tmpLine_ = tmpLine;
     this->feildStart_ = 0;
     this->fieldEnd_ = 0;
     this->fieldIndex_  = 0;
     this->adFieldIndex_ = -1;
+    this->sampleColumnIndex_ = sampleColumnIndex;
+    this->extractPlaf_ = extractPlaf;
 }
 
 
@@ -354,8 +373,13 @@ void VariantLine::extract_field_INFO() {
             vqslodNotFound = false;
             vqslod = stod(filterFiledStr.substr(eqIndex+1,
                                                 filterFiledStr.size()));
-            break;
         }
+
+        if ( ("AF" == filterFiledName) & (this->extractPlaf_) ) {
+            plaf = stod(filterFiledStr.substr(eqIndex+1,
+                                                filterFiledStr.size()));
+        }
+
         feild_start = field_end+1;
         field_index++;
     }
@@ -392,6 +416,21 @@ void VariantLine::extract_field_FORMAT() {
 }
 
 
+int maybe_dot_to_integer(const string& s) {
+    if (s == ".")
+        return 0;
+    else
+        return stoi(s);
+}
+
+int n_fields(const string& s, char delim = ',') {
+    int count = 0;
+    for (auto ch : s)
+        if (ch == delim)
+            count++;
+    return count+1;
+}
+
 void VariantLine::extract_field_VARIANT() {
     size_t feild_start = 0;
     size_t field_end = 0;
@@ -403,10 +442,27 @@ void VariantLine::extract_field_VARIANT() {
         if (field_index == adFieldIndex_) {
             string adStr = this->tmpStr_.substr(feild_start,
                                                 field_end-feild_start);
-            size_t commaIndex = adStr.find(',', 0);
-            ref = stoi(adStr.substr(0, commaIndex) );
-            alt = stoi(adStr.substr(commaIndex+1, adStr.size()) );
-            break;
+            try {
+                int n = n_fields(adStr);
+                if (n != 2)
+                    throw std::runtime_error(
+                        "there should be exactly 2 AD entries, but found " +
+                        std::to_string(n) +
+                        ".\n   Wrong number of ALT alleles!.");
+
+                size_t commaIndex = adStr.find(',', 0);
+                auto ref_AD = adStr.substr(0, commaIndex);
+                auto alt_AD = adStr.substr(commaIndex+1, adStr.size());
+
+                ref = maybe_dot_to_integer(ref_AD);
+                alt = maybe_dot_to_integer(alt_AD);
+                break;
+            }
+            catch (const std::exception& e) {
+              throw std::runtime_error(
+                  "Error parsing vcf AD field: '" +
+                    adStr + "':  " + e.what() + "\n");
+            }
         }
         feild_start = field_end+1;
         field_index++;

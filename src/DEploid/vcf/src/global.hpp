@@ -23,22 +23,13 @@
  *
  */
 
-#include "mcmc.hpp"
+#define dEploid_src_macros
+// #pragma GCC diagnostic ignored "-Wunused-result"
 
+#ifndef NDEBUG
+#define dout std::cout << "   "
+#else
+// #pragma GCC diagnostic ignored "-Wunused-value"
+#define dout 0 && std::cout
+#endif
 
-bool McmcMachinery::doutProp() {
-    dout << "  Update proportion to: ";
-
-    for (auto const& value : this->currentProp_) {
-        dout << value << " ";
-    }
-    dout << endl;
-    return true;
-}
-
-
-bool McmcMachinery::doutLLK() {
-    dout << " Current log likelihood = " <<
-        log(product(this->currentSiteLikelihoods_)) << endl;
-    return true;
-}

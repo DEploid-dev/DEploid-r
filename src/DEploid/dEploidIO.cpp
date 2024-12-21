@@ -25,9 +25,7 @@
 #include <ctime>
 #include <iterator>
 #include <cassert>        // assert
-#include <iomanip>        // std::setw
 #include "utility.hpp"    // normailize by sum
-#include "updateHap.hpp"  // chromPainting
 #include "dEploidIO.hpp"
 #include "ibd.hpp"
 #include "lasso/src/dEploidLasso.hpp"
@@ -94,7 +92,7 @@ void DEploidIO::init() {
     this->setDoPrintLassoPanel(false);
     this->setIsCopied(false);
     this->setDoExportRecombProb(false);
-    this->setrandomSeedWasGiven(false);
+
     this->setCompressVcf(false);
     this->setInitialPropWasGiven(false);
     this->setInitialHapWasGiven(false);
@@ -103,17 +101,13 @@ void DEploidIO::init() {
     this->setExcludeSites( false );
     this->excludedMarkers = NULL;
     this->panel = NULL;
-    this->set_seed( (unsigned)0 );
     this->set_help(false);
     this->setVersion(false);
     this->setUsePanel(true);
-    this->precision_ = 8;
     this->prefix_ = "pf3k-dEploid";
-    this->setKStrainWasManuallySet(false);
     this->setKStrainWasSetByHap(false);
     this->setKStrainWasSetByProp(false);
-    this->setKstrain(4);  // From DEploid-Lasso, set default K to 4.
-    this->nMcmcSample_ = 800;
+
     this->setDoUpdateProp( true );
     this->setDoUpdatePair( true );
     this->setDoUpdateSingle( true );
@@ -125,25 +119,37 @@ void DEploidIO::init() {
     this->setUseIbdOnly(false);
     this->setUseLasso( false );
     this->setUseBestPractice(false);
+    this->setInferBestPracticeP(true);
+    this->setInferBestPracticeHap(true);
     this->setDoExportSwitchMissCopy ( true );
     this->setDoAllowInbreeding( false );
-    this->mcmcBurn_ = 0.5;
-    this->mcmcMachineryRate_ = 5;
-    this->missCopyProb_ = 0.01;
     this->useConstRecomb_ = false;
     this->setForbidCopyFromSame( false );
     this->constRecombProb_ = 1.0;
     this->averageCentimorganDistance_ = 15000.0;
     this->setScalingFactor(100.0);
     this->setParameterG(20.0);
-    this->setParameterSigma(5.0);
     this->setIBDSigma(20.0);
     this->setUseVcf(false);
+    this->setUseVcfSample(false);
+    this->setExtractPlafFromVcf(false);
+    this->vcfSampleName_ = "";
     this->vcfReaderPtr_ = NULL;
     this->setDoExportVcf(false);
     this->setDoComputeLLK(false);
     this->setVqslod(8.0);
     this->setLassoMaxNumPanel(100);
+
+    this->kStrain_.init(5);  // From DEploid-Lasso, set default K to 4.
+    this->mcmcBurn_.init(0.5);
+    this->mcmcMachineryRate_.init(5);
+    this->missCopyProb_.init(0.01);
+    this->nMcmcSample_.init(800);
+    this->precision_.init(8);
+    this->randomSeed_.init((unsigned)0);
+    this->parameterSigma_.init(5.0);
+
+
     #ifdef COMPILEDATE
         compileTime_ = COMPILEDATE;
     #else
@@ -165,6 +171,15 @@ void DEploidIO::init() {
 
 }
 
+
+void DEploidIO::setBestPracticeParameters() {
+    this->kStrain_.setBest(4);
+    this->nMcmcSample_.setBest(500);
+    this->randomSeed_.setBest(1);
+    this->parameterSigma_.setBest(1.6);
+    this->mcmcBurn_.setBest(.67);
+    this->mcmcMachineryRate_.setBest(8);
+}
 
 void DEploidIO::getTime( bool isStartingTime ) {
     time_t now = time(0);
@@ -190,13 +205,17 @@ void DEploidIO::reInit() {
 
 
 void DEploidIO::finalize() {
+    if (useBestPractice()){
+        this->setBestPracticeParameters();
+    }
+
     if ( this->doIbdPainting() || this->doComputeLLK() || this->doIbdViterbiPainting() ) {
         if (!initialPropWasGiven()) {
             throw InitialPropUngiven("");
         }
     }
 
-    if ( this->useIBD() && this->kStrain() == 1) {
+    if ( this->useIBD() && this->kStrain_.getValue() == 1) {
         throw InvalidK();
     }
 
@@ -204,8 +223,8 @@ void DEploidIO::finalize() {
         throw VcfOutUnSpecified("");
     }
 
-    if ( !this->randomSeedWasGiven_ ) {
-        this->set_seed( (unsigned)(time(0)) );
+    if ( !this->randomSeed_.useDefault() ) {
+        this->randomSeed_.init((unsigned)(time(0)));
     }
 
     if ( this->excludeSites() ) {
@@ -214,7 +233,8 @@ void DEploidIO::finalize() {
     }
 
     if ( useVcf() ) { // read vcf files, and parse it to refCount and altCount
-        this->vcfReaderPtr_ = new VcfReader (vcfFileName_ );
+        this->vcfReaderPtr_ = new VcfReader (vcfFileName_, vcfSampleName_,
+            extractPlafFromVcf_);
         if ( this->excludeSites() ) {
             this->vcfReaderPtr_->findAndKeepMarkers (excludedMarkers);
         }
@@ -237,25 +257,32 @@ void DEploidIO::finalize() {
         this->altCount_ = alt.info_;
     }
 
-    TxtReader plaf;
-    plaf.readFromFile(plafFileName_.c_str());
-    if ( this->excludeSites() ) {
-        plaf.findAndKeepMarkers( excludedMarkers );
-    }
-    this->plaf_ = plaf.info_;
-    this->chrom_ = plaf.chrom_;
-    this->position_ = plaf.position_;
-    this->indexOfChromStarts_ = plaf.indexOfChromStarts_;
-
     this->nLoci_ = refCount_.size();
-
-    if ( this->nLoci_ != this->plaf_.size() ) {
-        throw LociNumberUnequal( this->plafFileName_ );
-    }
 
     if ( this->nLoci_ != this->altCount_.size() ) {
         throw LociNumberUnequal( this->altFileName_ );
     }
+
+    if (extractPlafFromVcf()){
+        this->plaf_ = this->vcfReaderPtr_->plaf;
+        this->chrom_ = this->vcfReaderPtr_->chrom_;
+        this->position_ = this->vcfReaderPtr_->position_;
+        this->indexOfChromStarts_ = this->vcfReaderPtr_->indexOfChromStarts_;
+    } else {
+        TxtReader plaf;
+        plaf.readFromFile(plafFileName_.c_str());
+        if ( this->excludeSites() ) {
+            plaf.findAndKeepMarkers( excludedMarkers );
+        }
+        this->plaf_ = plaf.info_;
+        this->chrom_ = plaf.chrom_;
+        this->position_ = plaf.position_;
+        this->indexOfChromStarts_ = plaf.indexOfChromStarts_;
+        if ( this->nLoci_ != this->plaf_.size() ) {
+            throw LociNumberUnequal( this->plafFileName_ );
+        }
+    }
+
     (void)removeFilesWithSameName();
 
     this->readPanel();
@@ -319,7 +346,7 @@ void DEploidIO::removeFilesWithSameName() {
     if (this->doLsPainting() || this->doExportPostProb() ) {
         if (this->useIBD()) {
             strIbdExportSingleFwdProbPrefix = this->prefix_ + ".ibd.single";
-            for ( size_t i = 0; i < this->kStrain_ ; i++ ) {
+            for ( size_t i = 0; i < this->kStrain_.getValue() ; i++ ) {
                 string tmpStrExportSingleFwdProb = strIbdExportSingleFwdProbPrefix + to_string(i);
                 remove(tmpStrExportSingleFwdProb.c_str());
             }
@@ -327,7 +354,7 @@ void DEploidIO::removeFilesWithSameName() {
             remove(strIbdExportPairFwdProb.c_str());
         }
         strExportSingleFwdProbPrefix = this->prefix_ + ".single";
-        for ( size_t i = 0; i < this->kStrain_ ; i++ ) {
+        for ( size_t i = 0; i < this->kStrain_.getValue() ; i++ ) {
             string tmpStrExportSingleFwdProb = strExportSingleFwdProbPrefix + to_string(i);
             remove(tmpStrExportSingleFwdProb.c_str());
         }
@@ -358,9 +385,23 @@ void DEploidIO::parse () {
             }
             this->setUseVcf(true);
             this->readNextStringto ( this->vcfFileName_ ) ;
+        } else if (*argv_i == "-sample") {
+            if (useVcf() == false){
+                throw(FlagsOrderIncorrect((*argv_i) , "-vcf") );
+            }
+            this->setUseVcfSample(true);
+            this->readNextStringto ( this->vcfSampleName_ ) ;
+        } else if (*argv_i == "-plafFromVcf") {
+            if (useVcf() == false){
+                throw(FlagsOrderIncorrect((*argv_i) , "-vcf") );
+            }
+            this->setExtractPlafFromVcf(true);
         } else if (*argv_i == "-vcfOut") {
             this->setDoExportVcf (true);
         } else if (*argv_i == "-plaf") {
+            if ( this->extractPlafFromVcf() ) {
+                throw ( FlagsConflict((*argv_i) , "-plafFromVcf") );
+            }
             this->readNextStringto ( this->plafFileName_ ) ;
         } else if (*argv_i == "-panel") {
             if ( this->usePanel() == false ) {
@@ -377,6 +418,9 @@ void DEploidIO::parse () {
             if ( doAllowInbreeding() ) {
                 throw ( FlagsConflict((*argv_i) , "-inbreeding") );
             }
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
             this->setUsePanel(false);
             this->setDoExportSwitchMissCopy ( false );
         } else if (*argv_i == "-exclude") {
@@ -385,31 +429,31 @@ void DEploidIO::parse () {
         } else if (*argv_i == "-o") {
             this->readNextStringto ( this->prefix_ ) ;
         } else if ( *argv_i == "-p" ) {
-            this->precision_ = readNextInput<size_t>() ;
+            //this->precision_ = readNextInput<size_t>() ;
+            this->precision_.setUserDefined(readNextInput<size_t>());
         } else if ( *argv_i == "-k" ) {
-            this->setKStrainWasManuallySet(true);
-            this->setKstrain(readNextInput<size_t>());
+            this->kStrain_.setUserDefined(readNextInput<size_t>());
 
-            if ( this->kStrainWasSetByHap() && this->kStrain() != this->initialHap[0].size() ) {
-                string hint = string(" k = ") + to_string(this->kStrain()) + ", " + this->initialHapFileName_ + " suggests otherwise";
+            if ( this->kStrainWasSetByHap() && this->kStrain_.getValue() != this->initialHap[0].size() ) {
+                string hint = string(" k = ") + to_string(this->kStrain_.getValue()) + ", " + this->initialHapFileName_ + " suggests otherwise";
                 throw NumOfPropNotMatchNumStrain(hint);
             }
 
-            if ( this->initialPropWasGiven() && this->kStrain_ != initialProp.size() ) {
-                string hint = string(" k = ") + to_string(kStrain_) + ", flag -initialP suggests otherwise";;
+            if ( this->initialPropWasGiven() && this->kStrain_.getValue() != initialProp.size() ) {
+                string hint = string(" k = ") + to_string(kStrain_.getValue()) + ", flag -initialP suggests otherwise";;
                 throw NumOfPropNotMatchNumStrain(hint);
             }
 
         } else if ( *argv_i == "-nSample" ) {
-            this->nMcmcSample_ = readNextInput<size_t>() ;
+            this->nMcmcSample_.setUserDefined(readNextInput<size_t>());
         } else if ( *argv_i == "-burn" ) {
-            this->mcmcBurn_ = readNextInput<double>() ;
-            if ( this->mcmcBurn_ < 0 || this->mcmcBurn_ > 1) {
+            this->mcmcBurn_.setUserDefined(readNextInput<double>());
+            if ( this->mcmcBurn_.getValue() < 0 || this->mcmcBurn_.getValue() > 1) {
                 throw ( OutOfRange ("-burn", *argv_i) );
             }
         } else if ( *argv_i == "-miss" ) {
-            this->missCopyProb_ = readNextInput<double>() ;
-            if ( this->missCopyProb_ < 0 || this->missCopyProb_ > 1) {
+            this->missCopyProb_.setUserDefined(readNextInput<double>());
+            if ( this->missCopyProb_.getValue() < 0 || this->missCopyProb_.getValue() > 1) {
                 throw ( OutOfRange ("-miss", *argv_i) );
             }
         } else if ( *argv_i == "-c" ) {
@@ -419,7 +463,7 @@ void DEploidIO::parse () {
         } else if ( *argv_i == "-vqslod" ) {
             this->setVqslod(readNextInput<double>());
         } else if ( *argv_i == "-sigma" ) {
-            this->setParameterSigma(readNextInput<double>());
+            this->parameterSigma_.setUserDefined(readNextInput<double>());
         } else if ( *argv_i == "-ibdSigma" ) {
             this->setIBDSigma(readNextInput<double>());
         } else if ( *argv_i == "-lassoMaxPanel" ) {
@@ -435,7 +479,7 @@ void DEploidIO::parse () {
         } else if ( *argv_i == "-forbidSame" ) {
             this->setForbidCopyFromSame( true );
         } else if ( *argv_i == "-rate" ) {
-            this->mcmcMachineryRate_ = readNextInput<size_t>() ;
+            this->mcmcMachineryRate_.setUserDefined(readNextInput<size_t>());
         } else if ( *argv_i == "-forbidUpdateProp" ) {
             this->setDoUpdateProp( false );
         } else if ( *argv_i == "-forbidUpdateSingle" ) {
@@ -449,6 +493,9 @@ void DEploidIO::parse () {
             this->setDoAllowInbreeding( true );
             this->setDoExportPostProb( true );
         } else if ( *argv_i == "-exportPostProb" ) {
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
             if ( this->usePanel() == false ) {
                 throw ( FlagsConflict((*argv_i) , "-noPanel") );
             }
@@ -464,13 +511,48 @@ void DEploidIO::parse () {
             this->setDoLsPainting( true );
             this->readInitialHaps();
         } else if ( *argv_i == "-ibd" ) {
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
+            if ( useLasso() == true ) {
+                throw ( FlagsConflict((*argv_i) , "-lasso") );
+            }
             this->setUseIBD(true);
         } else if (*argv_i == "-best") {
+            if ( doExportPostProb() ) {
+                throw ( FlagsConflict((*argv_i) , "-exportPostProb") );
+            }
+            if ( usePanel() == false ) {
+                throw ( FlagsConflict((*argv_i) , "-noPanel") );
+            }
+            if ( useIBD() == true ) {
+                throw ( FlagsConflict((*argv_i) , "-ibd") );
+            }
+            if ( useLasso() == true ) {
+                throw ( FlagsConflict((*argv_i) , "-lasso") );
+            }
             this->setUseBestPractice(true);
+        } else if (*argv_i == "-bestKonly") {
+            this->setInferBestPracticeP(false);
+            this->setInferBestPracticeHap(false);
+        } else if (*argv_i == "-bestPonly") {
+            this->setInferBestPracticeHap(false);
         } else if ( *argv_i == "-ibdonly" ) {
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
             this->setUseIBD(true);
             this->setUseIbdOnly(true);
         } else if ( *argv_i == "-lasso" ) {
+            if ( useIBD() == true ) {
+                throw ( FlagsConflict((*argv_i) , "-ibd") );
+            }
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
+            if ( doExportPostProb() ) {
+                throw ( FlagsConflict((*argv_i) , "-exportPostProb") );
+            }
             this->setUseLasso(true);
             this->setDoUpdateProp(false);
         } else if ( *argv_i == "-writePanel" ) {
@@ -478,6 +560,9 @@ void DEploidIO::parse () {
         } else if ( *argv_i == "-computeLLK" ) {
             this->setDoComputeLLK( true );
         } else if ( *argv_i == "-ibdPainting" ) {
+            if ( useBestPractice() ) {
+                throw ( FlagsConflict((*argv_i) , "-best") );
+            }
             this->setDoIbdPainting( true );
         } else if ( *argv_i == "-ibdViterbi" ) {
             this->setDoIbdViterbiPainting( true );
@@ -488,18 +573,18 @@ void DEploidIO::parse () {
             this->setInitialPropWasGiven( true );
 
             // If the k was set manually, check
-            if ( this->kStrainWasManuallySet() && this->kStrain_ != initialProp.size() ) {
-                string hint = string(" k = ") + to_string(kStrain_);
+            if ( this->kStrain_.useUserDefined() && this->kStrain_.getValue() != initialProp.size() ) {
+                string hint = string(" k = ") + to_string(kStrain_.getValue());
                 throw NumOfPropNotMatchNumStrain(hint);
             }
 
             // If the k was set by initial Hap, check
-            if ( this->kStrainWasSetByHap() && this->kStrain() != this->initialProp.size() ) {
-                string hint = string(" k = ") + to_string(this->kStrain()) + ", " + this->initialHapFileName_ + " suggests otherwise";
+            if ( this->kStrainWasSetByHap() && this->kStrain_.getValue() != this->initialProp.size() ) {
+                string hint = string(" k = ") + to_string(this->kStrain_.getValue()) + ", " + this->initialHapFileName_ + " suggests otherwise";
                 throw NumOfPropNotMatchNumStrain(hint);
             }
 
-            this->setKstrain(this->initialProp.size());
+            this->kStrain_.init(this->initialProp.size());
         } else if ( *argv_i == "-initialHap" ) {
             if ( this->doLsPainting() == true ) {
                 throw ( FlagsConflict((*argv_i) , "-painting") );
@@ -508,8 +593,7 @@ void DEploidIO::parse () {
             this->setInitialHapWasGiven(true);
             this->readInitialHaps();
         } else if ( *argv_i == "-seed") {
-            this->set_seed( readNextInput<size_t>() );
-            this->setrandomSeedWasGiven( true );
+            this->randomSeed_.setUserDefined(readNextInput<size_t>());
         } else if ( *argv_i == "-z" ) {
             this->setCompressVcf(true);
         } else if ( *argv_i == "-h" || *argv_i == "-help") {
@@ -529,14 +613,14 @@ void DEploidIO::checkInput() {
         throw FileNameMissing ( "Ref count" );}
     if ( this->altFileName_.size() == 0 && this->useVcf() == false ) {
         throw FileNameMissing ( "Alt count" );}
-    if ( this->plafFileName_.size() == 0 ) {
+    if ( this->plafFileName_.size() == 0 && extractPlafFromVcf() == false ) {
         throw FileNameMissing ( "PLAF" );}
     if ( usePanel() && this->panelFileName_.size() == 0 && !this->doIbdPainting() && !this->doComputeLLK() ) {
         throw FileNameMissing ( "Reference panel" );}
     if ( this->initialPropWasGiven() && ( abs(sumOfVec(initialProp) - 1.0) > 0.00001 ) && this->pleaseCheckInitialP() ) {
         throw SumOfPropNotOne ( to_string(sumOfVec(initialProp)) );}
     if ( this->initialPropWasGiven() ) {
-        if ( this->kStrainWasManuallySet() == true ) {
+        if ( this->kStrain_.useUserDefined() == true ) {
         } else {
             // set k strain by proportion length
         }
@@ -581,57 +665,6 @@ void DEploidIO::readNextStringto( string &readto ) {
 }
 
 
-void DEploidIO::printVersion(std::ostream& out) {
-    out << endl
-        << "dEploid " << VERSION
-        << endl
-        << "Git commit (DEploid): " << dEploidGitVersion_ << endl
-        << "Git commit (Lasso): " << lassoGitVersion_ << endl;
-}
-
-void DEploidIO::printHelp(std::ostream& out) {
-    out << endl
-        << "dEploid " << VERSION << endl
-        << endl;
-    out << "Contact: Joe Zhu <joe.zhu@bdi.ox.ac.uk>" << endl
-        << endl;
-    out << "Usage:"
-        << endl;
-    out << setw(20) << "-h or -help"         << "  --  " << "Help. List the following content."<<endl;
-    out << setw(20) << "-v or -version"      << "  --  " << "DEploid version."<<endl;
-    out << setw(20) << "-vcf STR"            << "  --  " << "VCF file path."<<endl;
-    out << setw(20) << "-ref STR"            << "  --  " << "File path of reference allele count."<<endl;
-    out << setw(20) << "-alt STR"            << "  --  " << "File path of alternative allele count."<<endl;
-    out << setw(20) << "-plaf STR"           << "  --  " << "File path of population level allele frequencies."<<endl;
-    out << setw(20) << "-panel STR"          << "  --  " << "File path of the reference panel."<<endl;
-    out << setw(20) << "-exclude STR"        << "  --  " << "File path of sites to be excluded."<<endl;
-    out << setw(20) << "-o STR"              << "  --  " << "Specify the file name prefix of the output."<<endl;
-    out << setw(20) << "-p INT"              << "  --  " << "Out put precision (default value 8)."<<endl;
-    out << setw(20) << "-k INT"              << "  --  " << "Number of strain (default value 5)."<<endl;
-    out << setw(20) << "-seed INT"           << "  --  " << "Random seed."<<endl;
-    out << setw(20) << "-nSample INT"        << "  --  " << "Number of MCMC samples."<<endl;
-    out << setw(20) << "-rate INT"           << "  --  " << "MCMC sample rate."<<endl;
-    out << setw(20) << "-noPanel"            << "  --  " << "Use population level allele frequency as prior."<<endl;
-    out << setw(20) << "-forbidUpdateProp"   << "  --  " << "Forbid MCMC moves to update proportions."<<endl;
-    out << setw(20) << "-forbidUpdateSingle" << "  --  " << "Forbid MCMC moves to update single haplotype."<<endl;
-    out << setw(20) << "-forbidUpdatePair"   << "  --  " << "Forbid MCMC moves to update pair haplotypes."<<endl;
-    out << setw(20) << "-initialP FLT ..."   << "  --  " << "Initialize proportions."<<endl;
-    out << endl;
-    out << "Note: Please `man docs/_build/man/dEploid.1' for the manual." << endl;
-    out << endl;
-    out << "Examples:" << endl;
-    out << endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanel -noPanel"<< endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanelExclude -noPanel"<< endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-C-ibd -panel data/testData/labStrains.test.panel.txt -ibd" << endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-C-best -panel data/testData/labStrains.test.panel.txt -best" << endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf.gz -exclude data/testData/labStrains.test.exclude.txt.gz -plaf data/testData/labStrains.test.PLAF.txt.gz -o PG0390-C-best -panel data/testData/labStrains.test.panel.txt.gz -best" << endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CPanelExclude -panel data/testData/labStrains.test.panel.txt -painting PG0390-CPanelExclude.hap" << endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanel -noPanel -k 2 -ibd -nSample 250 -rate 8 -burn 0.67" <<endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CNopanel -ibdPainting -initialP 0.2 0.8" <<endl;
-    out << "./dEploid -vcf data/testData/PG0390-C.test.vcf -exclude data/testData/labStrains.test.exclude.txt -plaf data/testData/labStrains.test.PLAF.txt -o PG0390-CLassoExclude -panel data/testData/labStrains.test.panel.txt -lasso -initialP 0.2 0.8 -writePanel" << endl;
-}
-
 
 std::ostream& operator<< (std::ostream& stream, const DEploidIO& dEploidIO) {
   for (std::string arg : dEploidIO.argv_) stream << " " << arg;
@@ -647,17 +680,17 @@ void DEploidIO::readInitialHaps() {
     assert (this->initialHap.size() == 0 );
     this->initialHap = initialHapToBeRead.content_;
 
-    if ( this->kStrainWasManuallySet() && this->kStrain()!= initialHapToBeRead.truePanelSize() ) {
-        string hint = string(" k = ") + to_string(this->kStrain()) + ", " + this->initialHapFileName_ + " suggests otherwise";
+    if ( this->kStrain_.useUserDefined() && this->kStrain_.getValue()!= initialHapToBeRead.truePanelSize() ) {
+        string hint = string(" k = ") + to_string(this->kStrain_.getValue()) + ", " + this->initialHapFileName_ + " suggests otherwise";
         throw NumOfPropNotMatchNumStrain(hint);
     }
 
-    if ( this->kStrainWasSetByProp() && this->kStrain() != initialHapToBeRead.truePanelSize() ) {
-        string hint = string(" k = ") + to_string(kStrain_) + ", flag -initialP suggests otherwise";;
+    if ( this->kStrainWasSetByProp() && this->kStrain_.getValue() != initialHapToBeRead.truePanelSize() ) {
+        string hint = string(" k = ") + to_string(kStrain_.getValue()) + ", flag -initialP suggests otherwise";;
         throw NumOfPropNotMatchNumStrain(hint);
     }
 
-    this->setKstrain(initialHapToBeRead.truePanelSize());
+    this->kStrain_.init(initialHapToBeRead.truePanelSize());
     this->setKStrainWasSetByHap(true);
 }
 
@@ -667,8 +700,8 @@ vector <double> DEploidIO::computeExpectedWsafFromInitialHap() {
     // calculate expected wsaf
     vector <double> expectedWsaf (this->initialHap.size(), 0.0);
     for ( size_t i = 0; i < this->initialHap.size(); i++ ) {
-        assert( kStrain_ == this->initialHap[i].size() );
-        for ( size_t k = 0; k < this->kStrain_; k++) {
+        assert( kStrain_.getValue() == this->initialHap[i].size() );
+        for ( size_t k = 0; k < this->kStrain_.getValue(); k++) {
             expectedWsaf[i] += this->initialHap[i][k] * finalProp[k];
         }
         assert ( expectedWsaf[i] >= 0 );
@@ -692,72 +725,6 @@ void DEploidIO::computeLLKfromInitialHap() {
 }
 
 
-void DEploidIO::chromPainting() {
-    dout << "Painting haplotypes in" << this->initialHapFileName_ <<endl;
-
-    if ( this->initialPropWasGiven() == false ) {
-        clog << "Initial proportion was not specified. Set even proportions" << endl;
-        double evenProp = 1.0 / (double)this->kStrain();
-        for ( size_t i = 0; i < this->kStrain(); i++) {
-            this->initialProp.push_back(evenProp);
-        }
-    }
-
-    for ( auto const& value: this->initialProp ) {
-        this->finalProp.push_back(value);
-    }
-
-    // Painting posterior probabilities
-
-    // Export the p'
-    // Make this a separate class
-    //vector < vector <double> > hap;
-    //for ( size_t siteI = 0; siteI < decovolutedStrainsToBeRead.content_.size(); siteI++ ) {
-        //vector <double> tmpHap;
-        //for ( size_t tmpk = 0; tmpk < this->kStrain_; tmpk++ ) {
-            //tmpHap.push_back(decovolutedStrainsToBeRead.content_[siteI][tmpk]);
-        //}
-        //hap.push_back(tmpHap);
-    //}
-
-    //vector < vector <double>> hap = decovolutedStrainsToBeRead.content_;
-
-    vector <double> expectedWsaf = computeExpectedWsafFromInitialHap();
-
-    MersenneTwister tmpRg(this->randomSeed());
-
-    if ( this->doAllowInbreeding() == true ) {
-        this->panel->initializeUpdatePanel(this->panel->truePanelSize()+kStrain_-1);
-    }
-
-    for ( size_t tmpk = 0; tmpk < this->kStrain_; tmpk++ ) {
-        if ( this->doAllowInbreeding() == true ) {
-            this->panel->updatePanelWithHaps(this->panel->truePanelSize()+kStrain_-1, tmpk, this->initialHap);
-        }
-
-        for ( size_t chromi = 0 ; chromi < this->indexOfChromStarts_.size(); chromi++ ) {
-            size_t start = this->indexOfChromStarts_[chromi];
-            size_t length = this->position_[chromi].size();
-            dout << "Painting Chrom "<< chromi << " from site "<< start << " to " << start+length << endl;
-
-            UpdateSingleHap updatingSingle( this->refCount_,
-                                      this->altCount_,
-                                      this->plaf_,
-                                      expectedWsaf,
-                                      this->finalProp, this->initialHap, &tmpRg,
-                                      start, length,
-                                      this->panel, this->missCopyProb_, this->scalingFactor(),
-                                      tmpk);
-
-            if ( this->doAllowInbreeding() == true ) {
-                updatingSingle.setPanelSize(this->panel->inbreedingPanelSize());
-            }
-            updatingSingle.painting( refCount_, altCount_, expectedWsaf, this->finalProp, this->initialHap);
-            //this->writeLastSingleFwdProb( updatingSingle.fwdProbs_, chromi, tmpk, false ); // false as not using ibd
-            this->writeLastSingleFwdProb( updatingSingle.fwdBwdProbs_, chromi, tmpk, false ); // false as not using ibd
-        }
-    }
-}
 
 
 void DEploidIO::readPanel() {
@@ -782,7 +749,7 @@ void DEploidIO::readPanel() {
 DEploidIO::DEploidIO(const DEploidIO &cpFrom) {
     this->setIsCopied(true);
     this->setDoExportRecombProb(cpFrom.doExportRecombProb());
-    this->setrandomSeedWasGiven(cpFrom.randomSeedWasGiven());
+    //this->setrandomSeedWasGiven(cpFrom.randomSeedWasGiven());
     this->setCompressVcf(cpFrom.compressVcf());
     this->setInitialPropWasGiven(cpFrom.initialPropWasGiven());
     this->setInitialHapWasGiven(cpFrom.initialHapWasGiven());
@@ -792,17 +759,13 @@ DEploidIO::DEploidIO(const DEploidIO &cpFrom) {
     this->setExcludeSites(cpFrom.excludeSites());
     this->excludedMarkers = cpFrom.excludedMarkers;
     this->panel = cpFrom.panel;
-    this->set_seed(cpFrom.randomSeed_);
     this->set_help(cpFrom.help());
     this->setVersion(cpFrom.version());
     this->setUsePanel(cpFrom.usePanel());
-    this->precision_ = cpFrom.precision_;
     this->prefix_ = cpFrom.prefix_;
-    this->setKStrainWasManuallySet(cpFrom.kStrainWasManuallySet());
     this->setKStrainWasSetByHap(cpFrom.kStrainWasSetByHap());
     this->setKStrainWasSetByProp(cpFrom.kStrainWasSetByProp());
-    this->setKstrain(cpFrom.kStrain());
-    this->nMcmcSample_ = cpFrom.nMcmcSample();
+
     this->setDoUpdateProp(cpFrom.doUpdateProp());
     this->setDoUpdatePair(cpFrom.doUpdatePair());
     this->setDoUpdateSingle(cpFrom.doUpdateSingle());
@@ -814,16 +777,12 @@ DEploidIO::DEploidIO(const DEploidIO &cpFrom) {
     this->setUseLasso(cpFrom.useLasso());
     this->setDoExportSwitchMissCopy(cpFrom.doExportSwitchMissCopy());
     this->setDoAllowInbreeding(cpFrom.doAllowInbreeding());
-    this->mcmcBurn_ = cpFrom.mcmcBurn_;
-    this->mcmcMachineryRate_ = cpFrom.mcmcMachineryRate_;
-    this->missCopyProb_ = cpFrom.missCopyProb_;
     this->useConstRecomb_ = cpFrom.useConstRecomb();
     this->setForbidCopyFromSame(cpFrom.forbidCopyFromSame());
     this->constRecombProb_ = cpFrom.constRecombProb();
     this->averageCentimorganDistance_ = cpFrom.averageCentimorganDistance();
     this->setScalingFactor(cpFrom.scalingFactor());
     this->setParameterG(cpFrom.parameterG());
-    this->setParameterSigma(cpFrom.parameterSigma());
     this->setIBDSigma(cpFrom.ibdSigma());
     this->setUseVcf(cpFrom.useVcf());
     this->vcfReaderPtr_ = cpFrom.vcfReaderPtr_;
@@ -850,6 +809,15 @@ DEploidIO::DEploidIO(const DEploidIO &cpFrom) {
     //this->strIbdExportProp = cpFrom.strIbdExportProp;
     //this->strIbdExportLLK = cpFrom.strIbdExportLLK;
     //this->strIbdExportHap = cpFrom.strIbdExportHap;
+
+    this->kStrain_.makeCopy(cpFrom.kStrain_);
+    this->precision_.makeCopy(cpFrom.precision_);
+    this->missCopyProb_ .makeCopy(cpFrom.missCopyProb_);
+    this->randomSeed_.makeCopy(cpFrom.randomSeed_);
+    this->nMcmcSample_.makeCopy(cpFrom.nMcmcSample_);
+    this->parameterSigma_.makeCopy(cpFrom.parameterSigma_);
+    this->mcmcBurn_.makeCopy(cpFrom.mcmcBurn_);
+    this->mcmcMachineryRate_.makeCopy(cpFrom.mcmcMachineryRate_);
 }
 
 

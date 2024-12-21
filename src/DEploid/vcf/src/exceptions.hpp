@@ -34,6 +34,24 @@
 using std::string;
 using std::ifstream;
 using std::stoi;
+using std::exception;
+
+namespace vcf {
+struct InvalidInput : std::exception {
+    string throwMsg;
+
+    InvalidInput() {
+    }
+
+    explicit InvalidInput(string str) {
+        this->throwMsg      = "\033[1;31m" + str + "\033[0m";
+    }
+    virtual ~InvalidInput() throw() {}
+    virtual const char* what() const noexcept {
+        return throwMsg.c_str();
+    }
+};
+}  // namespace vcf
 
 struct ShouldNotBeCalled : std::exception{
   ShouldNotBeCalled() { }

@@ -27,11 +27,13 @@
 #include <iostream>
 #include <iomanip>      // std::setw
 #include <string>
+#include <utility>      // std::pair<>
 #include "random/mersenne_twister.hpp"
 #include "dEploidIO.hpp"
 #include "panel.hpp"
 #include "codeCogs/randomSample.hpp"   // src/codeCogs/randomSample.hpp
 #include "ibd.hpp"
+#include "log-double.hpp"
 
 #ifndef MCMC
 #define MCMC
@@ -85,7 +87,7 @@ class McmcMachinery {
                   vector <double> * refCount,
                   vector <double> * altCount,
                   Panel *panel_ptr,
-                  DEploidIO* dEplioidIO,
+                  DEploidIO *dEplioidIO,
                   string mcmcJob,
                   string jobbrief,
                   McmcSample *mcmcSample,
@@ -94,7 +96,8 @@ class McmcMachinery {
     ~McmcMachinery();
     void runMcmcChain(bool showProgress = true,
                       bool useIBD = false,
-                      bool notInR = true);
+                      bool notInR = true,
+                      bool averageP = false);
 
  private:
     string mcmcJob;
@@ -120,10 +123,6 @@ class McmcMachinery {
     size_t McmcMachineryRate_;
     int eventInt_;
 
-    size_t strainIndex_;
-    size_t strainIndex1_;
-    size_t strainIndex2_;
-
     size_t seed_;
     RandomGenerator* hapRg_;
     RandomGenerator* mcmcEventRg_;
@@ -147,12 +146,18 @@ class McmcMachinery {
     double PROP_SCALE;
 
     size_t currentMcmcIteration_;
+
+    /* MCMC State */
     vector <double> currentTitre_;
-    double currentLogPriorTitre_;
-    vector <double> currentProp_;
-    vector <double> currentLLks_;
     vector < vector <double> > currentHap_;
+
+    /* Cached computations of MCMC state */
+    log_double_t currentPriorTitre_;
+    vector <double> currentProp_;
+    vector <log_double_t> currentSiteLikelihoods_;
     vector < double > currentExpectedWsaf_;
+
+    /* Statistics */
     vector < double > cumExpectedWsaf_;
 
     /* Methods */
@@ -168,9 +173,9 @@ class McmcMachinery {
     void initializeExpectedWsaf();
 
     vector <double> calcExpectedWsaf(const vector <double> &proportion);
-    vector <double> titre2prop(const vector <double> &tmpTitre);
+    static vector <double> titre2prop(const vector <double> &tmpTitre);
 
-    double calcLogPriorTitre(const vector <double> &tmpTitre);
+    log_double_t calcPriorTitre(const vector <double> &tmpTitre);
     double rBernoulli(double p);
 
     void printArray(vector <double> array) {
@@ -180,8 +185,8 @@ class McmcMachinery {
         dout << endl;
     }
 
-    void sampleMcmcEvent(bool useIBD = false);
-    void recordMcmcMachinery();
+    void sampleMcmcEvent(std::ostream&, bool useIBD = false);
+    void recordMcmcMachinery(std::ostream&);
     bool recordingMcmcBool_;
     void writeLastFwdProb(bool useIBD);
     void updateReferencePanel(size_t inbreedingPanelSizeSetTo,
@@ -213,16 +218,16 @@ class McmcMachinery {
     /* Moves */
     void updateProportion();
     vector <double> calcTmpTitre();
-    double deltaLLKs(const vector <double> &newLLKs);
+    log_double_t calcLikelihoodRatio(const vector <log_double_t> &newLLKs);
 
     void updateSingleHap(Panel *useThisPanel);
-    void findUpdatingStrainSingle();
+    int findUpdatingStrainSingle();
 
     void updatePairHaps(Panel *useThisPanel);
     /* vector <size_t> sampleNoReplace(MersenneTwister* rg,
      *         vector <double> & proportion, size_t nSample );
      */
-    void findUpdatingStrainPair();
+    std::pair<int, int> findUpdatingStrainPair();
 
     /* Debug */
     bool doutProp();

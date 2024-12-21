@@ -75,7 +75,9 @@ void TxtReader::readFromFileBase(const char inchar[]) {
         vector <double> contentRow;
         while (field_end < tmp_line.size()) {
             field_end = min(
-                min(tmp_line.find(',', field_start),
+                min(
+                    min(tmp_line.find(' ', field_start),
+                    tmp_line.find(',', field_start)),
                     tmp_line.find('\t', field_start)),
                     tmp_line.find('\n', field_start));
 
@@ -148,7 +150,9 @@ void TxtReader::extractHeader(const string &line) {
     size_t field_index = 0;
     while (field_end < line.size()) {
         field_end = min(
-            min(line.find(',', field_start),
+            min(
+                min(line.find(' ', field_start),
+                line.find(',', field_start)),
                 line.find('\t', field_start)),
                 line.find('\n', field_start));
 
@@ -213,13 +217,13 @@ void TxtReader::reshapeContentToInfo() {
 
 
 void TxtReader::removeMarkers() {
-    assert(this->keptContent_.size() == (size_t)0);
+    assert(this->keptContent_.size() == static_cast<size_t>(0));
     for (auto const &value : this->indexOfContentToBeKept) {
         this->keptContent_.push_back(this->content_[value]);
     }
 
     this->content_.clear();
-    assert(this->content_.size() == (size_t)0);
+    assert(this->content_.size() == static_cast<size_t>(0));
     this->content_ = this->keptContent_;
     this->keptContent_.clear();
 
