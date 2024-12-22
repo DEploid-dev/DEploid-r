@@ -81,6 +81,7 @@ src/DEploid/src/lasso/.circleci
 src/DEploid/src/vcf/.ci
 src/DEploid/src/vcf/.circleci
 src/DEploid/src/vcf/.github
+src/DEploid/src/DEploid/src/vcf/coverage
 
 # extras
 ^extra$
