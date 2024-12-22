@@ -40,36 +40,6 @@ dEploid <- function(args) {
     .Call(`_DEploid_dEploid`, args)
 }
 
-#' @title Extract VCF information
-#'
-#' @description Extract VCF information
-#'
-#' @param filename VCF file name.
-#'
-#' @seealso
-#' \itemize{
-#'   \item \code{extractCoverageFromVcf}
-#'   \item \code{extractCoverageFromTxt}
-#' }
-#'
-#' @return A dataframe list with members of haplotypes, proportions and log likelihood of the MCMC chain.
-#' \itemize{
-#'   \item \code{CHROM} SNP chromosomes.
-#'   \item \code{POS} SNP positions.
-#'   \item \code{refCount} reference allele count.
-#'   \item \code{altCount} alternative allele count.
-#' }
-#'
-#' @export
-#'
-#' @examples
-#' vcfFile = system.file("extdata", "PG0390-C.test.vcf.gz", package = "DEploid")
-#' vcf = extractVcf(vcfFile)
-#'
-extractVcf <- function(filename) {
-    .Call(`_DEploid_extractVcf`, filename)
-}
-
 test_RRG_sample <- function() {
     .Call(`_DEploid_test_RRG_sample`)
 }

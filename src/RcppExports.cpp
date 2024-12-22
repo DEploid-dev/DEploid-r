@@ -21,17 +21,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// extractVcf
-Rcpp::DataFrame extractVcf(std::string filename);
-RcppExport SEXP _DEploid_extractVcf(SEXP filenameSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP);
-    rcpp_result_gen = Rcpp::wrap(extractVcf(filename));
-    return rcpp_result_gen;
-END_RCPP
-}
 // test_RRG_sample
 double test_RRG_sample();
 RcppExport SEXP _DEploid_test_RRG_sample() {

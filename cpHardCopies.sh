@@ -11,7 +11,7 @@ rsync -avu .DEploid/src/export/ src/DEploid/export/
 rsync -avu .DEploid/src/random/ src/DEploid/random/
 rsync -avu .DEploid/src/lasso/*pp src/DEploid/lasso/
 rsync -avu .DEploid/src/lasso/*pp src/DEploid/lasso/src/
-rsync -avu .DEploid/src/vcf/*pp src/DEploid/vcf/src/
+rsync -avu .DEploid/src/vcf/src/*pp src/DEploid/vcf/src/
 rsync -avu .DEploid/src/gzstream/ src/DEploid/vcf/src/gzstream/
 
 
