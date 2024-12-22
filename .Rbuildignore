@@ -44,7 +44,28 @@ src/DEploid/lasso/tests/
 src/DEploid/lasso/utility/
 src/DEploid/lasso/version
 
-\.gcno$
+src/DEploid/AUTHORS
+src/DEploid/Brewfile
+src/DEploid/CODE_OF_CONDUCT.md
+src/DEploid/CONTRIBUTING.md
+src/DEploid/COPYING
+src/DEploid/DEploid.wiki
+src/DEploid/Dockerfile
+src/DEploid/Makefile.am
+src/DEploid/NEWS
+src/DEploid/PULL_REQUEST_TEMPLATE.md
+src/DEploid/README
+src/DEploid/README.md
+src/DEploid/VERSION
+src/DEploid/bootstrap
+src/DEploid/checkfiles.sh
+src/DEploid/configure.ac
+src/DEploid/coverage
+src/DEploid/data
+src/DEploid/docs
+src/DEploid/m4
+tests
+src/DEploid/\.gcno$
 
 # extras
 ^extra$

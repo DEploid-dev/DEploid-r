@@ -32,7 +32,7 @@
 #include "vcfReader.hpp"
 #include <memory>
 #include "r_random_generator.h"
-#include "lasso/dEploidLasso.hpp"
+#include "dEploidLasso.hpp"
 
 
 using namespace Rcpp;
