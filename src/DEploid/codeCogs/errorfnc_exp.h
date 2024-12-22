@@ -24,7 +24,7 @@
 #endif
 #endif
 
-#include <poly_eval.h>
+#include "poly_eval.h"
 
 namespace Maths
 {

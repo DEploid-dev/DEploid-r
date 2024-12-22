@@ -292,7 +292,7 @@ IBDpath::IBDpath() {}
 void IBDpath::init(const DEploidIO &dEploidIO, RandomGenerator* rg) {
     this->ibdRg_ = rg;
     this->setNLoci(dEploidIO.nLoci());
-    this->setKstrain(dEploidIO.kStrain());
+    this->setKstrain(dEploidIO.kStrain_.getValue());
     this->setTheta(1.0 / static_cast<double>(kStrain()));
 
     this->IBDpathChangeAt = vector <double> (this->nLoci());
@@ -685,7 +685,11 @@ void IBDpath::makeLlkSurf(vector <double> altCount, vector <double> refCount,
 
         vector <double> ll;
         for ( double unadjustedP : pGrid ) {
-            ll.push_back(calcLLK(ref, alt, unadjustedP, err, scalingConst));
+            ll.push_back(log(calcSiteLikelihood(ref,
+                                                alt,
+                                                unadjustedP,
+                                                err,
+                                                scalingConst)));
         }
 
         double llmax = max_value(ll);

@@ -18,9 +18,9 @@
 #include <assert.h>
 
 #include <math.h>
-#include <xsub_ln_add1.h>
-#include <errorfnc.h>
-#include <errorfnc_exp.h>
+#include "xsub_ln_add1.h"
+#include "errorfnc.h"
+#include "errorfnc_exp.h"
 
 namespace Maths
 {

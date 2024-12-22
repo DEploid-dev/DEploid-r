@@ -34,7 +34,7 @@
 #include "panel.hpp"
 #include "vcfReader.hpp"
 #include "chooseK.hpp"
-
+#include "param.hpp"
 
 #ifndef PARAM
 #define PARAM
@@ -63,12 +63,15 @@ class DEploidIO{
 
     ChooseK chooseK;
 
-    void printHelp(std::ostream& out);
+    void operation_printHelp(std::ostream& out);
+    void operation_printVersion(std::ostream& out);
+    void operation_paintIBD();
+    void operation_paintIBDviterbi();
+    void operation_chromPainting();
+
     bool help() const { return help_; }
-    void printVersion(std::ostream& out);
     bool version() const { return version_; }
     // Painting related
-    void chromPainting ();
     bool doLsPainting() const { return this->doLsPainting_; }
     bool doIbdPainting() const { return this->doIbdPainting_; }
     bool doIbdViterbiPainting() const { return this->doIbdViterbiPainting_;}
@@ -80,9 +83,9 @@ class DEploidIO{
     bool useIbdOnly() const { return this->useIbdOnly_;}
     bool useLasso() const { return this->useLasso_;}
     bool useBestPractice() const { return this->useBestPractice_;}
+    bool inferBestPracticeP() const { return this->inferBestPracticeP_;}
+    bool inferBestPracticeHap() const { return this->inferBestPracticeHap_;}
 
-    void paintIBD();
-    void paintIBDviterbi();
     double ibdLLK_;
     void getIBDprobsIntegrated(vector < vector <double> > &prob);
     // Lasso related
@@ -93,11 +96,9 @@ class DEploidIO{
 
     // Log
     void wrapUp();
-    bool randomSeedWasSet() const {return this->randomSeedWasGiven_; }
 
     friend std::ostream& operator<< (std::ostream& stream, const DEploidIO& dEploidIO);
 
-    size_t randomSeed() const { return randomSeed_;}
 
 
     vector <double> plaf_;
@@ -130,13 +131,21 @@ class DEploidIO{
     void setDoUpdateProp ( const bool setTo ) { this->doUpdateProp_ = setTo; }
     void setInitialPropWasGiven(const bool setTo) {this->initialPropWasGiven_ = setTo; }
 
-    void setKstrain ( const size_t setTo ) { this->kStrain_ = setTo;}
     bool usePanel() const { return usePanel_; }
     vector <string> chrom_;
-    size_t kStrain() const { return this->kStrain_;}
     size_t lassoMaxNumPanel_;
+    double acceptRatio() const { return this->acceptRatio_;}
+
+    void workflow_lasso();
+    void workflow_ibd();
+    void workflow_best();
+
+    // Make this public so it is also accessible from
+    Parameter <size_t> randomSeed_;
+    bool randomSeedWasSet() const {return this->randomSeed_.useUserDefined(); }
 
   private:
+    void setBestPracticeParameters();
     void core();
     double llkFromInitialHap_;
 
@@ -145,27 +154,20 @@ class DEploidIO{
     string refFileName_;
     string altFileName_;
     string vcfFileName_;
+    string vcfSampleName_;
     string excludeFileName_;
     string initialHapFileName_;
     string prefix_;
-    size_t randomSeed_;
-    bool randomSeedWasGiven_;
-    void setrandomSeedWasGiven(const bool random) { this->randomSeedWasGiven_ = random; }
+
 
 
     bool initialPropWasGiven_;
     bool pleaseCheckInitialP_;
     bool initialHapWasGiven_;
-    bool kStrainWasManuallySet_;
     bool kStrainWasSetByHap_;
     bool kStrainWasSetByProp_;
     bool useConstRecomb_;
     bool forbidCopyFromSame_;
-    size_t kStrain_;
-    size_t precision_;
-    size_t nMcmcSample_;
-    size_t mcmcMachineryRate_;
-    double mcmcBurn_;
 
     bool doUpdateProp_;
     bool doUpdatePair_;
@@ -181,6 +183,8 @@ class DEploidIO{
     bool useIbdOnly_;
     bool useLasso_;
     bool useBestPractice_;
+    bool inferBestPracticeP_;
+    bool inferBestPracticeHap_;
 
     double vqslod_;
     vector <double> obsWsaf_;
@@ -204,6 +208,14 @@ class DEploidIO{
     void setUseVcf(const bool useVcf) { this->useVcf_ = useVcf; }
     bool useVcf() const {return this->useVcf_; }
 
+    bool useVcfSample_;
+    void setUseVcfSample(const bool setto) { this->useVcfSample_ = setto; }
+    bool useVcfSample() const {return this->useVcfSample_; }
+
+    bool extractPlafFromVcf_;
+    void setExtractPlafFromVcf(const bool setto) { this->extractPlafFromVcf_ = setto; }
+    bool extractPlafFromVcf() const {return this->extractPlafFromVcf_; }
+
     bool doExportVcf_;
     void setDoExportVcf( const bool exportVcf ) { this->doExportVcf_ = exportVcf; }
     bool doExportVcf() const { return this->doExportVcf_; }
@@ -222,7 +234,16 @@ class DEploidIO{
 
 
     // Parameters
-    double missCopyProb_;
+    Parameter <size_t> kStrain_;
+    Parameter <size_t> precision_;
+    Parameter <size_t> nMcmcSample_;
+    Parameter <size_t> mcmcMachineryRate_;
+    Parameter <double> mcmcBurn_;
+
+    Parameter <double> missCopyProb_;
+    Parameter <double> parameterSigma_;
+
+
     double averageCentimorganDistance_;// = 15000.0,
     //double Ne_;// = 10.0
     double constRecombProb_;
@@ -290,7 +311,6 @@ class DEploidIO{
     void readInitialProportions();
     void readInitialHaps();
 
-    void set_seed(const size_t seed) { this->randomSeed_ = seed; }
     void removeFilesWithSameName();
     vector <double> computeExpectedWsafFromInitialHap();
 
@@ -347,6 +367,9 @@ class DEploidIO{
     void setUseIbdOnly(const bool setTo) { this->useIbdOnly_ = setTo;}
     void setUseLasso( const bool setTo) { this->useLasso_ = setTo; }
     void setUseBestPractice ( const bool setTo) {this->useBestPractice_ = setTo;}
+    void setInferBestPracticeP ( const bool setTo) {this->inferBestPracticeP_ = setTo;}
+    void setInferBestPracticeHap ( const bool setTo) {this->inferBestPracticeHap_ = setTo;}
+
 
     bool initialPropWasGiven() const { return initialPropWasGiven_; }
 
@@ -358,7 +381,6 @@ class DEploidIO{
 
     bool initialHapWasGiven() const { return initialHapWasGiven_; }
 
-    bool randomSeedWasGiven() const {return this->randomSeedWasGiven_; }
 
     void setVqslod ( const double setTo ) { this->vqslod_ = setTo; }
     double vqslod() const { return this->vqslod_; }
@@ -372,7 +394,7 @@ class DEploidIO{
 
     void writeLLK (McmcSample * mcmcSample, string jobbrief);
     void writeProp (McmcSample * mcmcSample, string jobbrief);
-    void writeLastSingleFwdProb( vector < vector <double> >& probabilities, size_t chromIndex, size_t strainIndex, bool useIBD );
+    void writeLastSingleFwdProb(const vector < vector <double> >& probabilities, size_t chromIndex, size_t strainIndex, bool useIBD );
     void writeLastPairFwdProb( UpdatePairHap & updatePair, size_t chromIndex );
     void writeLog (ostream * writeTo );
     void writeEventCount();
@@ -404,22 +426,16 @@ class DEploidIO{
     double parameterG_;
     void setParameterG ( const double setTo ) { this->parameterG_ = setTo; }
     double parameterG() const { return this->parameterG_; }
-    double parameterSigma_;
-    void setParameterSigma ( const double setTo ) { this->parameterSigma_ = setTo; }
-    double parameterSigma() const { return this->parameterSigma_; }
     double ibdSigma_;
     void setIBDSigma ( const double setTo ) { this->ibdSigma_ = setTo; }
     double ibdSigma() const {return this->ibdSigma_;}
 
     void setNLoci ( const size_t setTo ) { this->nLoci_ = setTo;}
     size_t nLoci() const { return this->nLoci_; }
-    void setKStrainWasManuallySet ( const size_t setTo ) { this->kStrainWasManuallySet_ = setTo; }
     bool kStrainWasSetByHap() const { return this->kStrainWasSetByHap_; }
     void setKStrainWasSetByHap ( const size_t setTo ) { this->kStrainWasSetByHap_ = setTo; }
-    bool kStrainWasManuallySet() const { return this->kStrainWasManuallySet_; }
     void setKStrainWasSetByProp ( const size_t setTo ) { this->kStrainWasSetByProp_ = setTo; }
     bool kStrainWasSetByProp() const { return this->kStrainWasSetByProp_; }
-    size_t nMcmcSample() const { return this->nMcmcSample_; }
     double averageCentimorganDistance() const { return this->averageCentimorganDistance_; }
     //double Ne() const { return this->Ne_; }
     double scalingFactor() const {return this->scalingFactor_; }

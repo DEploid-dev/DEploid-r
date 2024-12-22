@@ -23,13 +23,13 @@
  *
  */
 
-#include <iostream>      // std::cout
-#include "global.hpp"
-#include "vcfReader.hpp"
+#define dEploid_src_macros
+// #pragma GCC diagnostic ignored "-Wunused-result"
 
-using namespace std;
+#ifndef NDEBUG
+#define dout std::cout << "   "
+#else
+// #pragma GCC diagnostic ignored "-Wunused-value"
+#define dout 0 && std::cout
+#endif
 
-bool VcfReader::printSampleName(){
-    dout << "Sample name is " << this->sampleName_ << endl;
-    return true;
-}

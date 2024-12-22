@@ -26,6 +26,7 @@
 #include <Rcpp.h>
 #include <iostream> // std::cout
 #include "mcmc.hpp"
+#include "param.hpp"
 //#include "panel.hpp"
 #include "dEploidIO.hpp"
 #include "vcfReader.hpp"
@@ -85,9 +86,9 @@ class RMcmcSample {
 
   public:
     RMcmcSample (DEploidIO* dEploidIO, McmcSample * mcmcSample){
-        this->kStrain_ = dEploidIO->kStrain();
+        this->kStrain_ = dEploidIO->kStrain_.getValue();
         this->nLoci_ = dEploidIO->nLoci();
-        this->nMcmcSample_ = dEploidIO->nMcmcSample();
+        this->nMcmcSample_ = dEploidIO->nMcmcSample_.getValue();
 
         this->mcmcSample_ = mcmcSample;
         this->convertHaps();
@@ -176,7 +177,7 @@ List dEploid(std::string args) {
         stop("Painting is not implemented yet!");
     } else if (dEploidIO.useLasso()) {
         dEploidIO.dEploidLasso();
-        MersenneTwister lassoRg(dEploidIO.randomSeed());
+        MersenneTwister lassoRg(dEploidIO.randomSeed_.getValue());
         DEploidIO tmpIO(dEploidIO);
     }
     if (dEploidIO.useIBD()){ // ibd

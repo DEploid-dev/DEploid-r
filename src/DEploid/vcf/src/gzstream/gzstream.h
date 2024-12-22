@@ -28,6 +28,7 @@
 
 #ifndef GZSTREAM_H
 #define GZSTREAM_H 1
+#define ZLIB_WINAPI
 
 // standard C++ with new header file names and std:: namespace
 #include <iostream>
@@ -118,3 +119,4 @@ public:
 #endif // GZSTREAM_H
 // ============================================================================
 // EOF //
+

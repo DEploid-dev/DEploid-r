@@ -27,9 +27,9 @@
 #include "global.hpp"
 #include "vcfReader.hpp"
 
-using namespace std;
+using std::endl;
 
-bool VcfReader::printSampleName(){
+bool VcfReader::printSampleName() {
     dout << "Sample name is " << this->sampleName_ << endl;
     return true;
 }

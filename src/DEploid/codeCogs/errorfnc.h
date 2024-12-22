@@ -24,9 +24,9 @@
 #endif
 #endif
 
-#include <expx2.h>
-#include <errorfnc_exp.h>
-#include <errorfn.h>
+#include "expx2.h"
+#include "errorfnc_exp.h"
+#include "errorfn.h"
 
 #define MINLOG -7.08396418532264106224E2
 

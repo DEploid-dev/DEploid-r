@@ -87,16 +87,16 @@ struct VcfVQSLODNotFound : public VcfInvalidVariantEntry{
 class VariantLine{
   friend class VcfReader;
   friend class DEploidIO;
-
  public:
-    explicit VariantLine(string tmpLine);
+    explicit VariantLine(string tmpLine, size_t sampleColumnIndex,
+        bool extractPlaf = false);
     ~VariantLine() {}
 
  private:
     string tmpLine_;
     string tmpStr_;
 
-    void init(string tmpLine);
+    void init(string tmpLine, size_t sampleColumnIndex, bool extractPlaf);
 
     void extract_field_CHROM();
     void extract_field_POS();
@@ -127,6 +127,9 @@ class VariantLine{
     int ref;
     int alt;
     double vqslod;
+    double plaf;
+    size_t sampleColumnIndex_;
+    bool extractPlaf_;
 };
 
 
@@ -139,7 +142,9 @@ class VcfReader : public VariantIndex {
   friend class DEploidIO;
  public:
     // Constructors and Destructors
-    explicit VcfReader(string fileName);  // parse in exclude sites
+    explicit VcfReader(string fileName, string sampleName,
+        bool extractPlaf = false);
+    // parse in exclude sites
     ~VcfReader() {}
 
     // Members and Methods
@@ -147,6 +152,7 @@ class VcfReader : public VariantIndex {
     vector <double> refCount;  // calling from python, need to be public
     vector <double> altCount;  // calling from python, need to be public
     vector <double> vqslod;  // calling from python, need to be public
+    vector <double> plaf;
     void finalize();  // calling from python, need to be public
 
  private:
@@ -161,9 +167,11 @@ class VcfReader : public VariantIndex {
     void setIsCompressed(const bool compressed) {
         this->isCompressed_ = compressed; }
     void checkFileCompressed();
-    string sampleName;
+    string sampleName_;
+    size_t sampleColumnIndex_;
     string tmpLine_;
     string tmpStr_;
+    bool extractPlaf_;
 
     // Methods
     void init(string fileName);

@@ -28,6 +28,7 @@
 #include <random>
 #include <limits>       // std::numeric_limits< double >::min()
 #include <numeric>      // std::accumulate, std::inner_product
+#include <fstream>      // std::ofstream
 #include "global.hpp"     // dout
 #include "updateHap.hpp"
 #include "mcmc.hpp"
@@ -40,7 +41,7 @@ McmcMachinery::McmcMachinery( vector <double> * plaf,
                               vector <double> * refCount,
                               vector <double> * altCount,
                               Panel *panel_ptr,
-                              DEploidIO* dEploidIO,
+                              DEploidIO *dEploidIO,
                               string mcmcJob,
                               string jobbrief,
                               McmcSample *mcmcSample,
@@ -70,16 +71,18 @@ McmcMachinery::McmcMachinery( vector <double> * plaf,
         this->calcMaxIteration(100, 10, 0.5);
         //this->calcMaxIteration(10, 10, 0.5);
     } else {
-        this->calcMaxIteration( dEploidIO_->nMcmcSample_ , dEploidIO_->mcmcMachineryRate_, dEploidIO_->mcmcBurn_ );
+        this->calcMaxIteration(dEploidIO_->nMcmcSample_.getValue(),
+            dEploidIO_->mcmcMachineryRate_.getValue(),
+            dEploidIO_->mcmcBurn_.getValue() );
     }
     this->MN_LOG_TITRE = 0.0;
-    this->SD_LOG_TITRE = (useIBD == true) ? this->dEploidIO_->ibdSigma() : this->dEploidIO_->parameterSigma();
+    this->SD_LOG_TITRE = (useIBD == true) ? this->dEploidIO_->ibdSigma() : this->dEploidIO_->parameterSigma_.getValue();
     //this->SD_LOG_TITRE = this->dEploidIO_->parameterSigma();
     this->PROP_SCALE = 40.0;
 
     stdNorm_ = new StandNormalRandomSample(this->seed_);
 
-    this->setKstrain(this->dEploidIO_->kStrain());
+    this->setKstrain(this->dEploidIO_->kStrain_.getValue());
     this->setNLoci(this->plaf_ptr_->size());
     this->initializeMcmcChain(useIBD);
 }
@@ -110,11 +113,11 @@ void McmcMachinery::initializeMcmcChain(bool useIBD) {
         dout << "Panel size = " << this->panel_->truePanelSize() << endl;
     }
     this->initializeTitre();
-    this->currentLogPriorTitre_ = this->calcLogPriorTitre(this->currentTitre_);
+    this->currentPriorTitre_ = this->calcPriorTitre(this->currentTitre_);
     this->initializeHap();
     this->initializeProp();
     this->initializeExpectedWsaf(); // This requires currentHap_ and currentProp_
-    this->currentLLks_ = calcLLKs( *this->refCount_ptr_, *this->altCount_ptr_, this->currentExpectedWsaf_ , 0, this->currentExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
+    this->currentSiteLikelihoods_ = calcSiteLikelihoods( *this->refCount_ptr_, *this->altCount_ptr_, this->currentExpectedWsaf_ , 0, this->currentExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
     this->acceptUpdate = 0;
 
     if ( this->dEploidIO_->doAllowInbreeding() == true ) {
@@ -148,7 +151,7 @@ void McmcMachinery::initializeMcmcChain(bool useIBD) {
 
 
 void McmcMachinery::initializeHap() {
-    assert( currentHap_.size() == 0);
+    currentHap_.clear();
     if ( this->dEploidIO_ -> initialHapWasGiven() ) {
         this->currentHap_ = this->dEploidIO_->initialHap;
         dout << "given initial hap ?" << endl;
@@ -194,7 +197,6 @@ double McmcMachinery::rBernoulli(double p) {
 
 
 void McmcMachinery::initializeExpectedWsaf() {
-    assert( this->currentExpectedWsaf_.size() == 0);
     this->currentExpectedWsaf_ = this->calcExpectedWsaf( this->currentProp_ );
     assert( this->currentExpectedWsaf_.size() == this->nLoci_ );
     this->cumExpectedWsaf_ = this->currentExpectedWsaf_;
@@ -202,14 +204,12 @@ void McmcMachinery::initializeExpectedWsaf() {
 
 
 void McmcMachinery::initializellk() {
-    assert( this->currentLLks_.size() == (size_t)0);
-    this->currentLLks_ = vector <double> (this->nLoci_, 0.0);
-    assert( this->currentLLks_.size() == this->nLoci_);
+    this->currentSiteLikelihoods_ = vector <log_double_t> (this->nLoci_, 1.0);
+    assert( this->currentSiteLikelihoods_.size() == this->nLoci_);
 }
 
 
 void McmcMachinery::initializeProp() {
-    assert( this->currentProp_.size() == (size_t)0 );
     this->currentProp_ = ( this->dEploidIO_ -> initialPropWasGiven()) ?
                           this->dEploidIO_ ->initialProp:
                           this->titre2prop( this->currentTitre_ );
@@ -222,19 +222,18 @@ void McmcMachinery::initializeProp() {
 }
 
 
-double McmcMachinery::calcLogPriorTitre(const vector <double> &tmpTitre) {
+log_double_t McmcMachinery::calcPriorTitre(const vector <double> &tmpTitre) {
     //sum(dnorm(titre, MN_LOG_TITRE, SD_LOG_TITRE, log=TRUE));
-    vector <double> tmp;
+    log_double_t Pr = 1;
     for ( auto const& value: tmpTitre ) {
-        tmp.push_back(log(normal_pdf(value, MN_LOG_TITRE, SD_LOG_TITRE)));
+        Pr *= normal_pdf(value, MN_LOG_TITRE, SD_LOG_TITRE);
     }
-    return sumOfVec(tmp);
+    return Pr;
 }
 
 
 void McmcMachinery::initializeTitre() {
     /*   titre<-rnorm(initial.k, MN_LOG_TITRE, SD_LOG_TITRE); */
-    assert( currentTitre_.size() == 0);
     currentTitre_ = vector <double> (this->kStrain_, 0.0);
 
     if ( this->dEploidIO_->doUpdateProp() ) {
@@ -280,7 +279,17 @@ void McmcMachinery::initializePropIBD() {
 }
 
 
-void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD, bool notInR ) {
+void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD, bool notInR, bool averageP) {
+
+    string trace_filename = dEploidIO_->prefix_+".trace.log";
+    std::ofstream trace_log(trace_filename);
+    trace_log<<"iteration\tlikelihood\tK";
+    for(size_t i=0;i<this->currentProp_.size();i++)
+        trace_log<<"\tw"<<(i+1);
+    for(size_t i=0;i<this->currentProp_.size();i++)
+        trace_log<<"\tsorted-w"<<(i+1);
+    trace_log<<"\n";
+
     for ( this->currentMcmcIteration_ = 0 ; currentMcmcIteration_ < this->maxIteration_ ; currentMcmcIteration_++) {
         dout << endl;
         dout << "MCMC iteration: " << this->currentMcmcIteration_ << endl;
@@ -289,7 +298,7 @@ void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD, bool notInR ) 
                 clog << "\r" << " MCMC step" << setw(4) << int(currentMcmcIteration_ * 100 / this->maxIteration_) << "% completed ("<<this->mcmcJob<<")"<<flush;
             #endif
         }
-        this->sampleMcmcEvent(useIBD);
+        this->sampleMcmcEvent(trace_log, useIBD);
 
         //printArray(this->currentProp_);
     }
@@ -304,6 +313,23 @@ void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD, bool notInR ) 
     this->writeLastFwdProb(useIBD);
     this->dEploidIO_->finalProp.clear();
     this->dEploidIO_->finalProp = this->mcmcSample_->proportion.back();
+
+    if (averageP){
+      double remainingP = 1.0;
+      this->dEploidIO_->finalProp.clear();
+      for (size_t i = 0; i < (this->mcmcSample_->proportion.back().size()-1); i ++){
+        double strainp = 0.0;
+        size_t np = this->mcmcSample_->proportion.size();
+        for (size_t j = 0; j < np; j++){
+          strainp += this->mcmcSample_->proportion[j][i];
+        }
+        strainp = strainp/(np*1.0);
+        remainingP -= strainp;
+        this->dEploidIO_->finalProp.push_back(strainp);
+      }
+      this->dEploidIO_->finalProp.push_back(remainingP);
+      // this->dEploidIO_->finalProp = this->mcmcSample_->proportion.back();
+    }
 
     for (size_t atSiteI = 0; atSiteI < nLoci(); atSiteI++ ) {
         this->mcmcSample_->siteOfTwoSwitchOne[atSiteI] /= (double)this->maxIteration_;
@@ -333,7 +359,10 @@ void McmcMachinery::runMcmcChain( bool showProgress, bool useIBD, bool notInR ) 
         //this->dEploidIO_->initialHap = this->mcmcSample_->hap;
         //this->dEploidIO_->setInitialHapWasGiven(true);
     }
-    clog << "Proportion update acceptance rate: "<<acceptUpdate / (this->kStrain()*1.0*this->maxIteration_)<<endl;
+
+    if (this->dEploidIO_->doUpdateProp()){
+        clog << "Proportion update acceptance rate: "<<acceptUpdate / (this->kStrain()*1.0*this->maxIteration_)<<endl;
+    }
 
     this->computeDiagnostics();
     dout << "###########################################"<< endl;
@@ -350,14 +379,14 @@ void McmcMachinery::computeDiagnostics() {
 
     // average cumulate expectedWSAF
     for ( size_t i = 0; i < this->cumExpectedWsaf_.size(); i++) {
-        //cout << "cumExpectedWsaf_ i = "<<i <<" " << this->cumExpectedWsaf_[i] << " " << this->dEploidIO_->nMcmcSample_<<endl;
-        this->cumExpectedWsaf_[i] /= static_cast<double>(this->dEploidIO_->nMcmcSample_);
+        //cout << "cumExpectedWsaf_ i = "<<i <<" " << this->cumExpectedWsaf_[i] << " " << this->dEploidIO_->nMcmcSample_.getValue()<<endl;
+        this->cumExpectedWsaf_[i] /= static_cast<double>(this->dEploidIO_->nMcmcSample_.getValue());
         if (this->cumExpectedWsaf_[i]>1){
             this->cumExpectedWsaf_[i] = 1;
         }
     }
-    vector <double> tmpLLKs1 = calcLLKs (*this->refCount_ptr_, *this->altCount_ptr_, this->cumExpectedWsaf_, 0, this->cumExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
-    this->dEploidIO_->setmeanThetallks( sumOfVec(tmpLLKs1) );
+    auto tmpSiteLikelihoods1 = calcSiteLikelihoods (*this->refCount_ptr_, *this->altCount_ptr_, this->cumExpectedWsaf_, 0, this->cumExpectedWsaf_.size(), this->dEploidIO_->scalingFactor());
+    this->dEploidIO_->setmeanThetallks( log(product(tmpSiteLikelihoods1) ) );
 
     vector <double> wsaf_vec;
     for ( size_t i = 0; i < nLoci(); i++) {
@@ -366,8 +395,8 @@ void McmcMachinery::computeDiagnostics() {
         wsaf_vec.push_back(adjustedWsaf);
         //llkOfData.push_back( logBetaPdf(adjustedWsaf, this->llkSurf[i][0], this->llkSurf[i][1]));
     }
-    vector <double> tmpLLKs = calcLLKs (*this->refCount_ptr_, *this->altCount_ptr_, wsaf_vec, 0, wsaf_vec.size(), this->dEploidIO_->scalingFactor());
-    this->dEploidIO_->setmaxLLKs( sumOfVec(tmpLLKs) );
+    auto tmpSiteLikelihoods = calcSiteLikelihoods (*this->refCount_ptr_, *this->altCount_ptr_, wsaf_vec, 0, wsaf_vec.size(), this->dEploidIO_->scalingFactor());
+    this->dEploidIO_->setmaxLLKs( log(product(tmpSiteLikelihoods) ) );
 
     double sum = std::accumulate(this->mcmcSample_->sumLLKs.begin(), this->mcmcSample_->sumLLKs.end(), 0.0);
     double mean = sum / this->mcmcSample_->sumLLKs.size();
@@ -381,7 +410,7 @@ void McmcMachinery::computeDiagnostics() {
     this->dEploidIO_->setdicByVar(dicByVar);
      //return (  mean(-2*tmpllk) + var(-2*tmpllk)/2 )# D_bar + 1/2 var (D_theta), where D_theta = -2*tmpllk, and D_bar = mean(D_theta)
 
-    double dicWSAFBar = -2 * sumOfVec(tmpLLKs1);
+    double dicWSAFBar = -2 * log(product(tmpSiteLikelihoods1));
     double dicByTheta = (-2*mean) + (-2*mean) - dicWSAFBar;
     this->dEploidIO_->setdicByTheta(dicByTheta);
     //DIC.WSAF.bar = -2 * sum(thetallk)
@@ -403,7 +432,7 @@ vector <double> McmcMachinery::averageProportion() {
 }
 
 
-void McmcMachinery::sampleMcmcEvent( bool useIBD ) {
+void McmcMachinery::sampleMcmcEvent( std::ostream& trace_log, bool useIBD) {
     this->recordingMcmcBool_ = ( currentMcmcIteration_ > this->mcmcThresh_ && currentMcmcIteration_ % this->McmcMachineryRate_ == 0 );
     if ( useIBD == true ) {
         ibdSampleMcmcEventStep();
@@ -436,7 +465,7 @@ void McmcMachinery::sampleMcmcEvent( bool useIBD ) {
     assert(doutLLK());
 
     if ( this->recordingMcmcBool_ ) {
-        this->recordMcmcMachinery();
+        this->recordMcmcMachinery( trace_log );
     }
 }
 
@@ -475,7 +504,11 @@ void McmcMachinery::ibdSampleMcmcEventStep() {
     // Compute new theta after all proportion and haplotypes are up to date.
     this->ibdPath.computeAndUpdateTheta();
 
-    this->currentLLks_ = updatedllkAtAllSites;
+    // this->currentSiteLikelihoods_ = updatedllkAtAllSites;
+    this->currentSiteLikelihoods_.resize(updatedllkAtAllSites.size());
+    for(size_t i=0;i<updatedllkAtAllSites.size();i++)
+        currentSiteLikelihoods_[i] = exp_to<log_double_t>(updatedllkAtAllSites[i]);
+
     this->currentExpectedWsaf_ = this->calcExpectedWsaf( this->currentProp_ );
 }
 
@@ -545,16 +578,63 @@ vector <double> McmcMachinery::calcExpectedWsaf(const vector <double> &proportio
 }
 
 
-void McmcMachinery::recordMcmcMachinery() {
+// NOTE: If there were 10 strains, then 0.01 isn't so large.
+
+int find_K1(const vector<double>& props, double threshold = 0.01)
+{
+    int K=0;
+    for(auto& prop: props)
+        if (prop > threshold)
+            K++;
+    return K;
+}
+
+// We could also consider how many strains we need so
+// sum to get (say) 0.95 total mass.
+
+int find_K2(vector<double> props)
+{
+    // This is 1 - 1/25 = 0.95 for 5 strains.
+    double cutoff = 1.0 - (1.0/props.size()/4.0);
+
+    // Sort in decreasing order;
+    std::sort(props.begin(), props.end(), [](int a, int b) {return a > b;});
+
+    int K=0;
+    double total = 0.0;
+    for(auto& prop: props)
+    {
+        total += prop;
+        K++;
+        if (total >= cutoff)
+            break;
+    }
+    return K;
+}
+
+void McmcMachinery::recordMcmcMachinery( std::ostream& trace_log ) {
     dout << "***Record mcmc sample " <<endl;
+    auto likelihood = product(this->currentSiteLikelihoods_);
+
     this->mcmcSample_->proportion.push_back(this->currentProp_);
-    this->mcmcSample_->sumLLKs.push_back(sumOfVec(this->currentLLks_));
+    this->mcmcSample_->sumLLKs.push_back(log(likelihood));
     this->mcmcSample_->moves.push_back(this->eventInt_);
 
     // Cumulate expectedWSAF for computing the mean expectedWSAF
     for ( size_t i = 0; i < this->cumExpectedWsaf_.size(); i++) {
         this->cumExpectedWsaf_[i] += this->currentExpectedWsaf_[i];
     }
+
+    trace_log<<this->currentMcmcIteration_;
+    trace_log<<"\t"<<log(likelihood)<<"\t"<<find_K1(this->currentProp_);
+    auto sortedProp = this->currentProp_;
+    std::sort(sortedProp.begin(), sortedProp.end());
+    for(auto& prop: this->currentProp_)
+        trace_log<<"\t"<<prop;
+    for(auto& prop: sortedProp)
+        trace_log<<"\t"<<prop;
+    trace_log<<"\n";
+    trace_log.flush();
 }
 
 
@@ -576,14 +656,14 @@ void McmcMachinery::updateProportion() {
     }
 
     vector <double> tmpExpecedWsaf = calcExpectedWsaf(tmpProp);
-    vector <double> tmpLLKs = calcLLKs (*this->refCount_ptr_, *this->altCount_ptr_, tmpExpecedWsaf, 0, tmpExpecedWsaf.size(), this->dEploidIO_->scalingFactor());
-    double diffLLKs = this->deltaLLKs(tmpLLKs);
-    double tmpLogPriorTitre = calcLogPriorTitre( tmpTitre );
-    double priorPropRatio = exp(tmpLogPriorTitre - this->currentLogPriorTitre_ );
+    auto tmpSiteLikelihoods = calcSiteLikelihoods (*this->refCount_ptr_, *this->altCount_ptr_, tmpExpecedWsaf, 0, tmpExpecedWsaf.size(), this->dEploidIO_->scalingFactor());
+    auto likelihoodRatio = this->calcLikelihoodRatio(tmpSiteLikelihoods);
+    auto tmpPriorTitre = calcPriorTitre( tmpTitre );
+    auto priorPropRatio = tmpPriorTitre / this->currentPriorTitre_;
     double hastingsRatio = 1.0;
 
     //runif(1)<prior.prop.ratio*hastings.ratio*exp(del.llk))
-    if ( this->propRg_->sample() > priorPropRatio*hastingsRatio*exp(diffLLKs) ) {
+    if ( this->propRg_->sample() > priorPropRatio * hastingsRatio * likelihoodRatio ) {
         dout << "(failed)" << endl;
         return;
     }
@@ -592,8 +672,8 @@ void McmcMachinery::updateProportion() {
     this->acceptUpdate++;
 
     this->currentExpectedWsaf_ = tmpExpecedWsaf;
-    this->currentLLks_ = tmpLLKs;
-    this->currentLogPriorTitre_ = tmpLogPriorTitre;
+    this->currentSiteLikelihoods_ = tmpSiteLikelihoods;
+    this->currentPriorTitre_ = tmpPriorTitre;
     this->currentTitre_ = tmpTitre;
     this->currentProp_ = tmpProp;
 
@@ -601,9 +681,8 @@ void McmcMachinery::updateProportion() {
 }
 
 
-double McmcMachinery::deltaLLKs (const vector <double> &newLLKs ) {
-    vector <double> tmpdiff = vecDiff ( newLLKs,  this->currentLLks_);
-    return sumOfVec(tmpdiff);
+log_double_t McmcMachinery::calcLikelihoodRatio (const vector <log_double_t> &newSiteLikelihoods ) {
+    return product(newSiteLikelihoods) / product(currentSiteLikelihoods_);
 }
 
 
@@ -634,10 +713,10 @@ vector <double> McmcMachinery::calcTmpTitre() {
 
 void McmcMachinery::updateSingleHap(Panel *useThisPanel) {
     dout << " Update Single Hap "<<endl;
-    this->findUpdatingStrainSingle();
+    int strainIndex = this->findUpdatingStrainSingle();
 
     if ( this->dEploidIO_->doAllowInbreeding() == true ) {
-        this->updateReferencePanel(this->panel_->truePanelSize()+kStrain_-1, this->strainIndex_);
+        this->updateReferencePanel(this->panel_->truePanelSize()+kStrain_-1, strainIndex);
     }
 
     for ( size_t chromi = 0 ; chromi < this->dEploidIO_->indexOfChromStarts_.size(); chromi++ ) {
@@ -650,8 +729,8 @@ void McmcMachinery::updateSingleHap(Panel *useThisPanel) {
                                   this->currentExpectedWsaf_,
                                   this->currentProp_, this->currentHap_, this->hapRg_,
                                   start, length,
-                                  useThisPanel, this->dEploidIO_->missCopyProb_, this->dEploidIO_->scalingFactor(),
-                                  this->strainIndex_);
+                                  useThisPanel, this->dEploidIO_->missCopyProb_.getValue(), this->dEploidIO_->scalingFactor(),
+                                  strainIndex);
 
         if ( this->dEploidIO_->doAllowInbreeding() == true ) {
             updating.setPanelSize(this->panel_->inbreedingPanelSize());
@@ -661,8 +740,8 @@ void McmcMachinery::updateSingleHap(Panel *useThisPanel) {
 
         size_t updateIndex = 0;
         for ( size_t ii = start ; ii < (start+length); ii++ ) {
-            this->currentHap_[ii][this->strainIndex_] = updating.hap_[updateIndex];
-            this->currentLLks_[ii] = updating.newLLK[updateIndex];
+            this->currentHap_[ii][strainIndex] = updating.hap_[updateIndex];
+            this->currentSiteLikelihoods_[ii] = exp_to<log_double_t>(updating.newLLK[updateIndex]);
             updateIndex++;
         }
 
@@ -683,7 +762,8 @@ void McmcMachinery::updatePairHaps(Panel *useThisPanel) {
     }
 
     dout << " Update Pair Hap "<<endl;
-    this->findUpdatingStrainPair();
+
+    auto [strainIndex1, strainIndex2] = this->findUpdatingStrainPair();
 
     for ( size_t chromi = 0 ; chromi < this->dEploidIO_->indexOfChromStarts_.size(); chromi++ ) {
         size_t start = this->dEploidIO_->indexOfChromStarts_[chromi];
@@ -696,18 +776,18 @@ void McmcMachinery::updatePairHaps(Panel *useThisPanel) {
                                 this->currentExpectedWsaf_,
                                 this->currentProp_, this->currentHap_, this->hapRg_,
                                 start, length,
-                                useThisPanel, this->dEploidIO_->missCopyProb_, this->dEploidIO_->scalingFactor(),
+                                useThisPanel, this->dEploidIO_->missCopyProb_.getValue(), this->dEploidIO_->scalingFactor(),
                                 this->dEploidIO_->forbidCopyFromSame(),
-                                this->strainIndex1_,
-                                this->strainIndex2_);
+                                strainIndex1,
+                                strainIndex2);
 
         updating.core(*this->refCount_ptr_, *this->altCount_ptr_, *this->plaf_ptr_, this->currentExpectedWsaf_, this->currentProp_, this->currentHap_);
 
         size_t updateIndex = 0;
         for ( size_t ii = start ; ii < (start+length); ii++ ) {
-            this->currentHap_[ii][this->strainIndex1_] = updating.hap1_[updateIndex];
-            this->currentHap_[ii][this->strainIndex2_] = updating.hap2_[updateIndex];
-            this->currentLLks_[ii] = updating.newLLK[updateIndex];
+            this->currentHap_[ii][strainIndex1] = updating.hap1_[updateIndex];
+            this->currentHap_[ii][strainIndex2] = updating.hap2_[updateIndex];
+            this->currentSiteLikelihoods_[ii] = exp_to<log_double_t>(updating.newLLK[updateIndex]);
             updateIndex++;
         }
 
@@ -727,15 +807,15 @@ void McmcMachinery::updatePairHaps(Panel *useThisPanel) {
 }
 
 
-void McmcMachinery::findUpdatingStrainSingle( ) {
+int McmcMachinery::findUpdatingStrainSingle( ) {
     vector <double> eventProb (this->kStrain_, 1);
     (void)normalizeBySum(eventProb);
-    this->strainIndex_ = sampleIndexGivenProp ( this->mcmcEventRg_, eventProb );
-    dout << "  Updating hap: "<< this->strainIndex_ <<endl;
+    int k = sampleIndexGivenProp ( this->mcmcEventRg_, eventProb );
+    dout << "  Updating hap: "<< k <<endl;
+    return k;
 }
 
-
-void McmcMachinery::findUpdatingStrainPair( ) {
+std::pair<int,int> McmcMachinery::findUpdatingStrainPair( ) {
     vector <size_t> strainIndex (2, 0);
     int t = 0; // total input records dealt with
     int m = 0; // number of items selected so far
@@ -749,9 +829,9 @@ void McmcMachinery::findUpdatingStrainPair( ) {
         }
         t++;
     }
-
-    this->strainIndex1_ = strainIndex[0];
-    this->strainIndex2_ = strainIndex[1];
-    assert( strainIndex1_ != strainIndex2_ );
-    dout << "  Updating hap: "<< this->strainIndex1_ << " and " << strainIndex2_ <<endl;
+    int k1 = strainIndex[0];
+    int k2 = strainIndex[1];
+    assert( k1 != k2 );
+    dout << "  Updating hap: "<< k1 << " and " << k2 <<endl;
+    return { k1, k2 };
 }
