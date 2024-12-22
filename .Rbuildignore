@@ -66,6 +66,21 @@ src/DEploid/docs
 src/DEploid/m4
 tests
 src/DEploid/\.gcno$
+src/DEploid/.circleci/.circleci-matrix.yml
+src/DEploid/.git
+src/DEploid/.travis.yml
+src/DEploid/src/lasso/.git
+src/DEploid/src/lasso/.travis.yml
+src/DEploid/src/vcf/.git
+src/DEploid/src/vcf/coverage/.gitkeep
+src/DEploid/.ci
+src/DEploid/.circleci
+src/DEploid/.github
+src/DEploid/src/lasso/.ci
+src/DEploid/src/lasso/.circleci
+src/DEploid/src/vcf/.ci
+src/DEploid/src/vcf/.circleci
+src/DEploid/src/vcf/.github
 
 # extras
 ^extra$
