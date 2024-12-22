@@ -1,3 +1,21 @@
+# DEploid_0.5.6
+
+## Major changes
+
+ - Deprecate `extractVCF` function, changing deploid cpp code, use the latest vcf 
+
+# DEploid_0.5.5
+
+## Major changes
+
+ - Use DEploid.utils as dependency
+
+# DEploid_0.5.4
+
+## Bug fix
+
+ - Fix GCC11 issue complain from CRAN
+
 # DEploid_0.4.4
 ## Major changes
  - None
