@@ -83,7 +83,8 @@ src/DEploid/src/vcf/.circleci
 src/DEploid/src/vcf/.github
 src/DEploid/src/vcf/gzstream/version
 src/DEploid/src/DEploid/src/vcf/coverage
-
+DEploid/src/vcf/src/gzstream/version
+src/DEploid/src/vcf/src/gzstream/version
 # extras
 ^extra$
 ^LICENSE$
