@@ -1,22 +1,29 @@
-# DEploid_0.5.6
+# DEploid v0.5.6.9000
+
+## Major changes
+
+ - Use submodules to manage code.
+
+
+# DEploid v0.5.6
 
 ## Major changes
 
  - Deprecate `extractVCF` function, changing deploid cpp code, use the latest vcf 
 
-# DEploid_0.5.5
+# DEploid v0.5.5
 
 ## Major changes
 
  - Use DEploid.utils as dependency
 
-# DEploid_0.5.4
+# DEploid v0.5.4
 
 ## Bug fix
 
  - Fix GCC11 issue complain from CRAN
 
-# DEploid_0.4.4
+# DEploid v0.4.4
 ## Major changes
  - None
 
@@ -27,7 +34,7 @@
  - Include outliers in plotAltVsRefPlotly, plotHistWSAFPlotly, plotWSAFVsPLAFPlotly and plotObsExpWSAFPlotly
 
 
-# DEploid_0.4.3 (DEploid_0.4.2)
+# DEploid v0.4.3 (DEploid v0.4.2)
 ## Major changes
  - None
 
@@ -39,7 +46,7 @@
  - Use `plotly` for generating new figures, including plotAltVsRefPlotly, plotHistWSAFPlotly, plotWSAFVsPLAFPlotly and plotObsExpWSAFPlotly
 
 
-# DEploid_0.4.1
+# DEploid v0.4.1
 ## Major changes
  - Implemented IBD method to infer the proportions first.
  - Updated DEploid C++ code to the most updated version.
