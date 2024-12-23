@@ -1,3 +1,3 @@
 [submodule ".DEploid"]
 	path = src/DEploid
-	url = git@github.com:DEploid-dev/deploid.git
+	url = https://github.com/DEploid-dev/DEploid-vcf-lib.git
