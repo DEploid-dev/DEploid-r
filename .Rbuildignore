@@ -81,11 +81,11 @@ src/DEploid/src/lasso/.circleci
 src/DEploid/src/vcf/.ci
 src/DEploid/src/vcf/.circleci
 src/DEploid/src/vcf/.github
-src/DEploid/src/vcf/gzstream/version
+src/DEploid/src/vcf/gzstream/VERSION
 src/DEploid/src/DEploid/src/vcf/coverage
-DEploid/src/vcf/src/gzstream/version
-src/DEploid/src/vcf/src/gzstream/version
-DEploid/src/vcf/src/gzstream/version
+DEploid/src/vcf/src/gzstream/VERSION
+src/DEploid/src/vcf/src/gzstream/VERSION
+DEploid/src/vcf/src/gzstream/VERSION
 
 # extras
 ^extra$
