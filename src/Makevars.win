@@ -1,27 +1,27 @@
 OBJECTS.dEploidr = dEploidr.o test_exports.o RcppExports.o init.o
 
-OBJECTS.dEploid = DEploid/dEploidIO.o \
-    DEploid/ibd.o \
-    DEploid/mcmc.o \
-    DEploid/panel.o \
-    DEploid/updateHap.o \
-    DEploid/utility.o \
-    DEploid/vcf/src/txtReader.o \
-    DEploid/vcf/src/variantIndex.o \
-    DEploid/vcf/src/vcfReader.o \
-    DEploid/vcf/src/gzstream/gzstream.o \
-    DEploid/random/fastfunc.o \
-    DEploid/random/random_generator.o \
-    DEploid/random/mersenne_twister.o \
-    DEploid/export/dEploidIOExportPosteriorProb.o \
-    DEploid/export/writeMcmcRelated.o \
-    DEploid/lasso/dEploidLasso.o \
-    DEploid/lasso/lasso.o \
-    DEploid/lasso/lassoDBG.o \
-    DEploid/vcf/src/vcfReaderDebug.o \
-    DEploid/debug/mcmcDebug.o
+OBJECTS.dEploid = DEploid/src/dEploidIO.o \
+    DEploid/src/ibd.o \
+    DEploid/src/mcmc.o \
+    DEploid/src/panel.o \
+    DEploid/src/vcf/src/txtReader.o \
+    DEploid/src/updateHap.o \
+    DEploid/src/utility.o \
+    DEploid/src/vcf/src/variantIndex.o \
+    DEploid/src/vcf/src/vcfReader.o \
+    DEploid/src/vcf/src/gzstream/gzstream.o \
+    DEploid/src/random/fastfunc.o \
+    DEploid/src/random/random_generator.o \
+    DEploid/src/random/mersenne_twister.o \
+    DEploid/src/export/dEploidIOExportPosteriorProb.o \
+    DEploid/src/export/writeMcmcRelated.o \
+    DEploid/src/lasso/src/dEploidLasso.o \
+    DEploid/src/lasso/src/lasso.o \
+    DEploid/src/lasso/src/lassoDBG.o \
+    DEploid/src/vcf/src/vcfReaderDebug.o \
+    DEploid/src/debug/mcmcDebug.o
 
 
 OBJECTS = $(OBJECTS.dEploidr) $(OBJECTS.dEploid)
-PKG_CXXFLAGS = -I/usr/share/R/include/ -IDEploid/ -IDEploid/codeCogs/ -IDEploid/random/ -IDEploid/vcf/src/ -IDEploid/vcf/src/gzstream/ -IDEploid/lasso/  -DVERSION="\"R\"" -DRBUILD -DSTRICT_R_HEADERS
+PKG_CXXFLAGS = -I/usr/share/R/include/ -IDEploid/src/ -IDEploid/src/codeCogs/ -IDEploid/src/random/ -IDEploid/src/vcf/src/ -IDEploid/src/vcf/src/gzstream/ -IDEploid/src/lasso/src/  -DVERSION="\"R\"" -DRBUILD -DSTRICT_R_HEADERS
 PKG_LIBS = -lz
