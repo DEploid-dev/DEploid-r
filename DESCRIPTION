@@ -3,7 +3,8 @@ Type: Package
 Title: Deconvolute Mixed Genomes with Unknown Proportions
 Version: 0.5.6
 Authors@R: c(
-    person("Joe", "Zhu", role=c("aut", "cre", "cph"), email="sha.joe.zhu@gmail.com"),
+    person("Joe", "Zhu", , "sha.joe.zhu@gmail.com", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-7566-2787")),
     person('Jacob', 'Almagro-Garcia', role=c('aut')),
     person('Gil', 'McVean', role=c('aut')),
     person('University of Oxford', '', role=c('cph')),
