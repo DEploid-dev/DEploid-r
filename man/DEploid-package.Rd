@@ -29,7 +29,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Joe Zhu \email{sha.joe.zhu@gmail.com} [copyright holder]
+\strong{Maintainer}: Joe Zhu \email{sha.joe.zhu@gmail.com} (\href{https://orcid.org/0000-0001-7566-2787}{ORCID})
 
 Authors:
 \itemize{
