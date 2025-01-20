@@ -92,6 +92,7 @@ DEploid/src/vcf/src/gzstream/VERSION
 ^LICENSE$
 
 # git
+^\.git
 ^\.gitignore$
 ^\.gitattributes$
 
