@@ -1,15 +1,15 @@
-# DEploid v0.5.6.9000
+# DEploid v0.5.7
 
-## Major changes
+## Minor changes
 
- - Use submodules to manage code.
-
+ - Update core code for Parameter template, and using 'c++2a' standard.
 
 # DEploid v0.5.6
 
 ## Major changes
 
  - Deprecate `extractVCF` function, changing deploid cpp code, use the latest vcf 
+ - Use submodules to manage code.
 
 # DEploid v0.5.5
 
